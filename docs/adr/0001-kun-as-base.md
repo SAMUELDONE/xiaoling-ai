@@ -7,21 +7,28 @@
 ## 背景
 
 小灵 AI 需要一个能够执行代码和工作任务的 Agent runtime，同时希望持续吸收
-Kun 的上游能力。若直接把产品逻辑写进 Kun Agent Loop、桌面内部状态或持久化
-实现，小灵 AI 会形成高冲突 fork，后续同步成本会快速上升。
+Kun 的上游能力。最终产品不是 Kun 的换皮版本，而是由小灵 AI 负责产品化、
+测试、发布和继续改造的完整产品。若产品逻辑与底层实现形成不可分离的耦合，
+后续同步和替换成本会快速上升。
 
 当前仓库与 Kun 上游 `master` 在 `e67f656b` 一致，适合先建立边界而不是先制造
 产品差异。
 
 ## 决策
 
-1. 以 Kun 当前快照作为实验产品底座，并保留上游 Git 历史。
-2. 通过 Kun HTTP/SSE runtime、Extension API、MCP 和 Skills 等公开接入面扩展。
-3. 将小灵 AI 产品能力放在独立的 adapter、extension 或产品模块中。
+1. 以 Kun 当前快照作为实验产品底座，并保留上游 Git 历史；最终仓库和发布物
+   统一以小灵 AI 为产品身份。底座可以继续演进，核心改动必须可解释、可测试、
+   可同步。
+2. 优先通过 Kun HTTP/SSE runtime、Extension API、MCP 和 Skills 等公开接入面扩展；
+   缺少通用能力时，可以在 Kun-derived 区增加版本化 port 或 contract。
+3. 将小灵 AI 专属的产品能力放在独立的 adapter、extension 或产品模块中。
 4. 将 Thread、Event、Approval、UserInput、Artifact、Attachment、Auth 和
    Capability 视为共享契约；契约改动必须版本化并测试。
 5. 使用独立的上游同步分支，批量同步 Kun release，避免产品分支混入上游冲突。
 6. 不在本 ADR 中决定手机、微信、Office、计费或具体 UI 的实现方式。
+
+保留 Kun 来源不等于保留 Kun 产品形态。随着小灵 AI 的需求推进，可以替换、重构
+或删除底座代码；只要同步、兼容、测试和许可证边界有记录即可。
 
 ## 结果
 
@@ -35,7 +42,8 @@ Kun 的上游能力。若直接把产品逻辑写进 Kun Agent Loop、桌面内�
 ### 代价
 
 - 需要维护 adapter contract、版本兼容和事件映射；
-- 某些 Kun 内部能力不能直接复用，必须通过公开扩展面表达；
+- 某些 Kun 内部能力不应直接成为产品依赖；需要复用时先提升为公开、版本化的
+  扩展面；
 - 上游同步需要独立的验证和 patch inventory；
 - 公开扩展面不足时，必须先补充 ADR 再决定是否修改 Kun-derived 区。
 

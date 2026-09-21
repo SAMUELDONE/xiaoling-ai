@@ -58,6 +58,7 @@ import {
   runtimeImportClient,
   runtimeSnapshotClient
 } from './data-migration-controller-support'
+import { PRODUCT_NAME_EN } from '../../shared/product-identity'
 
 export {
   assertTrustedDataMigrationSender,
@@ -142,7 +143,7 @@ export class DataMigrationController {
       const result = await dialog.showSaveDialog(this.windowOptions(), {
         title: 'Create migration package',
         defaultPath: value.defaultPath,
-        filters: [{ name: 'Kun migration package', extensions: ['kunpack'] }]
+        filters: [{ name: `${PRODUCT_NAME_EN} migration package`, extensions: ['kunpack'] }]
       })
       return { canceled: result.canceled, path: result.filePath || null }
     })
@@ -152,7 +153,7 @@ export class DataMigrationController {
         title: 'Select migration package',
         defaultPath: value.defaultPath,
         properties: ['openFile'],
-        filters: [{ name: 'Kun migration package', extensions: ['kunpack'] }]
+        filters: [{ name: `${PRODUCT_NAME_EN} migration package`, extensions: ['kunpack'] }]
       })
       return { canceled: result.canceled, path: result.filePaths[0] ?? null }
     })

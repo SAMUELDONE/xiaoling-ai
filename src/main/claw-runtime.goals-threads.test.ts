@@ -342,7 +342,7 @@ describe('ClawRuntime', () => {
       conversation: settings.claw.channels[0].conversations[0]
     })
 
-    expect(reply).toContain('[Kun]')
+    expect(reply).toContain('[Xiaoling AI]')
     expect(reply).toContain('no running task')
   })
 
@@ -600,7 +600,7 @@ describe('ClawRuntime', () => {
       conversation: settings.claw.channels[0].conversations[0]
     })
 
-    expect(reply).toContain('[Kun]')
+    expect(reply).toContain('[Xiaoling AI]')
     expect(reply).toContain('Could not find')
     expect(current().claw.channels[0].threadId).toBe('thr_old')
     expect(store.patch).not.toHaveBeenCalled()
@@ -636,7 +636,7 @@ describe('ClawRuntime', () => {
       ) => Promise<string | null>
     }).handleIncomingImCommand(settings, { text: '/switch 1' })
 
-    expect(reply).toContain('[Kun]')
+    expect(reply).toContain('[Xiaoling AI]')
     expect(reply).not.toContain('Switched')
     expect(store.patch).not.toHaveBeenCalled()
   })

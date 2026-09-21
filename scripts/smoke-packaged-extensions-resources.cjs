@@ -13,9 +13,16 @@ const { closeSync, fstatSync, openSync, readSync } = rawFs
 const { chmod, lstat, readdir } = require('node:fs/promises')
 const { dirname, isAbsolute, join, relative, resolve, sep } = require('node:path')
 const { KUN_RUNTIME_REQUIRED_PATHS } = require('./after-pack.cjs')
+const packageMetadata = require('../package.json')
 
 const DEFAULT_EXTENSION_IDS = [
   'kun-examples.social-media-sidebar'
+]
+const PACKAGED_EXECUTABLE_NAMES = ['kun-gui', 'kun', 'Kun']
+const PACKAGED_WINDOWS_EXECUTABLE_NAMES = [
+  'kun-gui.exe',
+  `${packageMetadata.productName || 'Xiaoling AI'}.exe`,
+  'Kun.exe'
 ]
 const PACKAGED_EXTENSION_SMOKE_SUCCESS_MARKER = 'Packaged Extension smoke OK ('
 
@@ -61,14 +68,16 @@ function resolvePackagedRuntimeExecutable(resourcesDir, explicit) {
         : undefined
     if (packagedArch && packagedArch !== process.arch) return undefined
     if (!normalized.endsWith('.app/Contents/Resources')) return undefined
-    const candidate = join(dirname(resourcesDir), 'MacOS', 'Kun')
-    assertExists(candidate, 'runtime executable')
+    const candidate = PACKAGED_EXECUTABLE_NAMES
+      .map((name) => join(dirname(resourcesDir), 'MacOS', name))
+      .find(existsSync)
+    if (!candidate) throw new Error(`Cannot find packaged macOS runtime executable beside ${resourcesDir}`)
     return candidate
   }
   const appOutDir = dirname(resourcesDir)
   const names = process.platform === 'win32'
-    ? ['Kun.exe']
-    : ['kun', 'Kun', 'kun-gui']
+    ? PACKAGED_WINDOWS_EXECUTABLE_NAMES
+    : PACKAGED_EXECUTABLE_NAMES
   const candidate = names.map((name) => join(appOutDir, name)).find(existsSync)
   if (!candidate) {
     throw new Error(`Cannot find packaged runtime executable beside ${resourcesDir}`)
@@ -95,8 +104,15 @@ async function makeTreeWritable(root) {
 
 function packagedResourceCandidates(platform = process.platform, arch = process.arch) {
   if (platform === 'darwin') {
-    if (arch === 'arm64') return ['dist/mac-arm64/Kun.app/Contents/Resources']
-    if (arch === 'x64') return ['dist/mac/Kun.app/Contents/Resources']
+    const appName = packageMetadata.productName || 'Xiaoling AI'
+    if (arch === 'arm64') return [
+      `dist/mac-arm64/${appName}.app/Contents/Resources`,
+      'dist/mac-arm64/Kun.app/Contents/Resources'
+    ]
+    if (arch === 'x64') return [
+      `dist/mac/${appName}.app/Contents/Resources`,
+      'dist/mac/Kun.app/Contents/Resources'
+    ]
     return []
   }
   if (platform === 'win32') return ['dist/win-unpacked/resources']

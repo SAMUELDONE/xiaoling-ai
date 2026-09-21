@@ -33,7 +33,7 @@ describe('MessageTimeline empty hero routing', () => {
   it('shows the approved text-only welcome for an eligible initial chat state', () => {
     const html = renderHero()
 
-    expect(html).toContain('What would you like to do with Kun today?')
+    expect(html).toContain('What would you like to do with Xiaoling AI today?')
     expect(html).toContain('Start with an idea, build it with code, or explore a design.')
     expect(html).not.toContain('data-task-surface-selector')
     expect(html).not.toContain('ds-initial-usage-heatmap')
@@ -42,7 +42,7 @@ describe('MessageTimeline empty hero routing', () => {
 
   it('routes offline, missing-workspace, and Claw states to their dedicated heroes', () => {
     const offlineHtml = renderHero({ ready: false })
-    expect(offlineHtml).toContain('Kun is waking the local agent')
+    expect(offlineHtml).toContain('Xiaoling AI is waking the local agent')
     expect(offlineHtml).toContain('data-runtime-home-status="true"')
     expect(offlineHtml).not.toContain('ds-kun-state-')
     const workspaceHtml = renderHero({ hasWorkspace: false })
@@ -51,7 +51,7 @@ describe('MessageTimeline empty hero routing', () => {
     const clawHtml = renderHero({ route: 'claw' })
     expect(clawHtml).toContain('Start a conversation with this assistant')
     expect(clawHtml).toContain('ds-kun-state-greet')
-    expect(clawHtml).not.toContain('Kun usage')
+    expect(clawHtml).not.toContain('Xiaoling AI usage')
   })
 
   it('shows the runtime error in the offline hero when one is available', () => {

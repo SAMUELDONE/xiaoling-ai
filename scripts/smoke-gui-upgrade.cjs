@@ -3,13 +3,14 @@
 // Executes released GUI binaries. Run only on disposable native CI accounts.
 const assert = require('node:assert/strict')
 const { execFile } = require('node:child_process')
-const { writeFileSync } = require('node:fs')
+const { existsSync, writeFileSync } = require('node:fs')
 const { promisify } = require('node:util')
 const { mkdir, mkdtemp, readFile, writeFile, copyFile, appendFile, rename } = require('node:fs/promises')
 const { tmpdir, homedir } = require('node:os')
-const { join, resolve } = require('node:path')
+const { dirname, join, resolve } = require('node:path')
 const { _electron: electron } = require('playwright-core')
 const { parse } = require('yaml')
+const packageMetadata = require('../package.json')
 const { digest, startCandidateFeed, validateFeed } = require('./gui-upgrade-feed.cjs')
 const { verifyCandidateSource } = require('./release-candidate-source.cjs')
 const { verifyPrCandidateSource } = require('./pr-gui-candidate-source.cjs')
@@ -27,7 +28,40 @@ const {
 
 const run = promisify(execFile)
 const TIMEOUT = 180_000
+const PRODUCT_NAME = packageMetadata.productName || 'Xiaoling AI'
+const PRODUCT_EXECUTABLE = 'kun-gui'
 const q = (value) => `'${value.replace(/'/g, "''")}'`
+
+function guiInstallCandidates(installParent) {
+  if (process.platform === 'darwin') {
+    return [
+      {
+        bundle: join(installParent, `${PRODUCT_NAME}.app`),
+        executable: join(installParent, `${PRODUCT_NAME}.app`, 'Contents', 'MacOS', PRODUCT_EXECUTABLE)
+      },
+      {
+        bundle: join(installParent, 'Kun.app'),
+        executable: join(installParent, 'Kun.app', 'Contents', 'MacOS', 'Kun')
+      }
+    ]
+  }
+  return [
+    {
+      bundle: join(installParent, PRODUCT_NAME),
+      executable: join(installParent, PRODUCT_NAME, `${PRODUCT_EXECUTABLE}.exe`)
+    },
+    {
+      bundle: join(installParent, 'Kun'),
+      executable: join(installParent, 'Kun', 'Kun.exe')
+    }
+  ]
+}
+
+function findGuiInstall(installParent) {
+  return guiInstallCandidates(installParent).find(({ bundle, executable }) =>
+    existsSync(executable) && existsSync(join(bundle, process.platform === 'darwin' ? 'Contents' : 'resources', process.platform === 'darwin' ? 'Resources' : 'app.asar'))
+  )
+}
 async function ps(command, env = process.env) {
   return run('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', command], {
     env, timeout: 10 * 60_000, maxBuffer: 4 * 1024 * 1024
@@ -169,9 +203,11 @@ async function scenario(input, name, record, persistReport) {
   const dataDir = join(root, 'runtime-data')
   const controlDir = join(home, '.kun', 'control')
   const installParent = join(root, 'installed')
-  const bundle = join(installParent, 'Kun.app')
-  const executable = process.platform === 'win32'
-    ? join(installParent, 'Kun', 'Kun.exe') : join(bundle, 'Contents', 'MacOS', 'Kun')
+  const guiCandidates = guiInstallCandidates(installParent)
+  const legacyGui = guiCandidates.at(-1)
+  const currentGui = guiCandidates[0]
+  let bundle = legacyGui.bundle
+  let executable = legacyGui.executable
   record.executable = executable
   // Exclusive mkdir fails closed if this account already has any Kun profile.
   // The owned directory is moved into evidence after testing, not deleted.
@@ -209,6 +245,11 @@ async function scenario(input, name, record, persistReport) {
       record.signatures = await verifyMacCandidate(bundle, input.candidate, input.version, root)
       journal.phase('signatures_verified', record.signatures)
     }
+    const installedBaseline = findGuiInstall(installParent)
+    if (installedBaseline) {
+      bundle = installedBaseline.bundle
+      executable = installedBaseline.executable
+    }
     gui = await startGui(executable, environment, userData, undefined, { journal, label: 'baseline' })
     record.baselinePid = gui.processInfo.pid
     record.baselineLauncherPid = gui.app.process().pid
@@ -240,6 +281,9 @@ async function scenario(input, name, record, persistReport) {
       record.baselineCloseProof = await closeGuiWithExitEvidence(gui, journal.eventPath, TIMEOUT)
       gui = undefined
       await install(input.candidate, installParent, environment)
+      const resolvedManualInstall = findGuiInstall(installParent) || currentGui
+      bundle = resolvedManualInstall.bundle
+      executable = resolvedManualInstall.executable
     } else {
       const checked = await gui.page.evaluate(() => window.kunGui.checkGuiUpdate('stable'))
       assert.equal(checked.ok, true, JSON.stringify(checked))
@@ -296,6 +340,9 @@ async function scenario(input, name, record, persistReport) {
           assert.equal(result.outcome, 'success')
           assert.equal(result.transactionState, 'committed')
         }
+        const resolvedAfterUpdate = findGuiInstall(installParent) || currentGui
+        bundle = resolvedAfterUpdate.bundle
+        executable = resolvedAfterUpdate.executable
       }
       // Observe a real GUI window before the harness is allowed to reopen
       // anything. A background Runtime with the same executable is insufficient.
@@ -312,6 +359,8 @@ async function scenario(input, name, record, persistReport) {
           observedAt: new Date().toISOString(), beforeHarnessLaunch: true }
         journal.phase('new_gui_started', record.automaticRelaunch)
       } else {
+        bundle = currentGui.bundle
+        executable = currentGui.executable
         await waitForBundleReplacement(async () => {
           const result = await run('/usr/libexec/PlistBuddy', ['-c', 'Print CFBundleShortVersionString', join(bundle, 'Contents', 'Info.plist')])
           return result.stdout.trim()
@@ -389,10 +438,15 @@ async function scenario(input, name, record, persistReport) {
       ['stop-recovery-gui', () => stopInstalledGui(executable)],
       ['uninstall-windows-fixture', async () => {
         if (process.platform !== 'win32') return
-        const uninstaller = join(installParent, 'Kun', 'Uninstall Kun.exe')
+        const installRoot = dirname(executable)
+        const uninstallerNames = [`Uninstall ${PRODUCT_NAME}.exe`, 'Uninstall Kun.exe', 'Uninstall DeepSeek GUI.exe']
+        const uninstaller = uninstallerNames
+          .map((name) => join(installRoot, name))
+          .find((candidate) => existsSync(candidate))
+        if (!uninstaller) throw new Error(`Could not locate the installed ${PRODUCT_NAME} uninstaller`)
         const copy = join(root, 'uninstall.exe')
         await copyFile(uninstaller, copy)
-        await ps(`$p=Start-Process -FilePath ${q(copy)} -ArgumentList @('/S','/currentuser',${q(`_?=${join(installParent, 'Kun')}`)}) -PassThru; ` +
+        await ps(`$p=Start-Process -FilePath ${q(copy)} -ArgumentList @('/S','/currentuser',${q(`_?=${installRoot}`)}) -PassThru; ` +
           '$p.WaitForExit(); $p.Refresh(); if ($p.ExitCode -ne 0) { throw "Uninstall failed" }', environment)
       }],
       ['close-model-fixture', () => model.close()],

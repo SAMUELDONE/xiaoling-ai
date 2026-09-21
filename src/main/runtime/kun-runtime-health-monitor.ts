@@ -1,5 +1,6 @@
 import type { ChildProcess } from 'node:child_process'
 import { isKunHealthResponseBody } from '../kun-health'
+import { PRODUCT_NAME_EN } from '../../shared/product-identity'
 
 const KUN_READY_PREFIX = 'KUN_READY '
 const KUN_STARTUP_TIMEOUT_FLOOR_MS = 15_000
@@ -200,9 +201,9 @@ export function describeKunExit(
   stderrTail = ''
 ): string {
   const suffix = stderrTail.trim() ? `\n${stderrTail.trim()}` : ''
-  if (signal) return `Kun exited during startup with signal ${signal}${suffix}`
-  if (typeof code === 'number') return `Kun exited during startup with code ${code}${suffix}`
-  return `Kun exited during startup${suffix}`
+  if (signal) return `${PRODUCT_NAME_EN} exited during startup with signal ${signal}${suffix}`
+  if (typeof code === 'number') return `${PRODUCT_NAME_EN} exited during startup with code ${code}${suffix}`
+  return `${PRODUCT_NAME_EN} exited during startup${suffix}`
 }
 
 export function describeKunStartupTimeout(
@@ -212,9 +213,9 @@ export function describeKunStartupTimeout(
 ): string {
   const suffix = stderrTail.trim() ? `\n${stderrTail.trim()}` : ''
   if (sawReadyMarker) {
-    return `Kun reported ready but did not pass health checks within ${timeoutMs}ms${suffix}`
+    return `${PRODUCT_NAME_EN} reported ready but did not pass health checks within ${timeoutMs}ms${suffix}`
   }
-  return `Kun did not report ready within ${timeoutMs}ms${suffix}`
+  return `${PRODUCT_NAME_EN} did not report ready within ${timeoutMs}ms${suffix}`
 }
 
 export async function probeKunHealth(port: number, timeoutMs = 1_000): Promise<boolean> {

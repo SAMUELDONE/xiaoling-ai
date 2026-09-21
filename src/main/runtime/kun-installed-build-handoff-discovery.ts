@@ -38,6 +38,7 @@ import {
   verifyManagerOwner,
   verifyRuntimeOwner
 } from './kun-handoff-owner-verification'
+import { PRODUCT_NAME_EN } from '../../shared/product-identity'
 
 export type RuntimeOwner = {
   dataDir: string
@@ -115,7 +116,7 @@ export async function discoverHandoffOwnersSafely(
       input.reason,
       false,
       undefined,
-      'Kun update handoff could not safely read Runtime or Service Manager discovery',
+      `${PRODUCT_NAME_EN} update handoff could not safely read Runtime or Service Manager discovery`,
       { cause: error }
     )
   }
@@ -135,7 +136,7 @@ async function discoverHandoffOwners(
       input.reason,
       false,
       managerOwnerReport(managerRecord),
-      'Kun Service Manager owns a different canonical settings scope'
+      `${PRODUCT_NAME_EN} Service Manager owns a different canonical settings scope`
     )
   }
   const managerState = managerRecord
@@ -270,7 +271,7 @@ export async function settleStaleHandoffOwners(
       input.reason,
       true,
       managerOwnerReport(discovered.manager),
-      'Kun could not verify Service Manager Runtime ownership before handoff'
+      `${PRODUCT_NAME_EN} could not verify Service Manager Runtime ownership before handoff`
     )
   }
   try {
@@ -322,7 +323,7 @@ export async function settleStaleHandoffOwners(
       input.reason,
       true,
       undefined,
-      'Kun found stale handoff records but could not safely clean them up',
+      `${PRODUCT_NAME_EN} found stale handoff records but could not safely clean them up`,
       { cause: error }
     )
   }
@@ -363,7 +364,7 @@ async function proveManagerSlotConverged(
       input.reason,
       true,
       owner,
-      `Kun could not verify cleanup of ${ownerLabel(owner)}`
+      `${PRODUCT_NAME_EN} could not verify cleanup of ${ownerLabel(owner)}`
     )
   }
   const oldOwnerRemains = status.records.some((record) =>
@@ -379,7 +380,7 @@ async function proveManagerSlotConverged(
       input.reason,
       true,
       owner,
-      `Kun Service Manager still reports stale ${ownerLabel(owner)}`
+      `${PRODUCT_NAME_EN} Service Manager still reports stale ${ownerLabel(owner)}`
     )
   }
 }

@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="src/asset/img/kun.png" width="88" alt="Kun 蓝色 K 标识">
+  <img src="src/asset/img/kun.png" width="88" alt="小灵 AI 标识（视觉资产迁移中）">
 </p>
 
-<h1 align="center">Kun — 本地优先的 AI Agent 工作台</h1>
+<h1 align="center">小灵 AI — 本地优先的 AI Agent 工作台</h1>
 
 <p align="center">
   让 AI 在真实项目中规划、执行、验证并交付。<br>
@@ -10,35 +10,35 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/KunAgent/Kun/releases">下载桌面版</a>
+  <a href="https://github.com/SAMUELDONE/xiaoling-ai/releases">下载桌面版</a>
   &nbsp;·&nbsp;
-  <a href="https://www.kun-agent.com/docs">阅读文档</a>
+  <a href="https://github.com/SAMUELDONE/xiaoling-ai/tree/develop/docs">阅读文档</a>
   &nbsp;·&nbsp;
-  <a href="https://github.com/KunAgent/Kun">GitHub</a>
+  <a href="https://github.com/SAMUELDONE/xiaoling-ai">GitHub</a>
   &nbsp;·&nbsp;
   <a href="./README.en.md">English</a>
 </p>
 
 <p align="center">
-  <a href="https://github.com/KunAgent/Kun/releases"><img src="https://img.shields.io/github/v/release/KunAgent/Kun?label=release" alt="Kun 最新 GitHub Release"></a>
-  <a href="./LICENSE"><img src="https://img.shields.io/badge/license-PolyForm%20Noncommercial%201.0.0-blue" alt="Kun 使用 PolyForm Noncommercial 1.0.0 许可证"></a>
+  <a href="https://github.com/SAMUELDONE/xiaoling-ai/releases"><img src="https://img.shields.io/github/v/release/SAMUELDONE/xiaoling-ai?label=release" alt="小灵 AI 最新 GitHub Release"></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/license-PolyForm%20Noncommercial%201.0.0-blue" alt="小灵 AI 基于上游 PolyForm Noncommercial 1.0.0 许可证"></a>
   <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-lightgrey" alt="支持 macOS、Windows 和 Linux">
-  <img src="https://img.shields.io/badge/GUI%20%2B%20TUI-one%20shared%20runtime-6366f1" alt="桌面 GUI 与终端 TUI 共用一个 Kun 运行时">
+  <img src="https://img.shields.io/badge/GUI%20%2B%20TUI-one%20shared%20runtime-6366f1" alt="桌面 GUI 与终端 TUI 共用一个本地运行时">
 </p>
 
 <p align="center">
-  <img src="./docs/assets/readme/kun-hero-gui-tui-character-demo.jpg" alt="Kun GUI 与 TUI 海报：虚构演示数据中的吉祥物、桌面 Code 界面与终端 TUI" width="100%">
+  <img src="./docs/assets/readme/kun-hero-gui-tui-character-demo.jpg" alt="小灵 AI GUI 与 TUI 海报：视觉资产迁移中的演示界面" width="100%">
 </p>
 
-## Kun 是什么
+## 小灵 AI 是什么
 
-Kun 是把 AI 从“回答问题”推进到“完成工作”的本地优先工作台。它以两个主模式组织真实工作：Code 面向软件交付，并在同一任务中提供 Design 画布；Work 面向写作、资料整理、文档分析和演示产出。Agent 可以读取工作区上下文、制定计划、调用工具、修改文件、运行验证，并把证据留在任务旁。
+小灵 AI 是把 AI 从“回答问题”推进到“完成工作”的本地优先工作台。它以两个主模式组织真实工作：Code 面向软件交付，并在同一任务中提供 Design 画布；Work 面向写作、资料整理、文档分析和演示产出。Agent 可以读取工作区上下文、制定计划、调用工具、修改文件、运行验证，并把证据留在任务旁。
 
 桌面 GUI 适合观察、审阅和控制过程；终端 TUI 适合专注于键盘工作。两者通过同一个本地 `kun serve` 运行时共享线程、目标、计划、审批和后台任务，而不是两套彼此割裂的会话。
 
 ## 一眼了解
 
-| 你需要 | Kun 提供 |
+| 你需要 | 小灵 AI 提供 |
 | --- | --- |
 | 构建、调试与发布软件 | Code 模式提供项目上下文、文件编辑、终端、Git / Worktree、Diff、测试和审查。 |
 | 从需求走到可实现的设计 | 在同一 Code 任务中切换 Design 画布，沉淀原型、设计系统和 Design → Code 上下文。 |
@@ -83,11 +83,11 @@ Work 模式用工作区文件树、任务启动器和 Work assistant 组织文�
 
 会话、偏好、日志和运行时数据默认保存在本机。选择云端模型后，提示、附件和任务上下文会发送给所选 Provider；使用前请确认该服务的数据政策。工具权限、敏感操作和扩展权限会在界面中明确呈现，仍由你决定是否授权。
 
-Kun 不绑定单一模型。预设覆盖 ChatGPT / Codex、Claude、Gemini、Cursor、Ollama、DeepSeek、Kimi、GLM、Qwen、MiniMax 和 Xiaomi MiMo 等生态；登录方式、模型、地区与额度取决于当前版本和 Provider 规则。请查看 [模型 Provider 文档](docs/model-provider-presets.md) 了解配置方式。
+小灵 AI 不绑定单一模型。预设覆盖 ChatGPT / Codex、Claude、Gemini、Cursor、Ollama、DeepSeek、Kimi、GLM、Qwen、MiniMax 和 Xiaomi MiMo 等生态；登录方式、模型、地区与额度取决于当前版本和 Provider 规则。请查看 [模型 Provider 文档](docs/model-provider-presets.md) 了解配置方式。
 
 ## 5 分钟开始
 
-从 [GitHub Releases](https://github.com/KunAgent/Kun/releases) 下载当前版本：
+从 [GitHub Releases](https://github.com/SAMUELDONE/xiaoling-ai/releases) 下载当前版本：
 
 | 平台 | 安装包 | 架构 |
 | --- | --- | --- |
@@ -107,15 +107,15 @@ Kun 不绑定单一模型。预设覆盖 ChatGPT / Codex、Claude、Gemini、Cur
 kun
 ```
 
-从 0.3.8 起不再单独分发 TUI 压缩包；请使用桌面应用内置的终端命令，更多配置见 [Kun TUI 文档](docs/kun-tui.md)。
+从 0.3.8 起不再单独分发 TUI 压缩包；请使用桌面应用内置的终端命令，`kun` 是当前运行时兼容命令，更多配置见 [TUI 文档](docs/kun-tui.md)。
 
 ## 从源码运行
 
 要求：Node.js 22.19+、npm，以及至少一个可用的模型连接。
 
 ```bash
-git clone https://github.com/KunAgent/Kun.git
-cd Kun
+git clone https://github.com/SAMUELDONE/xiaoling-ai.git
+cd xiaoling-ai
 npm ci
 npm run dev
 ```
@@ -150,14 +150,14 @@ npm ci --registry=https://registry.npmmirror.com
 
 ## 许可证
 
-Kun 使用 [PolyForm Noncommercial License 1.0.0](./LICENSE)，仅供学习、研究和非商业用途。商业使用、商业分发、SaaS / 托管服务、转售或集成到商业产品中，需要获得作者的单独书面授权。
+小灵 AI 当前保留上游 [PolyForm Noncommercial License 1.0.0](./LICENSE)，仅供学习、研究和非商业用途。商业使用、商业分发、SaaS / 托管服务、转售或集成到商业产品中，需要获得上游作者的单独书面授权；详见 [许可证与授权记录](LICENSE-NOTICES.md)。
 
 ## 致谢
 
 感谢所有提交 issue、建议、代码和文档的贡献者。
 
-Kun 的记忆架构研究参考了 [Nowledge Mem](https://mem.nowledge.co/zh/docs) 公开文档中的 Thread / Memory 分离、来源追踪与混合检索理念；Kun 的实现保持独立，并遵循自身的单运行时和本地优先架构。
+小灵 AI 的记忆架构研究参考了 [Nowledge Mem](https://mem.nowledge.co/zh/docs) 公开文档中的 Thread / Memory 分离、来源追踪与混合检索理念；实现保持独立，并遵循自身的单运行时和本地优先架构。当前运行时仍保留 Kun 兼容名称，以支持升级、扩展和已有数据。
 
-<a href="https://github.com/KunAgent/Kun/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=KunAgent/Kun" alt="Kun contributors">
+<a href="https://github.com/SAMUELDONE/xiaoling-ai/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=SAMUELDONE/xiaoling-ai" alt="小灵 AI contributors">
 </a>

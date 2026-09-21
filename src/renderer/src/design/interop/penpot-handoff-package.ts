@@ -3,6 +3,7 @@ import type { DesignSystem, DesignTokenKind } from '../canvas/design-system-type
 import type { DesignArtifact, DesignDocument, DesignPrototypeLink } from '../design-types'
 import { buildDesignGraphFromCanvasDocument } from '../graph/design-graph-from-canvas'
 import { collectCanvasImageAssets } from '../assets/design-asset-inventory'
+import { PRODUCT_NAME_EN } from '@shared/product-identity'
 
 export const PENPOT_HANDOFF_PACKAGE_PATH = '.kun-design/penpot-package.json'
 
@@ -166,7 +167,7 @@ export function buildPenpotHandoffPackage(options: BuildPenpotHandoffPackageOpti
     updatedAt: options.updatedAt ?? new Date().toISOString(),
     document: {
       id: options.document?.id ?? 'kun-design',
-      title: options.document?.title ?? 'Kun design project',
+      title: options.document?.title ?? `${PRODUCT_NAME_EN} design project`,
       artifactCount: artifacts.length
     },
     graph: {

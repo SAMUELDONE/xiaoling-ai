@@ -181,8 +181,8 @@ export function contentScriptIsolationPrelude(): string {
     for (const key of hidden) {
       try { Object.defineProperty(globalThis, key, { value: undefined, writable: false, configurable: false }); } catch {}
     }
-    const denied = () => { throw new DOMException('Direct network and popup access is disabled for Kun host content scripts.', 'SecurityError'); };
-    const deniedFetch = () => Promise.reject(new DOMException('Direct network access is disabled for Kun host content scripts.', 'SecurityError'));
+    const denied = () => { throw new DOMException('Direct network and popup access is disabled for Xiaoling AI host content scripts.', 'SecurityError'); };
+    const deniedFetch = () => Promise.reject(new DOMException('Direct network access is disabled for Xiaoling AI host content scripts.', 'SecurityError'));
     for (const [key, value] of [['fetch', deniedFetch], ['WebSocket', denied], ['EventSource', denied], ['XMLHttpRequest', denied], ['Worker', denied], ['SharedWorker', denied], ['open', denied]]) {
       try { Object.defineProperty(globalThis, key, { value, writable: false, configurable: false }); } catch {}
     }

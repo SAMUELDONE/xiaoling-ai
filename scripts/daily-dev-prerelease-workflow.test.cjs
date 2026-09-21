@@ -30,7 +30,7 @@ test('daily prerelease schedule delegates to the develop implementation', () => 
   assert.deepEqual(Object.keys(workflow.jobs), ['release'])
 
   const release = workflow.jobs.release
-  assert.equal(release.uses, 'KunAgent/Kun/.github/workflows/daily-dev-prerelease.yml@develop')
+  assert.equal(release.uses, 'SAMUELDONE/xiaoling-ai/.github/workflows/daily-dev-prerelease.yml@develop')
   assert.equal(release.secrets, 'inherit')
   assert.equal(release['runs-on'], undefined)
   assert.equal(release.steps, undefined)
@@ -100,6 +100,6 @@ test('daily prerelease implementation is callable and keeps version preparation 
   assert.match(outputs.dev_version, /^\d{8}\.\d{4}$/u)
   assert.equal(outputs.app_version, `0.0.0-dev-${outputs.dev_version.replace('.', '-')}`)
   assert.equal(outputs.tag, `dev-${outputs.dev_version}`)
-  assert.equal(outputs.release_name, `Kun Dev ${outputs.dev_version}`)
+  assert.equal(outputs.release_name, `Xiaoling AI Dev ${outputs.dev_version}`)
   assert.equal(outputs.head_sha, expectedHead)
 })

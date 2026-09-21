@@ -30,6 +30,7 @@ import {
   runtimeFingerprint,
   runtimeSupervisor
 } from './main-runtime-health'
+import { PRODUCT_NAME_EN } from '../shared/product-identity'
 
 export async function ensureRuntime(settings: AppSettingsV1): Promise<AppSettingsV1> {
   const requested = runtimeSupervisor.latestOr(settings)
@@ -80,7 +81,7 @@ export async function ensureManagedKunRuntimeToken(
   )
   runtimeSupervisor.noteLatest(result.settings)
   if (result.applied) {
-    logWarn(source, 'Generated a local access token for the GUI-owned Kun Runtime.')
+    logWarn(source, `Generated a local access token for the GUI-owned ${PRODUCT_NAME_EN} Runtime.`)
   }
   return { settings: result.settings, generated: result.applied }
 }
@@ -99,7 +100,7 @@ async function resolveManagedKunPort(
   )
   runtimeSupervisor.noteLatest(result.settings)
   if (result.applied) {
-    logWarn(source, `Kun port ${runtime.port} is unavailable; using ${resolved.port}.`, {
+    logWarn(source, `${PRODUCT_NAME_EN} port ${runtime.port} is unavailable; using ${resolved.port}.`, {
       previousPort: runtime.port,
       port: resolved.port,
       message: resolved.message
@@ -145,7 +146,7 @@ export async function ensureKunRuntime(settings: AppSettingsV1): Promise<AppSett
   if (!runtime.autoStart) {
     throw runtimeJsonError(
       'runtime_offline',
-      'Kun is offline. Enable automatic startup in Settings, or start `kun serve` manually.'
+      `${PRODUCT_NAME_EN} is offline. Enable automatic startup in Settings, or start \`kun serve\` manually.`
     )
   }
 
@@ -169,13 +170,13 @@ export async function ensureKunRuntime(settings: AppSettingsV1): Promise<AppSett
       if (!isKunChildRunning()) {
         throw runtimeJsonError(
           'runtime_unhealthy',
-          'Kun is still running but temporarily unresponsive. Its active runtime was preserved; retry after it recovers.'
+          `${PRODUCT_NAME_EN} is still running but temporarily unresponsive. Its active runtime was preserved; retry after it recovers.`
         )
       }
       // The controller-held GUI child can be replaced safely in place.
       logWarn(
         'runtime-start',
-        `GUI-private Kun child stopped responding on port ${runtime.port}; restarting it in place`
+        `GUI-private ${PRODUCT_NAME_EN} child stopped responding on port ${runtime.port}; restarting it in place`
       )
       await kunRuntimeAdapter.stopSharedAndWait(currentSettings)
     }
@@ -209,7 +210,7 @@ export async function ensureKunRuntime(settings: AppSettingsV1): Promise<AppSett
   if (!started) {
     throw runtimeJsonError(
       'runtime_unhealthy',
-      'Kun did not become healthy after launch.'
+      `${PRODUCT_NAME_EN} did not become healthy after launch.`
     )
   }
 
@@ -284,8 +285,8 @@ async function restartRuntimeOnce(settings: AppSettingsV1): Promise<void> {
     throw runtimeJsonError(
       'runtime_busy',
       idle === 'timeout'
-        ? 'Kun still has active tasks; restart was deferred.'
-        : 'Kun task state could not be verified; restart was deferred.'
+        ? `${PRODUCT_NAME_EN} still has active tasks; restart was deferred.`
+        : `${PRODUCT_NAME_EN} task state could not be verified; restart was deferred.`
     )
   }
   await restartRuntimeAfterStopping(
@@ -402,7 +403,7 @@ async function restartRuntimeAfterStopping(
   if (!runtime.autoStart) {
     throw runtimeJsonError(
       'runtime_offline',
-      'Kun is offline. Enable automatic startup in Settings, or start `kun serve` manually.'
+      `${PRODUCT_NAME_EN} is offline. Enable automatic startup in Settings, or start \`kun serve\` manually.`
     )
   }
 
@@ -421,7 +422,7 @@ async function restartRuntimeAfterStopping(
   if (!healthy) {
     throw runtimeJsonError(
       'runtime_unhealthy',
-      'Kun did not become healthy after restart.'
+      `${PRODUCT_NAME_EN} did not become healthy after restart.`
     )
   }
 

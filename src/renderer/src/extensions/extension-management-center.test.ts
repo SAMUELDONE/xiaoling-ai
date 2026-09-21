@@ -48,7 +48,7 @@ describe('ExtensionManagementCenter', () => {
       onOpenIntegrations: vi.fn(),
       onOpenView: vi.fn()
     }))
-    expect(html).toContain('Kun Extension Center')
+    expect(html).toContain('Xiaoling AI Extension Center')
     expect(html).toContain('Looking for UI appearance packs, MCP, or Skills?')
     expect(html).toContain('Those systems remain separate')
     expect(html).toContain('No automatic update checks')

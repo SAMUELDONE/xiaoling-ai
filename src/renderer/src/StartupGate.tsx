@@ -10,6 +10,7 @@ import {
   startupPhaseLabel,
   startupShellAllowsWorkbench
 } from './startup-shell'
+import { PRODUCT_NAME_EN } from '@shared/product-identity'
 
 const StorageRelocationBootView = lazy(async () => {
   const { StorageRelocationBootView: view } = await import('./components/StorageRelocationBootView')
@@ -85,7 +86,7 @@ function StartupErrorView({
             Open log folder
           </button>
           <button type="button" className="secondary-button" onClick={() => requestApplicationReload()}>
-            Reload Kun
+            Reload {PRODUCT_NAME_EN}
           </button>
         </div>
       </section>
@@ -240,8 +241,8 @@ export function StartupGate({
   if (startupHandshake.status === 'error') {
     return (
       <StartupErrorView
-        title="Failed to read Kun startup state"
-        message="The desktop startup channel could not be initialized. Retry the connection or reload Kun."
+        title={`Failed to read ${PRODUCT_NAME_EN} startup state`}
+        message={`The desktop startup channel could not be initialized. Retry the connection or reload ${PRODUCT_NAME_EN}.`}
         detail={startupHandshake.message}
         actionError={recoveryActionError}
         onRetry={retryStartup}
@@ -260,7 +261,7 @@ export function StartupGate({
   if (boot.status === 'error') {
     return (
       <StartupErrorView
-        title="Failed to start Kun workbench"
+        title={`Failed to start ${PRODUCT_NAME_EN} workbench`}
         message="The workbench could not finish starting up. Check the desktop runtime, then try again."
         detail={boot.message}
         actionError={recoveryActionError}
@@ -288,10 +289,10 @@ export function StartupGate({
           <h1 className="kun-startup__title">{startupPhaseLabel(phase)}</h1>
           {phaseDetail ? <p className="kun-startup__detail">{phaseDetail}</p> : null}
           <p className="kun-startup__hint">
-            Startup stopped before Kun could finish preparing the workspace.
+            Startup stopped before {PRODUCT_NAME_EN} could finish preparing the workspace.
           </p>
           <button type="button" className="secondary-button" onClick={() => requestApplicationReload()}>
-            Reload Kun
+            Reload {PRODUCT_NAME_EN}
           </button>
         </section>
       </main>

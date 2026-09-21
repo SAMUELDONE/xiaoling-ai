@@ -2,7 +2,7 @@
 
 [Simplified Chinese](./CONTRIBUTING.zh-CN.md)
 
-Thank you for contributing to Kun.
+Thank you for contributing to Xiaoling AI.
 
 This document explains how contributors should collaborate on the project, what standards to follow, and how changes should be proposed.
 
@@ -10,7 +10,7 @@ This document explains how contributors should collaborate on the project, what 
 
 Code is easy. Good taste is rare.
 
-For Kun, taste means clear workflows, restrained interfaces, humane copy, and behavior that feels obvious after one use. Strong contributions show judgment, not just implementation.
+For Xiaoling AI, taste means clear workflows, restrained interfaces, humane copy, and behavior that feels obvious after one use. Strong contributions show judgment, not just implementation.
 
 ## Contribution Scope
 
@@ -47,7 +47,7 @@ Rules:
 
 ## Shape of a Typical PR
 
-A well-structured PR for Kun is focused and self-contained. It typically:
+A well-structured PR for Xiaoling AI is focused and self-contained. It typically:
 
 - Touches **1-3 new files** and modifies **2-5 existing files** for wiring
 - Scopes to a single feature, fix, or documentation update
@@ -186,14 +186,14 @@ Examples:
 
 - `docs: rewrite README and contribution guides`
 - `feat: improve runtime connection recovery`
-- `fix: handle missing Kun binary path`
+- `fix: handle missing Kun-compatible runtime binary path`
 
 ## Reporting Issues
 
 When reporting issues, please include:
 
 - Operating system and version
-- Kun version (from Settings or the About dialog)
+- Xiaoling AI version (from Settings or the About dialog)
 - Bundled `kun` version (`kun --version` in the same directory, if available)
 - Steps to reproduce the issue
 - Expected vs actual behavior
@@ -219,7 +219,7 @@ If requirements are unclear, ask for clarification before making broad architect
 External contributions are accepted under the [Contributor License Agreement](../CLA.md).
 By submitting a contribution, you agree to grant the project owner the rights
 described in the CLA, including the right to sublicense and relicense your
-contribution as part of Kun under commercial, proprietary, noncommercial, or
+contribution as part of Xiaoling AI under commercial, proprietary, noncommercial, or
 other license terms.
 
 The project itself remains available under the [PolyForm Noncommercial License 1.0.0](../LICENSE)

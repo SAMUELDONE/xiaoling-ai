@@ -52,7 +52,7 @@
   "speakKeepTracks": "生成した音声を保存する",
   "speakKeepTracksDesc": "各回答の音声を保存します。次回の読み上げが即座になり、録音をダウンロードできます。",
   "speakStoredTracks": "保存済みの録音",
-  "speakStoredTracksDesc": "Kun のデータディレクトリに WAV ファイルとして保存されます。",
+  "speakStoredTracksDesc": "Xiaoling AI のデータディレクトリに WAV ファイルとして保存されます。",
   "speakStoredTracksUsage_one": "{{count}} ファイル、{{size}}",
   "speakStoredTracksUsage_other": "{{count}} ファイル、{{size}}",
   "speakStoredTracksClear": "消去"

@@ -2,8 +2,9 @@
 
 const assert = require('node:assert/strict')
 const { execFile } = require('node:child_process')
-const { mkdir, realpath, rm, writeFile } = require('node:fs/promises')
+const { mkdir, readdir, realpath, rm, writeFile } = require('node:fs/promises')
 const { join } = require('node:path')
+const packageMetadata = require('../package.json')
 const { promisify } = require('node:util')
 
 const run = promisify(execFile)
@@ -32,7 +33,18 @@ async function verifyMacCandidate(baselineBundle, candidateZip, version, root) {
   try {
     const baseline = await inspectSignedBundle(baselineBundle)
     await run('ditto', ['-x', '-k', candidateZip, directory])
-    const candidateBundle = join(directory, 'Kun.app')
+    const bundleNames = [
+      `${packageMetadata.productName || 'Xiaoling AI'}.app`,
+      'Kun.app'
+    ]
+    const extractedBundles = await readdir(directory, { withFileTypes: true })
+    const candidateBundleName = bundleNames.find((name) =>
+      extractedBundles.some((entry) => entry.isDirectory() && entry.name === name)
+    )
+    if (!candidateBundleName) {
+      throw new Error(`Candidate archive did not contain ${bundleNames.join(' or ')}`)
+    }
+    const candidateBundle = join(directory, candidateBundleName)
     const candidate = await inspectSignedBundle(candidateBundle)
     const result = { baseline, candidate, designatedRequirementAccepted: false }
     await writeFile(join(root, 'signatures.json'), JSON.stringify(result, null, 2))

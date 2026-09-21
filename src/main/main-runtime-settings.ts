@@ -55,6 +55,7 @@ import {
 } from './main-runtime-startup'
 import { reconcileBrowserUseHostForRuntime } from './browser-use/browser-use-host'
 import { bundledSkillsDirectory } from './bundled-skill-resources'
+import { PRODUCT_NAME_EN } from '../shared/product-identity'
 
 export function publishRuntimeSettingsSyncStatus(
   status: Omit<KunRuntimeSettingsSyncStatusPayload, 'at'>
@@ -175,11 +176,11 @@ export function queueRuntimeSettingsApply(
         } else if (result === 'failed') {
           reportCurrent({
             state: 'failed',
-            message: 'Kun rejected the updated configuration; the existing Runtime was kept running.'
+            message: `${PRODUCT_NAME_EN} rejected the updated configuration; the existing Runtime was kept running.`
           })
         } else {
           mainState.settledRuntimeSettings = current
-          reportCurrent({ state: 'unavailable', message: 'Kun Runtime is not running.' })
+          reportCurrent({ state: 'unavailable', message: `${PRODUCT_NAME_EN} Runtime is not running.` })
         }
       } else {
         // A no-mode successor is still queued when a predecessor owned the
@@ -196,7 +197,7 @@ export function queueRuntimeSettingsApply(
             publishRuntimeStatus({
               state: 'failed',
               source: 'settings-apply',
-              message: `Kun could not be reconciled with the latest durable settings: ${message}`
+              message: `${PRODUCT_NAME_EN} could not be reconciled with the latest durable settings: ${message}`
             })
             outcome = { state: 'failed', message }
           }
@@ -215,7 +216,7 @@ export function queueRuntimeSettingsApply(
     (error: unknown) => {
       const message = error instanceof Error ? error.message : String(error)
       reportCurrent({ state: 'failed', message })
-      logWarn('settings-apply', 'Failed to apply Kun runtime settings in background', {
+      logWarn('settings-apply', `Failed to apply ${PRODUCT_NAME_EN} runtime settings in background`, {
         message
       })
     },
@@ -250,10 +251,10 @@ export function queueRuntimeMcpConfigApply(settings: AppSettingsV1): void {
       } else if (result === 'failed') {
         reportSettingsOutcome({
           state: 'failed',
-          message: 'Kun rejected the MCP configuration; the existing Runtime was kept running.'
+          message: `${PRODUCT_NAME_EN} rejected the MCP configuration; the existing Runtime was kept running.`
         })
       } else {
-        reportSettingsOutcome({ state: 'unavailable', message: 'Kun Runtime is not running.' })
+        reportSettingsOutcome({ state: 'unavailable', message: `${PRODUCT_NAME_EN} Runtime is not running.` })
       }
     },
     (error: unknown) => {
@@ -261,7 +262,7 @@ export function queueRuntimeMcpConfigApply(settings: AppSettingsV1): void {
         state: 'failed',
         message: error instanceof Error ? error.message : String(error)
       })
-      logWarn('mcp-config', 'Failed to apply Kun MCP config change in background', {
+      logWarn('mcp-config', `Failed to apply ${PRODUCT_NAME_EN} MCP config change in background`, {
         message: error instanceof Error ? error.message : String(error)
       })
     },
@@ -273,7 +274,7 @@ export function queueRuntimeMcpConfigApply(settings: AppSettingsV1): void {
 export function validateRuntimeSettingsForApply(next: AppSettingsV1): string | null {
   const runtime = resolveKunRuntimeSettings(next)
   if (!Number.isInteger(runtime.port) || runtime.port < MIN_KUN_LOCAL_PORT || runtime.port > 65_535) {
-    return `Kun port must be an integer between ${MIN_KUN_LOCAL_PORT} and 65535 (got ${String(runtime.port)})`
+    return `${PRODUCT_NAME_EN} port must be an integer between ${MIN_KUN_LOCAL_PORT} and 65535 (got ${String(runtime.port)})`
   }
   const baseUrl = (runtime.baseUrl ?? '').trim()
   if (baseUrl) {
@@ -399,15 +400,15 @@ export async function applyManagedRuntimeSettingsHot(
       return 'applied'
     }
     if (outcome.result === 'restart_required') {
-      logWarn(source, `Kun hot config apply requested restart: ${outcome.message}`)
+      logWarn(source, `${PRODUCT_NAME_EN} hot config apply requested restart: ${outcome.message}`)
       return 'restart_required'
     }
-    logWarn(source, `Kun rejected hot config without restart: ${outcome.message}`)
+    logWarn(source, `${PRODUCT_NAME_EN} rejected hot config without restart: ${outcome.message}`)
     return 'failed'
   } catch (error) {
     if (!shouldApply()) return 'superseded'
     const message = error instanceof Error ? error.message : String(error)
-    logWarn(source, `Kun hot config apply failed; falling back to restart: ${message}`)
+    logWarn(source, `${PRODUCT_NAME_EN} hot config apply failed; falling back to restart: ${message}`)
     return 'restart_required'
   }
 }
@@ -437,7 +438,7 @@ async function restartManagedRuntimeForSettingsChange(
     if (!safeToStop) {
       return {
         state: 'failed',
-        message: 'Kun still has active work or its turn state could not be verified; restart was deferred.'
+        message: `${PRODUCT_NAME_EN} still has active work or its turn state could not be verified; restart was deferred.`
       }
     }
   }
@@ -449,9 +450,9 @@ async function restartManagedRuntimeForSettingsChange(
     publishRuntimeStatus({
       state: 'stopped',
       source: 'settings-apply',
-      message: 'Kun was stopped because automatic startup is disabled.'
+      message: `${PRODUCT_NAME_EN} was stopped because automatic startup is disabled.`
     })
-    return { state: 'unavailable', message: 'Kun Runtime is stopped by the current settings.' }
+    return { state: 'unavailable', message: `${PRODUCT_NAME_EN} Runtime is stopped by the current settings.` }
   }
 
   publishRuntimeStatus({ state: 'restarting', source: 'settings-apply' })
@@ -460,14 +461,14 @@ async function restartManagedRuntimeForSettingsChange(
     await adapter.ensureRunning(launchSettings)
     const healthy = await kunRuntimeHealthMonitor.waitForHealthy(launchSettings, 20_000)
     if (!healthy) {
-      throw new Error('Kun did not become healthy after the settings change')
+      throw new Error(`${PRODUCT_NAME_EN} did not become healthy after the settings change`)
     }
     noteRuntimeHealthy('settings-apply', launchSettings)
     publishRuntimeStatus({ state: 'running', source: 'settings-apply' })
     return { state: 'synced' }
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e)
-    logWarn('settings-apply', `Kun restart failed after settings change: ${message}`)
+    logWarn('settings-apply', `${PRODUCT_NAME_EN} restart failed after settings change: ${message}`)
     await rollbackRuntimeSettingsAfterFailedApply(prev, next, message, shouldRollback)
     return { state: 'failed', message }
   }
@@ -590,13 +591,13 @@ async function restartManagedRuntimeForMcpConfigChange(
     if (!safeToStop) {
       return {
         state: 'failed',
-        message: 'Kun still has active work or its turn state could not be verified; restart was deferred.'
+        message: `${PRODUCT_NAME_EN} still has active work or its turn state could not be verified; restart was deferred.`
       }
     }
   }
   await adapter.stopSharedAndWait(settings)
   if (!runtime.autoStart) {
-    return { state: 'unavailable', message: 'Kun Runtime is stopped by the current settings.' }
+    return { state: 'unavailable', message: `${PRODUCT_NAME_EN} Runtime is stopped by the current settings.` }
   }
 
   publishRuntimeStatus({ state: 'restarting', source: 'mcp-config' })
@@ -605,18 +606,18 @@ async function restartManagedRuntimeForMcpConfigChange(
     await adapter.ensureRunning(launchSettings)
     const healthy = await kunRuntimeHealthMonitor.waitForHealthy(launchSettings, 20_000)
     if (!healthy) {
-      throw new Error('Kun did not become healthy after the MCP config change')
+      throw new Error(`${PRODUCT_NAME_EN} did not become healthy after the MCP config change`)
     }
     noteRuntimeHealthy('mcp-config', launchSettings)
     publishRuntimeStatus({ state: 'running', source: 'mcp-config' })
     return { state: 'synced' }
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e)
-    logWarn('mcp-config', `Kun restart failed after MCP config change: ${message}`)
+    logWarn('mcp-config', `${PRODUCT_NAME_EN} restart failed after MCP config change: ${message}`)
     publishRuntimeStatus({
       state: 'failed',
       source: 'mcp-config',
-      message: `Kun failed to restart after the MCP config change: ${message}. Check the MCP config file, then retry.`
+      message: `${PRODUCT_NAME_EN} failed to restart after the MCP config change: ${message}. Check the MCP config file, then retry.`
     })
     return { state: 'failed', message }
   }
@@ -628,15 +629,15 @@ async function waitForManagedRuntimeReadyBeforeStop(
 ): Promise<boolean> {
   const healthy = await kunRuntimeHealthMonitor.waitForHealthy(settings, 20_000)
   if (!healthy) {
-    logWarn(source, 'Kun did not become healthy before a managed restart; restart was deferred')
+    logWarn(source, `${PRODUCT_NAME_EN} did not become healthy before a managed restart; restart was deferred`)
     return false
   }
   const idle = await waitForRuntimeTurnsIdle({ settings })
   if (idle === 'timeout') {
-    logWarn(source, 'Kun still has running turns after waiting; restart was deferred')
+    logWarn(source, `${PRODUCT_NAME_EN} still has running turns after waiting; restart was deferred`)
     return false
   } else if (idle === 'unavailable') {
-    logWarn(source, 'Could not verify Kun turn idleness before a managed restart; restart was deferred')
+    logWarn(source, `Could not verify ${PRODUCT_NAME_EN} turn idleness before a managed restart; restart was deferred`)
     return false
   }
   return true

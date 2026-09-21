@@ -29,21 +29,27 @@ describe('app identity bootstrap', () => {
     configureAppIdentity()
     expect(setName).toHaveBeenCalledTimes(1)
     expect(setName).toHaveBeenCalledWith(APP_PRODUCT_NAME)
-    expect(APP_PRODUCT_NAME).toBe('Kun')
-    expect(setPath).not.toHaveBeenCalled()
+    expect(APP_PRODUCT_NAME).toBe('小灵 AI')
+    expect(setPath).toHaveBeenCalledWith('userData', join('/profiles', 'Kun'))
   })
 
-  it('uses a separate kun-dv identity and profile', async () => {
+  it('keeps the production profile directory compatible with existing installs', async () => {
+    const { configureAppIdentity } = await import('./app-identity')
+    configureAppIdentity({ flavor: 'production', appDataPath: '/app-data' })
+    expect(setPath).toHaveBeenCalledWith('userData', join('/app-data', 'Kun'))
+  })
+
+  it('uses a separate Xiaoling AI development identity and profile', async () => {
     const { configureAppIdentity } = await import('./app-identity')
     const identity = configureAppIdentity({ flavor: 'development', appDataPath: '/app-data' })
     expect(identity).toEqual({
       flavor: 'development',
-      appName: 'kun-dv',
+      appName: '小灵 AI Dev',
       appId: 'com.xingyuzhong.deepseekgui.dv',
       runtimeFlavor: 'development'
     })
-    expect(setName).toHaveBeenCalledWith('kun-dv')
-    expect(setPath).toHaveBeenCalledWith('userData', join('/app-data', 'kun-dv'))
+    expect(setName).toHaveBeenCalledWith('小灵 AI Dev')
+    expect(setPath).toHaveBeenCalledWith('userData', join('/app-data', '小灵 AI Dev'))
   })
 
   it('does not call app.setAppUserModelId (caller responsibility on win32)', async () => {

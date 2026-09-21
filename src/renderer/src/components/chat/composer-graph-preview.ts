@@ -9,6 +9,7 @@ import {
   graphLivenessIsProcessing,
   graphNodeLiveness
 } from '../../graph/graph-liveness'
+import { PRODUCT_NAME_EN } from '@shared/product-identity'
 
 const terminalRunStatuses = new Set(['completed', 'failed', 'cancelled'])
 // Completion is deliberately stricter than terminality. A skipped,
@@ -188,7 +189,7 @@ export function graphNodeAgentName(projection: GraphNodeProjection): string {
   const assignment = projection.node.assignment
   if (assignment?.kind === 'ephemeral') return assignment.name
   if (assignment?.kind === 'existing') return assignment.profileId
-  return 'Kun'
+  return PRODUCT_NAME_EN
 }
 
 export function selectComposerGraphRun(

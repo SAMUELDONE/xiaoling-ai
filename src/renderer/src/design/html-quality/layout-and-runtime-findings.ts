@@ -4,6 +4,7 @@ import { BODY_TEXT_SELECTOR_RE, CSS_RULE_BLOCK_RE, EMOJI_RE, FIXED_DESKTOP_FRAME
 import { matchingSiblingScreensForPrototypeTarget, normalizePath, prototypeTargetAttributeValues } from './interaction-and-accessibility'
 import { hasTopLevelHeading } from './product-and-hero-content'
 import { severityRank } from './repair-prompt'
+import { PRODUCT_NAME_EN } from '@shared/product-identity'
 
 export function hasMissingLayoutReset(html: string, styles: string): boolean {
   return VISUAL_MEDIA_TAG_RE.test(html) && (!GLOBAL_BOX_SIZING_RE.test(styles) || !FLUID_MEDIA_RULE_RE.test(styles))
@@ -240,7 +241,7 @@ export function summarizeDesignHtmlQualityStatus(
     return {
       kind: 'checking',
       label: 'Quality check',
-      title: 'Kun is checking the rendered design for layout and accessibility issues.',
+      title: `${PRODUCT_NAME_EN} is checking the rendered design for layout and accessibility issues.`,
       count: 0
     }
   }

@@ -106,7 +106,12 @@ function verifyPackagedMacosNativeArchitecture({ resourcesDir, arch, inspect }) 
   assertTargetManifest(join(libvipsPackage, 'package.json'), arch, 'Sharp libvips')
   assertTargetManifest(join(canvasPackage, 'package.json'), arch, 'Canvas binding')
 
-  const mainExecutable = requirePath(join(contents, 'MacOS', 'Kun'), 'main executable')
+  const mainExecutable = ['kun-gui', 'Kun']
+    .map((name) => join(contents, 'MacOS', name))
+    .find(existsSync)
+  if (!mainExecutable) {
+    throw new Error(`Packaged macOS app is missing the main executable in ${join(contents, 'MacOS')}`)
+  }
   const binding = packagedSharpBinding(bindingPackage, arch)
   const libvipsDirectory = join(libvipsPackage, 'lib')
   const libvipsName = readdirSync(requirePath(libvipsDirectory, 'Sharp libvips directory'))

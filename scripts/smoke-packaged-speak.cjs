@@ -7,6 +7,7 @@ const { existsSync, statSync } = require('node:fs')
 const { resolve, join, dirname } = require('node:path')
 const { Worker } = require('node:worker_threads')
 const { checkKokoroWorker } = require('./check-kokoro-worker.cjs')
+const packageMetadata = require('../package.json')
 
 function option(name) { const index = process.argv.indexOf(name); return index < 0 ? undefined : process.argv[index + 1] }
 async function main() {
@@ -40,14 +41,18 @@ async function main() {
     } finally { await worker.terminate() }
     return
   }
-  const app = resolve(option('--app') || 'dist/mac-arm64/Kun.app')
+  const app = resolve(option('--app') || `dist/mac-arm64/${packageMetadata.productName || 'Xiaoling AI'}.app`)
   let executable = app
   let resources = join(dirname(app), 'resources')
   if (app.endsWith('.app')) {
-    executable = join(app, 'Contents', 'MacOS', 'Kun')
+    const executableNames = ['kun-gui', 'Kun']
+    executable = executableNames
+      .map((name) => join(app, 'Contents', 'MacOS', name))
+      .find(existsSync) || join(app, 'Contents', 'MacOS', executableNames[0])
     resources = join(app, 'Contents', 'Resources')
   } else if (statSync(app).isDirectory()) {
-    executable = join(app, process.platform === 'win32' ? 'Kun.exe' : 'kun')
+    const executableNames = process.platform === 'win32' ? ['kun-gui.exe', 'Kun.exe'] : ['kun-gui', 'kun']
+    executable = executableNames.map((name) => join(app, name)).find(existsSync) || join(app, executableNames[0])
     resources = join(app, 'resources')
   }
   const entry = join(resources, 'app.asar.unpacked', 'out', 'main', 'local-kokoro-worker-entry.js')

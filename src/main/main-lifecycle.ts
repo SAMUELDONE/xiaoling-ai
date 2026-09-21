@@ -63,6 +63,7 @@ import {
   installWebviewSecurityGuards
 } from './extensions/extension-webview-security'
 import { probeRuntimeApi } from './main-runtime-health'
+import { PRODUCT_NAME_EN } from '../shared/product-identity'
 import {
   beginBrowserUseHostShutdown,
   stopBrowserUseHost,
@@ -225,7 +226,7 @@ export const runtimeShutdown = new ManagedRuntimeShutdownCoordinator(async () =>
         revoke: (settings) => revokeManagedRuntimeBrowserUseBinding(settings, browserUseBinding)
       })
     } catch (error) {
-      logWarn('browser-use-shutdown', 'Kun Browser Use authority revoke failed closed', {
+      logWarn('browser-use-shutdown', `${PRODUCT_NAME_EN} Browser Use authority revoke failed closed`, {
         message: error instanceof Error ? error.message : String(error)
       })
     }

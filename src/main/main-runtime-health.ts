@@ -23,6 +23,7 @@ import { stopComputerUseHost } from './computer-use/computer-use-host'
 import { stableSettingsStringify } from './runtime-settings-apply-mode'
 import { mainState } from './main-app-context'
 import { isAppQuitInProgress, runtimeShutdown } from './main-lifecycle'
+import { PRODUCT_NAME_EN } from '../shared/product-identity'
 
 export async function probeRuntimeApi(settings: AppSettingsV1): Promise<
   | { ok: true }
@@ -49,7 +50,7 @@ export async function probeRuntimeApi(settings: AppSettingsV1): Promise<
       return {
         ok: false,
         error: 'runtime_auth_required',
-        message: 'The local Kun Runtime rejected the desktop access credential.'
+        message: `The local ${PRODUCT_NAME_EN} runtime rejected the desktop access credential.`
       }
     }
     return {

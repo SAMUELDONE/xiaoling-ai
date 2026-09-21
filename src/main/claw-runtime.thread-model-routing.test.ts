@@ -316,7 +316,7 @@ describe('ClawRuntime', () => {
     expect(runtimeRequest).not.toHaveBeenCalled()
     expect(send).toHaveBeenCalledWith(
       'oc_chat_a',
-      { markdown: '[Kun] Started a new topic. The next message will create a fresh local conversation.' },
+      { markdown: '[Xiaoling AI] Started a new topic. The next message will create a fresh local conversation.' },
       { replyTo: 'om_inbound', replyInThread: false }
     )
     expect(current().claw.channels[0].threadId).toBe('')
@@ -375,7 +375,7 @@ describe('ClawRuntime', () => {
     })
     expect(send).toHaveBeenCalledWith(
       'oc_chat_a',
-      { markdown: '[Kun] Claw IM model switched to `deepseek-v4-pro` with provider `deepseek`.' },
+      { markdown: '[Xiaoling AI] Claw IM model switched to `deepseek-v4-pro` with provider `deepseek`.' },
       { replyTo: 'om_inbound', replyInThread: false }
     )
   })
@@ -449,7 +449,7 @@ describe('ClawRuntime', () => {
     })
     expect(send).toHaveBeenLastCalledWith(
       'oc_chat_a',
-      { markdown: expect.stringContaining('[Kun] Invalid model number `MiniMax-M3`.') },
+      { markdown: expect.stringContaining('[Xiaoling AI] Invalid model number `MiniMax-M3`.') },
       { replyTo: 'om_model_name_switch', replyInThread: false }
     )
 
@@ -465,7 +465,7 @@ describe('ClawRuntime', () => {
     })
     expect(send).toHaveBeenLastCalledWith(
       'oc_chat_a',
-      { markdown: '[Kun] Claw IM model switched to `MiniMax-M3` with provider `minimax`.' },
+      { markdown: '[Xiaoling AI] Claw IM model switched to `MiniMax-M3` with provider `minimax`.' },
       { replyTo: 'om_model_switch', replyInThread: false }
     )
   })

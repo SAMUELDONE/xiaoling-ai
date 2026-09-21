@@ -8,6 +8,7 @@ import {
   readGuiVersionState,
   writeGuiVersionState
 } from './gui-updater-support'
+import { PRODUCT_NAME, PRODUCT_NAME_EN } from '../shared/product-identity'
 
 export async function showGuiUpdateReleaseNotes(
   getMainWindow: (() => BrowserWindow | null) | null,
@@ -26,11 +27,11 @@ export async function showGuiUpdateReleaseNotes(
   const isZh = await selectedLocale(getSelectedLocale) === 'zh'
   const options: MessageBoxOptions = {
     type: 'info',
-    title: isZh ? 'Kun 已更新' : 'Kun updated',
-    message: isZh ? `已更新到 Kun ${currentVersion}` : `Kun has been updated to ${currentVersion}`,
+    title: isZh ? `${PRODUCT_NAME} 已更新` : `${PRODUCT_NAME_EN} updated`,
+    message: isZh ? `已更新到${PRODUCT_NAME} ${currentVersion}` : `${PRODUCT_NAME_EN} has been updated to ${currentVersion}`,
     detail: pendingUpdate?.releaseNotes ?? (isZh
-      ? '此版本的完整更新内容可在 Kun 更新日志中查看。'
-      : 'See the Kun changelog for the complete release notes.'),
+      ? `此版本的完整更新内容可在${PRODUCT_NAME}更新日志中查看。`
+      : `See the ${PRODUCT_NAME_EN} changelog for the complete release notes.`),
     buttons: isZh ? ['查看更新日志', '稍后'] : ['View changelog', 'Later'],
     defaultId: 0,
     cancelId: 1,

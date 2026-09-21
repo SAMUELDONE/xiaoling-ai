@@ -1,5 +1,6 @@
 import type { MenuItemConstructorOptions } from 'electron'
 import type { AppSettingsV1 } from '../shared/app-settings'
+import { PRODUCT_NAME, PRODUCT_NAME_EN } from '../shared/product-identity'
 
 export type TrayThreadSummary = {
   id: string
@@ -124,7 +125,7 @@ function traySessionLabels(locale: AppSettingsV1['locale']): {
         recent: '最近会话',
         more: '更多',
         newChat: '新建会话',
-        openApp: '打开 Kun',
+        openApp: `打开 ${PRODUCT_NAME}`,
         quit: '退出'
       }
     : {
@@ -132,7 +133,7 @@ function traySessionLabels(locale: AppSettingsV1['locale']): {
         recent: 'Recent',
         more: 'More',
         newChat: 'New Chat',
-        openApp: 'Open Kun',
+        openApp: `Open ${PRODUCT_NAME_EN}`,
         quit: 'Exit'
       }
 }

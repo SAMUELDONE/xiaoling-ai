@@ -10,6 +10,7 @@ import {
   normalizeGuiUpdateScheduleState,
   type GuiUpdateScheduleState
 } from '../shared/gui-update-schedule'
+import { PRODUCT_NAME_EN } from '../shared/product-identity'
 
 // R2 prefix 保持旧值:线上还在运行的 DeepSeek GUI 老版本轮询的
 // 就是 `deepseek-gui/channels/<channel>/latest/`,prefix 一改老客户端
@@ -25,7 +26,7 @@ export const GUI_UPDATE_FEED_CACHE_TTL_MS = 86_400_000
 export const { autoUpdater } = electronUpdater
 export const DEVELOPMENT_APP_FLAVOR = process.env.KUN_APP_FLAVOR === 'development'
 export const DEVELOPMENT_UPDATE_MESSAGE =
-  'kun-dv is a source/testing application and cannot use the production Kun update channel.'
+  `${PRODUCT_NAME_EN} Dev is a source/testing application and cannot use the production ${PRODUCT_NAME_EN} update channel.`
 export const WINDOWS_INSTALLER_UPDATE_SOURCE_ENV = 'KUN_INSTALLER_UPDATE_SOURCE'
 
 export function envWithLegacyFallback(kunName: string, legacyName: string): string {
@@ -52,8 +53,8 @@ export function setWindowsInstallerUpdateSource(
 
 export const GUI_UPDATE_SCHEDULE_FILE = 'gui-update-schedule.json'
 export const GUI_VERSION_STATE_FILE = 'gui-version-state.json'
-export const DEFAULT_CHANGELOG_DIRECTORY_URL = 'https://github.com/KunAgent/Kun/tree/master/release'
-export const DEFAULT_CHANGELOG_FILE_BASE_URL = 'https://github.com/KunAgent/Kun/blob/master/release'
+export const DEFAULT_CHANGELOG_DIRECTORY_URL = 'https://github.com/SAMUELDONE/xiaoling-ai/tree/develop/release'
+export const DEFAULT_CHANGELOG_FILE_BASE_URL = 'https://github.com/SAMUELDONE/xiaoling-ai/blob/develop/release'
 
 export type GuiVersionState = {
   lastSeenVersion?: string

@@ -50,7 +50,7 @@ describe('Runtime API readiness', () => {
     await expect(probeRuntimeApi({} as never)).resolves.toEqual({
       ok: false,
       error: 'runtime_auth_required',
-      message: 'The local Kun Runtime rejected the desktop access credential.'
+      message: 'The local Xiaoling AI runtime rejected the desktop access credential.'
     })
     fetchMock.mockRestore()
   })

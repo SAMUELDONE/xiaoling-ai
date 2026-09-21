@@ -58,6 +58,7 @@ import {
   trayIcon
 } from './main-app-context'
 import { runtimeShutdown } from './main-lifecycle'
+import { PRODUCT_NAME, PRODUCT_NAME_EN } from '../shared/product-identity'
 
 function windowCloseLabels(locale: AppSettingsV1['locale']): {
   title: string
@@ -73,7 +74,7 @@ function windowCloseLabels(locale: AppSettingsV1['locale']): {
     return {
       title: '关闭窗口',
       message: '关闭窗口时要怎么处理？',
-      detail: '最小化到托盘会让 Kun 和当前 Runtime 继续在后台运行，不会影响当前任务。退出应用会停止桌面端拥有的 Runtime，运行中的 Agent 任务和待审批操作会中断；已保存的对话、设置和工作区文件不会被删除。',
+      detail: `最小化到托盘会让 ${PRODUCT_NAME} 和当前 Runtime 继续在后台运行，不会影响当前任务。退出应用会停止桌面端拥有的 Runtime，运行中的 Agent 任务和待审批操作会中断；已保存的对话、设置和工作区文件不会被删除。`,
       minimizeToTray: '最小化到托盘',
       quit: '退出应用',
       cancel: '取消',
@@ -83,8 +84,8 @@ function windowCloseLabels(locale: AppSettingsV1['locale']): {
   }
   return {
     title: 'Close window',
-    message: 'What should Kun do when this window closes?',
-    detail: 'Minimize to tray keeps Kun and its current Runtime running in the background without interrupting the current task. Quitting stops the Runtime owned by this desktop app, interrupting running Agent work and pending approvals. Saved conversations, settings, and workspace files are not deleted.',
+    message: `What should ${PRODUCT_NAME_EN} do when this window closes?`,
+    detail: `Minimize to tray keeps ${PRODUCT_NAME_EN} and its current Runtime running in the background without interrupting the current task. Quitting stops the Runtime owned by this desktop app, interrupting running Agent work and pending approvals. Saved conversations, settings, and workspace files are not deleted.`,
     minimizeToTray: 'Minimize to tray',
     quit: 'Quit app',
     cancel: 'Cancel',

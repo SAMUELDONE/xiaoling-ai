@@ -10,6 +10,7 @@ import {
 import { type KunManagerReplacementReport } from './kun-manager-replacement'
 import { KunOwnerVerificationError } from './kun-replacement-error'
 import { recordVerifiedForcedRuntimeOwner } from '../../../kun/src/manager/forced-runtime-recovery.js'
+import { PRODUCT_NAME_EN } from '../../shared/product-identity'
 import {
   defaultDiscoveryDependencies,
   discoverHandoffOwnersSafely,
@@ -115,7 +116,7 @@ export class ClientRuntimeOwnerBusyError extends Error {
     readonly owner: Omit<KunHandoffOwnerReport, 'result'>
   ) {
     super(
-      `client_runtime_owner_busy: Kun Runtime is owned by ${ownerKind} process ${owner.pid}; ` +
+      `client_runtime_owner_busy: ${PRODUCT_NAME_EN} Runtime is owned by ${ownerKind} process ${owner.pid}; ` +
       `close the owning ${ownerKind === 'gui' ? 'GUI' : 'TUI'} before starting this installed GUI build`
     )
   }
@@ -190,8 +191,8 @@ export function installedBuildProbeError(
     !missingBuild,
     undefined,
     missingBuild
-      ? 'The packaged Kun Runtime build identity is missing.'
-      : 'Kun could not safely determine the installed Runtime owner build.'
+      ? `The packaged ${PRODUCT_NAME_EN} Runtime build identity is missing.`
+      : `${PRODUCT_NAME_EN} could not safely determine the installed Runtime owner build.`
   )
 }
 
@@ -417,7 +418,7 @@ export async function drainKunOwnersForHandoffWithLock(
       input.reason,
       true,
       owner,
-      `Kun update handoff could not prove that ${ownerLabel(owner)} exited`
+      `${PRODUCT_NAME_EN} update handoff could not prove that ${ownerLabel(owner)} exited`
     )
     emit(input, startedAt, deps, {
       phase: failure.phase,
@@ -476,7 +477,7 @@ async function settleAndRediscoverStaleOwners(
     input.reason,
     true,
     owner,
-    'Kun stale handoff ownership did not converge after cleanup'
+    `${PRODUCT_NAME_EN} stale handoff ownership did not converge after cleanup`
   )
 }
 
@@ -512,7 +513,7 @@ function handoffFailure(
     input.reason,
     !(cause instanceof KunOwnerVerificationError),
     owner,
-    `Kun update handoff could not safely stop ${ownerLabel(owner)}`,
+    `${PRODUCT_NAME_EN} update handoff could not safely stop ${ownerLabel(owner)}`,
     { cause }
   )
 }
@@ -538,7 +539,7 @@ function identityUnverifiableError(
     input.reason,
     true,
     owner,
-    'Kun could not verify the identity of the previous local owner, so it left the process, active work, and saved data untouched.'
+    `${PRODUCT_NAME_EN} could not verify the identity of the previous local owner, so it left the process, active work, and saved data untouched.`
   )
 }
 

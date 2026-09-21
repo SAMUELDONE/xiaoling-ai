@@ -404,7 +404,7 @@ describe('ClawRuntime', () => {
       }
     })
 
-    expect(reply).toContain('[Kun]')
+    expect(reply).toContain('[Xiaoling AI]')
     expect(reply).toContain('not connected')
   })
 
@@ -518,7 +518,7 @@ describe('ClawRuntime', () => {
       ) => Promise<string | null>
     }).handleIncomingImCommandSafely(settings, { text: '/list-threads' })
 
-    expect(reply).toBe('[Kun] runtime is offline')
+    expect(reply).toBe('[Xiaoling AI] runtime is offline')
   })
 
   it('prefixes successful IM slash command replies as Kun system messages', async () => {
@@ -537,7 +537,7 @@ describe('ClawRuntime', () => {
       ) => Promise<string | null>
     }).handleIncomingImCommandSafely(settings, { text: '/help' })
 
-    expect(reply).toMatch(/^\[Kun\] /)
+    expect(reply).toMatch(/^\[Xiaoling AI\] /)
     expect(reply).toContain('/list-threads')
   })
 
@@ -666,7 +666,7 @@ describe('ClawRuntime', () => {
       channel: settings.claw.channels[0],
       conversation: settings.claw.channels[0].conversations[0]
     })
-    expect(empty).toContain('[Kun]')
+    expect(empty).toContain('[Xiaoling AI]')
     expect(empty).toContain('requires an objective')
 
     const changed = await handle(settings, {
@@ -675,7 +675,7 @@ describe('ClawRuntime', () => {
       conversation: settings.claw.channels[0].conversations[0]
     })
     expect(changed).toContain('already has a goal')
-    expect(changed).toContain('[Kun]')
+    expect(changed).toContain('[Xiaoling AI]')
     expect(changed).toContain('Read document A')
     expect(runtimeRequest.mock.calls.some(([, path, init]) =>
       path === '/v1/threads/thr_goal/goal' && init.method === 'POST'

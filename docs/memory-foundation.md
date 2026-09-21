@@ -1,4 +1,4 @@
-# Kun 记忆基础模块
+# 小灵 AI 记忆基础模块
 
 本文说明长期记忆 V2 的数据边界、混合索引、检索规则、迁移与本地验证。英文版见
 [memory-foundation.en.md](./memory-foundation.en.md)。
@@ -87,8 +87,8 @@ npm run dev
 - 至少一个可用的模型连接/API Key。
 
 ```powershell
-git clone https://github.com/KunAgent/Kun.git
-Set-Location Kun
+git clone https://github.com/SAMUELDONE/xiaoling-ai.git
+Set-Location xiaoling-ai
 npm ci
 npm run dev
 ```

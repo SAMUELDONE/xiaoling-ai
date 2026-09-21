@@ -1,6 +1,6 @@
 # 安全策略
 
-感谢您帮助保护 Kun 及其用户的安全。
+感谢您帮助保护小灵 AI 及其用户的安全。
 
 ## 支持的版本
 
@@ -12,8 +12,8 @@
 
 相反，请通过以下渠道之一私下报告漏洞：
 
-- 邮箱：[zhongxingyuemail@gmail.com](mailto:zhongxingyuemail@gmail.com)
 - GitHub 安全公告：如果启用，请使用存储库的私有漏洞报告流程
+- GitHub 账号：[@SAMUELDONE](https://github.com/SAMUELDONE)
 
 如果可能，请包括：
 

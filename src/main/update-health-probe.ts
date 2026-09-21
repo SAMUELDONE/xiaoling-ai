@@ -5,6 +5,7 @@ import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { inspectPackagedInstallHealth } from './packaged-install-health'
 import { mainBundleDirectory } from './main-bundle-path'
+import { PRODUCT_NAME_EN } from '../shared/product-identity'
 
 export type UpdateHealthProbeProgress = (
   phase: string,
@@ -347,7 +348,7 @@ async function defaultProbeRuntimeServices(
   const { resolveKunRuntimeBuildId } = await import('./resolve-kun-binary')
   const resolution = resolveKunExecutableForCurrentApp()
   const buildId = await resolveKunRuntimeBuildId(resolution)
-  if (!buildId) throw new Error('The candidate Kun Runtime build identity is missing.')
+  if (!buildId) throw new Error(`The candidate ${PRODUCT_NAME_EN} Runtime build identity is missing.`)
 
   const port = await findAvailableLoopbackPort(context)
   const token = `probe-${Date.now()}-${Math.random().toString(36).slice(2)}`
@@ -531,7 +532,7 @@ export async function runMinimalUpdateProbe(
     resourcesPath: deps.resourcesPath()
   })
   if (!installHealth.ok) {
-    throw new Error(`Kun installation is incomplete (${installHealth.missing.join(', ')}).`)
+    throw new Error(`${PRODUCT_NAME_EN} installation is incomplete (${installHealth.missing.join(', ')}).`)
   }
   context.reportProgress('payload_ready')
 

@@ -211,7 +211,7 @@ describe('AgentPerspectivePanel', () => {
       request: {
         systemInstruction: {
           role: 'user',
-          parts: [{ text: 'Kun Gemini system prompt.' }]
+          parts: [{ text: 'Xiaoling AI Gemini system prompt.' }]
         },
         contents: [{
           role: 'user',
@@ -262,7 +262,7 @@ describe('AgentPerspectivePanel', () => {
     const tabs = renderer.root.findAll((node) => node.props.role === 'tab')
     act(() => tabs[1]?.props.onClick())
     const rendered = textContent(renderer.root)
-    expect(rendered).toContain('Kun Gemini system prompt.')
+    expect(rendered).toContain('Xiaoling AI Gemini system prompt.')
     expect(rendered).toContain('Inspect Gemini semantics')
     expect(rendered).toContain('[inline data: image/png]')
     expect(rendered).toContain('read_file')
@@ -324,7 +324,7 @@ describe('AgentPerspectivePanel', () => {
 
     const tabs = renderer.root.findAll((node) => node.props.role === 'tab')
     act(() => tabs[1]?.props.onClick())
-    const kunSummary = renderer.root.findByProps({ 'aria-label': 'Toggle Kun system tools' })
+    const kunSummary = renderer.root.findByProps({ 'aria-label': 'Toggle Xiaoling AI system tools' })
     const mcpSummary = renderer.root.findByProps({ 'aria-label': 'Toggle MCP tools' })
     const extensionSummary = renderer.root.findByProps({ 'aria-label': 'Toggle Extensions tools' })
     expect(kunSummary.parent?.props.open).toBe(true)
@@ -339,7 +339,7 @@ describe('AgentPerspectivePanel', () => {
     expect(schema.props.className).toContain('max-h-40')
     expect(schema.props.className).toContain('overflow-auto')
     expect(textContent(renderer.root)).toContain('MCP Server · gui_schedule')
-    expect(textContent(renderer.root)).toContain('Kun managed')
+    expect(textContent(renderer.root)).toContain('Xiaoling AI managed')
 
     const mainScroller = renderer.root.findAllByType('div').find((node) =>
       String(node.props.className).includes('min-h-0 flex-1 overflow-auto p-3')
@@ -379,7 +379,7 @@ describe('AgentPerspectivePanel', () => {
     const rendered = textContent(renderer.root)
     expect(rendered).toContain('Tool source')
     expect(rendered).toContain('MCP · gui_schedule')
-    expect(rendered).toContain('Kun managed')
+    expect(rendered).toContain('Xiaoling AI managed')
     expect(rendered).toContain('call-schedule')
   })
 
@@ -471,7 +471,7 @@ describe('AgentPerspectivePanel', () => {
     const rendered = textContent(renderer.root)
     expect(rendered).toContain('SDK execution')
     expect(rendered).toContain('Claude Agent SDK')
-    expect(rendered).toContain('Rebased from Kun history')
+    expect(rendered).toContain('Rebased from Xiaoling AI history')
     expect(rendered).toContain('Native checkpoint unavailable')
     expect(rendered).toContain('No provider-native history')
     expect(rendered).toContain('Native resume')

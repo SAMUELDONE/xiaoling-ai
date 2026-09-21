@@ -8,6 +8,7 @@ import {
   WINDOWS_DPAPI_KEY_PREFIX,
   type CommandRunner
 } from '../../kun/src/security/secret-store.js'
+import { PRODUCT_NAME_EN } from '../shared/product-identity'
 
 const CREDENTIAL_RECOVERY_ITEMS = [
   'secret.key',
@@ -37,7 +38,7 @@ export async function resetUnreadableWindowsCredentials(
   const keyFilePath = join(dataDir, 'secret.key')
   const keyFileText = await readFile(keyFilePath, 'utf8').catch(() => '')
   if (!keyFileText.trim().startsWith(WINDOWS_DPAPI_KEY_PREFIX)) {
-    throw new Error('Credential recovery is unavailable because no DPAPI-protected Kun key was found.')
+    throw new Error(`Credential recovery is unavailable because no DPAPI-protected ${PRODUCT_NAME_EN} key was found.`)
   }
 
   let unreadable = false
@@ -53,7 +54,7 @@ export async function resetUnreadableWindowsCredentials(
     unreadable = true
   }
   if (!unreadable) {
-    throw new Error('Credential recovery is unnecessary because the DPAPI-protected Kun key is readable.')
+    throw new Error(`Credential recovery is unnecessary because the DPAPI-protected ${PRODUCT_NAME_EN} key is readable.`)
   }
 
   const timestamp = (options.now?.() ?? new Date()).toISOString().replace(/[:.]/g, '-')

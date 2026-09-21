@@ -19,7 +19,19 @@ function Get-CanonicalLeaf {
 }
 
 function Test-ProductionInstallerIdentity {
-  return [string]::Equals((Get-CanonicalLeaf), 'Kun', [StringComparison]::OrdinalIgnoreCase)
+  return @('Kun', 'Xiaoling AI') -contains (Get-CanonicalLeaf)
+}
+
+function Get-InstallerShortcutNames {
+  $configured = (Get-EnvironmentValue 'KUN_INSTALLER_PRODUCT_NAME').Trim()
+  $values = @()
+  if (-not [string]::IsNullOrWhiteSpace($configured)) {
+    $values += ($configured + '.lnk')
+  }
+  if (Test-ProductionInstallerIdentity) {
+    $values += @('Kun.lnk', 'DeepSeek GUI.lnk')
+  }
+  return @($values | Select-Object -Unique)
 }
 
 function Get-ApplicationIdentityFiles {
@@ -111,7 +123,8 @@ function Test-LegacyLeaf([string]$Leaf) {
   if (-not (Test-ProductionInstallerIdentity)) {
     return $false
   }
-  return [string]::Equals($Leaf, 'DeepSeek GUI', [StringComparison]::OrdinalIgnoreCase) -or
+  return [string]::Equals($Leaf, 'Kun', [StringComparison]::OrdinalIgnoreCase) -or
+    [string]::Equals($Leaf, 'DeepSeek GUI', [StringComparison]::OrdinalIgnoreCase) -or
     [string]::Equals($Leaf, 'deepseek-gui', [StringComparison]::OrdinalIgnoreCase)
 }
 

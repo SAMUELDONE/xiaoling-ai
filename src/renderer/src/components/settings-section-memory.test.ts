@@ -42,7 +42,7 @@ const labels: Record<string, string> = {
   memoryExport: 'Export',
   memoryExported: 'Memory exported',
   memoryExportUnavailable: 'Export unavailable',
-  memoryImportTitle: 'Import Memory into Kun',
+  memoryImportTitle: 'Import Memory into Xiaoling AI',
   memoryImportStepPrompt: 'Copy prompt',
   memoryImportCopy: 'Copy',
   memoryImportCopied: 'Copied',

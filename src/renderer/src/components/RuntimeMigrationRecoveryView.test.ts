@@ -52,7 +52,7 @@ describe('RuntimeMigrationRecoveryPanel', () => {
     }))
 
     expect(newInstallHtml).toContain('No historical data found')
-    expect(newInstallHtml).toContain('Initialize Kun')
+    expect(newInstallHtml).toContain('Initialize Xiaoling AI')
     expect(newInstallHtml).not.toContain('Preserve backups and start over')
     expect(startOverHtml).toContain('Historical evidence needs attention')
     expect(startOverHtml).toContain('Preserve backups and start over')
@@ -63,7 +63,7 @@ describe('RuntimeMigrationRecoveryPanel', () => {
     const html = render(candidateStatus({ state: 'completed', candidates: [] }))
     expect(html).toContain('Recovery completed')
     expect(html).not.toContain('Restore / 恢复')
-    expect(html).not.toContain('Initialize Kun')
+    expect(html).not.toContain('Initialize Xiaoling AI')
   })
 })
 

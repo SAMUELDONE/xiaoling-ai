@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="src/asset/img/kun.png" width="88" alt="Kun blue K mark">
+  <img src="src/asset/img/kun.png" width="88" alt="Xiaoling AI mark (visual asset migration pending)">
 </p>
 
-<h1 align="center">Kun — a local-first AI agent workbench</h1>
+<h1 align="center">Xiaoling AI — a local-first AI agent workbench</h1>
 
 <p align="center">
   Plan, execute, verify, and deliver real work with AI.<br>
@@ -10,35 +10,35 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/KunAgent/Kun/releases">Download desktop app</a>
+  <a href="https://github.com/SAMUELDONE/xiaoling-ai/releases">Download desktop app</a>
   &nbsp;·&nbsp;
-  <a href="https://www.kun-agent.com/docs">Documentation</a>
+  <a href="https://github.com/SAMUELDONE/xiaoling-ai/tree/develop/docs">Documentation</a>
   &nbsp;·&nbsp;
-  <a href="https://github.com/KunAgent/Kun">GitHub</a>
+  <a href="https://github.com/SAMUELDONE/xiaoling-ai">GitHub</a>
   &nbsp;·&nbsp;
   <a href="./README.md">中文</a>
 </p>
 
 <p align="center">
-  <a href="https://github.com/KunAgent/Kun/releases"><img src="https://img.shields.io/github/v/release/KunAgent/Kun?label=release" alt="Latest Kun GitHub release"></a>
-  <a href="./LICENSE"><img src="https://img.shields.io/badge/license-PolyForm%20Noncommercial%201.0.0-blue" alt="Kun uses the PolyForm Noncommercial 1.0.0 license"></a>
+  <a href="https://github.com/SAMUELDONE/xiaoling-ai/releases"><img src="https://img.shields.io/github/v/release/SAMUELDONE/xiaoling-ai?label=release" alt="Latest Xiaoling AI GitHub release"></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/license-PolyForm%20Noncommercial%201.0.0-blue" alt="Xiaoling AI retains the upstream PolyForm Noncommercial 1.0.0 license"></a>
   <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-lightgrey" alt="Supports macOS, Windows, and Linux">
-  <img src="https://img.shields.io/badge/GUI%20%2B%20TUI-one%20shared%20runtime-6366f1" alt="Desktop GUI and terminal TUI share one Kun runtime">
+  <img src="https://img.shields.io/badge/GUI%20%2B%20TUI-one%20shared%20runtime-6366f1" alt="Desktop GUI and terminal TUI share one local runtime">
 </p>
 
 <p align="center">
-  <img src="./docs/assets/readme/kun-hero-gui-tui-character-demo.jpg" alt="Kun GUI and TUI poster with fictional demo data, a mascot, the desktop Code interface, and the terminal TUI" width="100%">
+  <img src="./docs/assets/readme/kun-hero-gui-tui-character-demo.jpg" alt="Xiaoling AI GUI and TUI poster; visual asset migration is pending" width="100%">
 </p>
 
-## What is Kun?
+## What is Xiaoling AI?
 
-Kun is a local-first workbench that moves AI from answering questions to finishing work. It organizes real work into two primary modes: Code for shipping software, with a Design canvas available inside the same task; and Work for writing, organizing source material, analyzing documents, and producing presentations. Agents can read workspace context, make plans, use tools, change files, run checks, and keep the evidence next to the task.
+Xiaoling AI is a local-first workbench that moves AI from answering questions to finishing work. It organizes real work into two primary modes: Code for shipping software, with a Design canvas available inside the same task; and Work for writing, organizing source material, analyzing documents, and producing presentations. Agents can read workspace context, make plans, use tools, change files, run checks, and keep the evidence next to the task.
 
 The desktop GUI is for seeing, reviewing, and controlling the work. The terminal TUI is for staying in a keyboard-first flow. Both connect to the same local `kun serve` runtime and share threads, goals, plans, approvals, and background work instead of creating disconnected histories.
 
 ## At a glance
 
-| Need | Kun provides |
+| Need | Xiaoling AI provides |
 | --- | --- |
 | Build, debug, and ship software | Code mode provides project context, file editing, terminal, Git / Worktree, diffs, tests, and review. |
 | Move from a brief to an implementable design | Switch to the Design canvas inside the same Code task to develop prototypes, design systems, and Design → Code context. |
@@ -83,11 +83,11 @@ Requirements and plans can live in the project by default, which makes them vers
 
 Sessions, preferences, logs, and runtime data are stored locally by default. When you use a cloud model, prompts, attachments, and task context are sent to the selected Provider; review that service's data policy before use. Tool permissions, sensitive actions, and extension permissions are made visible in the app, and you decide whether to authorize them.
 
-Kun is not tied to one model vendor. Presets cover ecosystems including ChatGPT / Codex, Claude, Gemini, Cursor, Ollama, DeepSeek, Kimi, GLM, Qwen, MiniMax, and Xiaomi MiMo. Sign-in methods, available models, regions, and quotas depend on the current release and Provider rules; see [model provider presets](docs/model-provider-presets.md) for configuration details.
+Xiaoling AI is not tied to one model vendor. Presets cover ecosystems including ChatGPT / Codex, Claude, Gemini, Cursor, Ollama, DeepSeek, Kimi, GLM, Qwen, MiniMax, and Xiaomi MiMo. Sign-in methods, available models, regions, and quotas depend on the current release and Provider rules; see [model provider presets](docs/model-provider-presets.md) for configuration details.
 
 ## Get started in 5 minutes
 
-Download the current release from [GitHub Releases](https://github.com/KunAgent/Kun/releases):
+Download the current release from [GitHub Releases](https://github.com/SAMUELDONE/xiaoling-ai/releases):
 
 | Platform | Installer | Architecture |
 | --- | --- | --- |
@@ -107,15 +107,15 @@ The desktop app and TUI can connect to the same runtime at the same time. Run th
 kun
 ```
 
-Starting with 0.3.8, standalone TUI archives are no longer distributed; use the terminal commands bundled with the desktop app. See the [Kun TUI guide](docs/kun-tui.en.md) for commands and configuration.
+Starting with 0.3.8, standalone TUI archives are no longer distributed; use the terminal commands bundled with the desktop app. `kun` remains the compatibility runtime command; see the [TUI guide](docs/kun-tui.en.md) for commands and configuration.
 
 ## Run from source
 
 Requirements: Node.js 22.19+, npm, and at least one usable model connection.
 
 ```bash
-git clone https://github.com/KunAgent/Kun.git
-cd Kun
+git clone https://github.com/SAMUELDONE/xiaoling-ai.git
+cd xiaoling-ai
 npm ci
 npm run dev
 ```
@@ -150,14 +150,14 @@ Contributions to bug fixes, UI/UX, runtime behavior, Providers, extensions, and 
 
 ## License
 
-Kun uses the [PolyForm Noncommercial License 1.0.0](./LICENSE) for learning, research, and noncommercial use. Commercial use, distribution, SaaS/hosting, resale, or integration into a commercial product requires separate written authorization from the author.
+Xiaoling AI currently retains the upstream [PolyForm Noncommercial License 1.0.0](./LICENSE) for learning, research, and noncommercial use. Commercial use, distribution, SaaS/hosting, resale, or integration into a commercial product requires separate written authorization from the upstream author; see [license and authorization notes](LICENSE-NOTICES.md).
 
 ## Acknowledgements
 
 Thanks to everyone who contributes issues, ideas, code, and documentation.
 
-Kun's memory architecture research draws on the public Thread/Memory separation, provenance, and hybrid-retrieval concepts documented by [Nowledge Mem](https://mem.nowledge.co/docs); Kun's implementation remains independent and follows its own single-runtime, local-first architecture.
+Xiaoling AI's memory architecture research draws on the public Thread/Memory separation, provenance, and hybrid-retrieval concepts documented by [Nowledge Mem](https://mem.nowledge.co/docs); the implementation remains independent and follows its own single-runtime, local-first architecture. The runtime keeps Kun-compatible names for upgrades, extensions, and existing data.
 
-<a href="https://github.com/KunAgent/Kun/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=KunAgent/Kun" alt="Kun contributors">
+<a href="https://github.com/SAMUELDONE/xiaoling-ai/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=SAMUELDONE/xiaoling-ai" alt="Xiaoling AI contributors">
 </a>

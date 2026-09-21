@@ -1,8 +1,8 @@
 {
-  "name": "kun-gui",
-  "productName": "Kun",
+  "name": "xiaoling-ai",
+  "productName": "Xiaoling AI",
   "version": "0.3.9",
-  "description": "Electron workbench for the Kun runtime (HTTP/SSE)",
+  "description": "Xiaoling AI desktop workbench for a local-first agent runtime",
   "engines": {
     "node": ">=22.19.0"
   },
@@ -224,11 +224,11 @@
     },
     "qs": "6.16.0"
   },
-  "author": "Kun Contributors",
+  "author": "SAMUELDONE",
   "license": "PolyForm-Noncommercial-1.0.0",
-  "homepage": "https://github.com/KunAgent/Kun",
+  "homepage": "https://github.com/SAMUELDONE/xiaoling-ai",
   "repository": {
     "type": "git",
-    "url": "https://github.com/KunAgent/Kun.git"
+    "url": "https://github.com/SAMUELDONE/xiaoling-ai.git"
   }
 }

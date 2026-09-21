@@ -1,6 +1,7 @@
 import { statSync as nodeStatSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { join } from 'node:path'
+import { PRODUCT_NAME_EN } from '../shared/product-identity'
 
 export type PackagedInstallHealth =
   | { ok: true }
@@ -63,11 +64,11 @@ export function inspectPackagedInstallHealth(input: PackagedInstallHealthInput):
     { label: 'application executable', path: input.executablePath },
     { label: 'resources/app.asar', path: join(input.resourcesPath, 'app.asar') },
     {
-      label: 'Kun runtime entry',
+      label: `${PRODUCT_NAME_EN} runtime entry`,
       path: join(input.resourcesPath, 'app.asar.unpacked', 'kun', 'dist', 'cli', 'serve-entry.js')
     },
     {
-      label: 'Kun service manager entry',
+      label: `${PRODUCT_NAME_EN} service manager entry`,
       path: join(input.resourcesPath, 'app.asar.unpacked', 'kun', 'dist', 'manager', 'manager-entry.js')
     }
   ]

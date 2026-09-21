@@ -1,6 +1,7 @@
 import type { AppSettingsV1 } from '../shared/app-settings'
 import type { DesktopStartupState } from './desktop-startup-state'
 import type { resolveManagedRuntimeStartupTarget } from './runtime/managed-runtime-startup-attach'
+import { PRODUCT_NAME_EN } from '../shared/product-identity'
 
 type StartupGuiUpdaterModule = {
   showPostUpdateReleaseNotes: () => Promise<unknown>
@@ -87,14 +88,14 @@ export function createStartupSettingsApply(
       if (result === 'restart_required') {
         deps.logWarn(
           'startup-settings',
-          'Kun attached successfully, but the configured default model could not be hot-applied.'
+          `${PRODUCT_NAME_EN} attached successfully, but the configured default model could not be hot-applied.`
         )
       }
     } finally {
       settleApply()
     }
   }, (error) => {
-    deps.logWarn('startup-settings', 'Kun startup settings apply failed', {
+    deps.logWarn('startup-settings', `${PRODUCT_NAME_EN} startup settings apply failed`, {
       message: error instanceof Error ? error.message : String(error)
     })
   }, 'startup-settings')

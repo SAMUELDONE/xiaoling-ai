@@ -286,7 +286,8 @@ it('passes the nested OfficeCLI executable through the Windows signing manager',
       .join('\n')
 
     expect(builderConfig.appId).toBe('com.xingyuzhong.deepseekgui')
-    expect(builderConfig.productName).toBe('Kun')
+    expect(builderConfig.productName).toBe('Xiaoling AI')
+    expect(builderConfig.executableName).toBe('kun-gui')
     expect(builderConfig.nsis.include).toBe('build/installer.nsh')
     expect(builderConfig.nsis.allowToChangeInstallationDirectory).toBe(false)
     expect(builderConfig.nsis.deleteAppDataOnUninstall).toBe(false)
@@ -540,13 +541,13 @@ it('passes the nested OfficeCLI executable through the Windows signing manager',
     expect(updaterSource).toContain('autoUpdater.quitAndInstall(true, true)')
   })
 
-  it('builds kun-dv with an isolated application identity and no production updater feed', () => {
+  it('builds Xiaoling AI Dev with an isolated application identity and no production updater feed', () => {
     const developmentConfig = loadBuilderConfigWithEnv({ KUN_APP_FLAVOR: 'development' })
 
     expect(developmentConfig.appId).toBe('com.xingyuzhong.deepseekgui.dv')
-    expect(developmentConfig.productName).toBe('kun-dv')
+    expect(developmentConfig.productName).toBe('Xiaoling AI Dev')
     expect(developmentConfig.artifactName).toContain('kun-dv-')
-    expect(developmentConfig.nsis.shortcutName).toBe('kun-dv')
+    expect(developmentConfig.nsis.shortcutName).toBe('Xiaoling AI Dev')
     expect(developmentConfig.extraMetadata.kunAppFlavor).toBe('development')
     expect(developmentConfig.publish).toEqual([])
   })
@@ -554,28 +555,28 @@ it('passes the nested OfficeCLI executable through the Windows signing manager',
   it('stamps the DMG volume name with the same artifact version as artifactName', () => {
     // No release env override: electron-builder expands the ${version} macro
     // from package.json when it mounts the volume.
-    expect(builderConfig.dmg.title).toBe('Kun Installer ${version}')
+    expect(builderConfig.dmg.title).toBe('Xiaoling AI Installer ${version}')
     expect(builderConfig.artifactName).toContain('Kun-${version}-')
 
     const releaseConfig = loadBuilderConfigWithEnv({
       KUN_APP_VERSION: '1.2.3',
       KUN_ARTIFACT_VERSION: undefined
     })
-    expect(releaseConfig.dmg.title).toBe('Kun Installer 1.2.3')
+    expect(releaseConfig.dmg.title).toBe('Xiaoling AI Installer 1.2.3')
     expect(releaseConfig.artifactName).toContain('Kun-1.2.3-')
 
     const dailyConfig = loadBuilderConfigWithEnv({
       KUN_APP_VERSION: '0.0.0-dev-20260819-1200',
       KUN_ARTIFACT_VERSION: '20260819.1200'
     })
-    expect(dailyConfig.dmg.title).toBe('Kun Installer 20260819.1200')
+    expect(dailyConfig.dmg.title).toBe('Xiaoling AI Installer 20260819.1200')
     expect(dailyConfig.artifactName).toContain('Kun-20260819.1200-')
 
     const developmentConfig = loadBuilderConfigWithEnv({
       KUN_APP_FLAVOR: 'development',
       KUN_APP_VERSION: '1.2.3'
     })
-    expect(developmentConfig.dmg.title).toBe('kun-dv Installer 1.2.3')
+    expect(developmentConfig.dmg.title).toBe('Xiaoling AI Dev Installer 1.2.3')
     expect(developmentConfig.artifactName).toContain('kun-dv-1.2.3-')
   })
 

@@ -15,7 +15,12 @@ if (-not $AllowLocal -and $env:CI -ne 'true') {
 
 $root = Join-Path ([IO.Path]::GetTempPath()) ('kun-installer-smoke-' + [guid]::NewGuid().ToString('N'))
 $installParent = Join-Path $root 'installed app'
-$installLocation = Join-Path $installParent 'Kun'
+$repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
+$packageMetadata = Get-Content -LiteralPath (Join-Path $repoRoot 'package.json') -Raw | ConvertFrom-Json
+$productName = [string]$packageMetadata.productName
+if ([string]::IsNullOrWhiteSpace($productName)) { $productName = 'Xiaoling AI' }
+$installLocation = $null
+$applicationExecutable = $null
 $diagnosticPath = Join-Path $root 'installer-diagnostics.log'
 $previousDiagnosticPath = [Environment]::GetEnvironmentVariable('KUN_INSTALLER_DIAGNOSTIC_PATH', 'Process')
 $installRegistryPath = $null
@@ -29,6 +34,39 @@ function Test-PathEqual([string]$Left, [string]$Right) {
   $leftPath = [IO.Path]::GetFullPath($Left).TrimEnd('\')
   $rightPath = [IO.Path]::GetFullPath($Right).TrimEnd('\')
   return [string]::Equals($leftPath, $rightPath, [StringComparison]::OrdinalIgnoreCase)
+}
+
+function Resolve-InstalledLocation {
+  $candidates = @($script:installParent)
+  $candidates += @(Get-ChildItem -LiteralPath $script:installParent -Directory -Force -ErrorAction SilentlyContinue |
+    ForEach-Object { $_.FullName })
+  $matches = @($candidates | Where-Object {
+    Test-Path -LiteralPath (Join-Path $_ 'resources\app.asar') -PathType Leaf
+  } | Select-Object -Unique)
+  Assert-True ($matches.Count -eq 1) "Expected one installed Xiaoling AI payload, found $($matches.Count)."
+  $script:installLocation = $matches[0]
+}
+
+function Resolve-InstalledExecutable {
+  $names = @('kun-gui.exe', "$script:productName.exe", 'Kun.exe')
+  foreach ($name in $names) {
+    $candidate = Join-Path $script:installLocation $name
+    if (Test-Path -LiteralPath $candidate -PathType Leaf) {
+      return $candidate
+    }
+  }
+  throw "The installed Xiaoling AI executable is missing from $script:installLocation."
+}
+
+function Resolve-InstalledUninstaller {
+  $names = @("Uninstall $script:productName.exe", 'Uninstall Kun.exe', 'Uninstall DeepSeek GUI.exe')
+  foreach ($name in $names) {
+    $candidate = Join-Path $script:installLocation $name
+    if (Test-Path -LiteralPath $candidate -PathType Leaf) {
+      return $candidate
+    }
+  }
+  return $null
 }
 
 function Invoke-CheckedProcess(
@@ -61,9 +99,10 @@ function Find-KunRegistration {
 }
 
 function Invoke-SmokeUninstaller {
-  $installedUninstaller = Join-Path $script:installLocation 'Uninstall Kun.exe'
-  if (-not (Test-Path -LiteralPath $installedUninstaller -PathType Leaf)) { return }
-  $uninstallerCopy = Join-Path $script:root 'Uninstall Kun smoke.exe'
+  if ([string]::IsNullOrWhiteSpace($script:installLocation)) { return }
+  $installedUninstaller = Resolve-InstalledUninstaller
+  if ($null -eq $installedUninstaller) { return }
+  $uninstallerCopy = Join-Path $script:root 'Xiaoling AI uninstall smoke.exe'
   Copy-Item -LiteralPath $installedUninstaller -Destination $uninstallerCopy -Force
   try {
     # _?= makes this process represent the full NSIS uninstall lifecycle.
@@ -96,7 +135,7 @@ try {
     'HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall'
   ) | ForEach-Object { Get-ChildItem $_ -ErrorAction SilentlyContinue } | Where-Object {
     try {
-      (Get-ItemPropertyValue -LiteralPath $_.PSPath -Name DisplayName -ErrorAction Stop) -in @('Kun', 'DeepSeek GUI')
+      (Get-ItemPropertyValue -LiteralPath $_.PSPath -Name DisplayName -ErrorAction Stop) -in @($script:productName, 'Kun', 'DeepSeek GUI')
     } catch {
       $false
     }
@@ -109,9 +148,14 @@ try {
     ('"/D={0}"' -f $installParent)
   )
 
+  Resolve-InstalledLocation
+  $script:applicationExecutable = Resolve-InstalledExecutable
+  $installedUninstaller = Resolve-InstalledUninstaller
+  Assert-True ($null -ne $installedUninstaller) 'The Xiaoling AI uninstaller is missing.'
+
   foreach ($requiredPath in @(
-    (Join-Path $installLocation 'Kun.exe'),
-    (Join-Path $installLocation 'Uninstall Kun.exe'),
+    $applicationExecutable,
+    $installedUninstaller,
     (Join-Path $installLocation 'resources\app.asar')
   )) {
     Assert-True (Test-Path -LiteralPath $requiredPath -PathType Leaf) "Installed file is missing: $requiredPath"
@@ -123,8 +167,8 @@ try {
   Assert-True ($LASTEXITCODE -eq 0) 'The installed Kun CLI smoke failed.'
 
   Invoke-SmokeUninstaller
-  Assert-True (-not (Test-Path -LiteralPath (Join-Path $installLocation 'Kun.exe'))) `
-    'Kun.exe remains after uninstall.'
+  Assert-True (-not (Test-Path -LiteralPath $applicationExecutable)) `
+    'The Xiaoling AI executable remains after uninstall.'
   Assert-True (-not (Test-Path -LiteralPath $installRegistryPath)) `
     'The Kun install registration remains after uninstall.'
   Assert-True (-not (Test-Path -LiteralPath $uninstallRegistryPath)) `

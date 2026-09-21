@@ -1,6 +1,6 @@
-# Kun Agent Benchmark 一键评测
+# Xiaoling AI Agent Benchmark 一键评测
 
-本文说明如何用同一套工程运行 Kun 的三项外部 Agent benchmark：
+本文说明如何用同一套工程运行 Xiaoling AI 的三项外部 Agent benchmark：
 
 - SWE-bench Verified（官方 SWE-bench v5.0.1）；
 - DeepSWE v1.1（固定任务 commit + Pier 0.3.0）；
@@ -15,7 +15,7 @@ SWE-bench 的 patch 生成和评分细节另见
 
 ## 结论边界
 
-仓库提供统一的 `benchmark:agents` 入口、固定依赖、Linux Kun archive builder、三套 suite
+仓库提供统一的 `benchmark:agents` 入口、固定依赖、Linux Xiaoling AI archive builder、三套 suite
 driver、Harbor/Pier import-path agent、JSONL→ATIF 转换、恢复、验证和汇总。
 
 命令完成且 task reward 为 0 表示 Agent 被官方 verifier 判定未完成任务，不是工程故障；只有
@@ -52,7 +52,7 @@ export KUN_BENCH_REASONING_EFFORT="max"
 export KUN_BENCH_SERVICE_TIER="priority"
 ```
 
-API key 只进入 Kun 进程环境，不出现在 argv、manifest、ATIF 或 command artifacts。运行产物
+API key 只进入 Xiaoling AI benchmark 进程环境，不出现在 argv、manifest、ATIF 或 command artifacts。运行产物
 还会按精确 secret 值做二次 redaction。不要把 `.env` 或 credential store 放入 benchmark
 workspace。
 
@@ -91,7 +91,7 @@ npm run benchmark:agents -- summarize --run-id <run-id>
 ```
 
 `run` 未提供 `--kun-archive` 时，会在 Ubuntu 22.04/amd64 builder 中用 Node 22.23.1
-构建当前 Git commit 的 standalone Kun 包。已有经过校验的包可以复用：
+构建当前 Git commit 的 standalone Xiaoling AI 包。已有经过校验的包可以复用：
 
 ```bash
 npm run benchmark:agents -- run \
@@ -116,7 +116,7 @@ attempt，不执行上传或 leaderboard PR。
 ### SWE-bench
 
 1. 独立 Python 3.11 环境加载官方 v5.0.1 harness 和 Verified dataset。
-2. 根据官方 TestSpec 拉取/构建 instance image，在 `/testbed` 运行 Kun。
+2. 根据官方 TestSpec 拉取/构建 instance image，在 `/testbed` 运行 Xiaoling AI。
 3. 以 `base_commit` 对工作树做 binary diff，包括未跟踪文件和 Agent 自建 commit。
 4. 在新的 detached checkout 中执行 `git apply --check`。
 5. 写 `predictions.jsonl`，调用官方 evaluator，并保存逐实例日志。
@@ -124,15 +124,15 @@ attempt，不执行上传或 leaderboard PR。
 ### DeepSWE
 
 1. checkout 固定为 `3cda4081fed96103a6395de39c85e9b20275e307`。
-2. Pier 通过 `kun_bench.pier_agent:KunPierAgent` 把固定 Kun archive 上传到任务容器。
-3. Kun 在 `/app` 完成长任务；adapter 把修改提交为单一 benchmark commit。
+2. Pier 通过 `kun_bench.pier_agent:KunPierAgent` 把固定 Xiaoling AI archive 上传到任务容器。
+3. Xiaoling AI 在 `/app` 完成长任务；adapter 把修改提交为单一 benchmark commit。
 4. DeepSWE 的 `pre_artifacts.sh` 提取 `base_commit..HEAD` patch，独立 verifier container 评分。
-5. 保存 reward、CTRF、verifier logs、原始 Kun events 和 ATIF v1.7 trajectory。
+5. 保存 reward、CTRF、verifier logs、原始 Xiaoling AI events 和 ATIF v1.7 trajectory。
 
 ### Terminal-Bench
 
 1. Harbor 解析 `terminal-bench/terminal-bench-2-1` 数据集。
-2. `kun_bench.harbor_agent:KunHarborAgent` 上传并运行 Kun。
+2. `kun_bench.harbor_agent:KunHarborAgent` 上传并运行 Xiaoling AI。
 3. 原始 events 转换成 Harbor 可校验的 ATIF v1.7 trajectory。
 4. 官方 task verifier 评分；reward 0 仍是一次完成的评测。
 

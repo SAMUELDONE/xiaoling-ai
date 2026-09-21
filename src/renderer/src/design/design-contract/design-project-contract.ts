@@ -16,6 +16,7 @@ import {
 } from '../design-mode/design-mode-surface'
 import { designModeWorkflowSummaryLines } from '../design-mode/design-mode-workflow'
 import { buildCanvasMotionSummary } from '../canvas/canvas-motion-summary'
+import { PRODUCT_NAME_EN } from '@shared/product-identity'
 
 const GRAPH_OBJECT_LIMIT = 12
 const JOURNAL_ENTRY_LIMIT = 8
@@ -302,7 +303,7 @@ export function summarizeDesignProjectContract(
   const motion = buildCanvasMotionSummary(options.canvasDocument)
   return {
     path: STITCH_DESIGN_MD_PATH,
-    title: options.document?.title ?? 'Kun design project',
+    title: options.document?.title ?? `${PRODUCT_NAME_EN} design project`,
     artifactCount: artifacts.length,
     screenCount: artifacts.filter((artifact) => artifact.kind === 'html').length,
     svgArtifactCount: artifacts.filter((artifact) => artifact.kind === 'svg').length,

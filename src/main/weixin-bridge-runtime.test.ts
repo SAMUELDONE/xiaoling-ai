@@ -26,7 +26,7 @@ describe('weixin bridge runtime', () => {
 
     expect(baseInfo).toMatchObject({
       channel_version: pkg.version,
-      bot_agent: 'Kun/0.2.0-test'
+      bot_agent: 'Xiaoling AI/0.2.0-test'
     })
   })
 
@@ -76,8 +76,8 @@ describe('weixin bridge runtime', () => {
     }))
     const responseBody = {
       ok: false,
-      message: 'Kun: model request failed: fetch failed',
-      reply: 'Kun: model request failed: fetch failed'
+      message: 'Xiaoling AI: model request failed: fetch failed',
+      reply: 'Xiaoling AI: model request failed: fetch failed'
     }
     const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue({
       ok: false,
@@ -93,7 +93,7 @@ describe('weixin bridge runtime', () => {
         item_list: [{ type: 1, text_item: { text: '你好' } }]
       }, 'wx_account_1')).resolves.toMatchObject({
         ok: false,
-        reply: 'Kun: model request failed: fetch failed'
+        reply: 'Xiaoling AI: model request failed: fetch failed'
       })
     } finally {
       fetchMock.mockRestore()

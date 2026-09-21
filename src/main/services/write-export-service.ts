@@ -559,7 +559,7 @@ export async function exportWriteDocument(
       }
       sourcePath = resolved.path
     } else {
-      const title = payload.title?.trim() || 'Kun answer'
+      const title = payload.title?.trim() || 'Xiaoling AI answer'
       const safeTitle = Array.from(title, (character) => {
         const code = character.charCodeAt(0)
         return code <= 31 || '<>:"/\\|?*'.includes(character) ? '-' : character
@@ -589,7 +589,7 @@ export async function exportWriteDocument(
     } else if (payload.format === 'docx') {
       const docx = await htmlToDocx(html, null, {
         title,
-        creator: 'Kun',
+        creator: 'Xiaoling AI',
         keywords: ['markdown', 'export'],
         description: `Exported from ${basename(sourcePath)}`,
         font: 'Arial',

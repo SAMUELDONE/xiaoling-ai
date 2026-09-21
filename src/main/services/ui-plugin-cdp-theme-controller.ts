@@ -1,4 +1,5 @@
 import type { WebContents } from 'electron'
+import { PRODUCT_NAME_EN } from '../../shared/product-identity'
 
 const UI_PLUGIN_THEME_STYLE_ID = 'kun-ui-plugin-theme-cdp'
 const UI_PLUGIN_THEME_MARKER_ATTRIBUTE = 'data-ui-plugin-cdp'
@@ -146,7 +147,7 @@ export class UiPluginCdpThemeController {
   private requireLiveWebContents(): WebContents {
     const contents = this.options.getWebContents()
     if (!contents || contents.isDestroyed()) {
-      throw new Error('Kun workbench is unavailable for CDP theme injection.')
+      throw new Error(`${PRODUCT_NAME_EN} workbench is unavailable for CDP theme injection.`)
     }
     return contents
   }

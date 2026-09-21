@@ -31,6 +31,7 @@ import {
   runtimeBuildIdForFlavor
 } from '../../../kun/src/cli/runtime-flavor.js'
 import { sameCanonicalPath } from '../../../kun/src/manager/canonical-path.js'
+import { PRODUCT_NAME_EN } from '../../shared/product-identity'
 
 const KUN_RUNTIME_ID = 'kun' as const
 
@@ -72,7 +73,7 @@ export const kunRuntimeAdapter = {
       const scriptPath = resolution.args[0] ?? ''
       return runtime.binaryPath.trim()
         ? `Node.js script (${scriptPath})`
-        : `Bundled Kun (${scriptPath})`
+        : `Bundled ${PRODUCT_NAME_EN} (${scriptPath})`
     }
     return resolution.command
   },
@@ -140,7 +141,7 @@ export const kunRuntimeAdapter = {
       runtimeFlavor
     )
     if (!expectedBuildId) {
-      return { state: 'unknown', error: new Error('The packaged Kun Runtime build identity is missing.') }
+      return { state: 'unknown', error: new Error(`The packaged ${PRODUCT_NAME_EN} Runtime build identity is missing.`) }
     }
     let inspected: Awaited<ReturnType<typeof inspectSharedRuntime>>
     try {

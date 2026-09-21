@@ -9,6 +9,7 @@ import type {
   ClawImRemoteSessionV1
 } from '../shared/app-settings'
 import { CLAW_FEISHU_INBOUND_MESSAGE_HEADING } from '../shared/app-settings'
+import { PRODUCT_NAME_EN } from '../shared/product-identity'
 import type {
   RuntimeRequestResult,
   ThreadDetailJson,
@@ -70,7 +71,7 @@ export function formatFeishuMirrorText(text: string, direction: 'user' | 'assist
   const trimmed = text.trim()
   if (direction === 'user') {
     return {
-      markdown: `**From Kun**\n\n> ${trimmed.replace(/\n/g, '\n> ')}`
+      markdown: `**From ${PRODUCT_NAME_EN}**\n\n> ${trimmed.replace(/\n/g, '\n> ')}`
     }
   }
   return { markdown: trimmed || '(empty reply)' }

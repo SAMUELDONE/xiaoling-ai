@@ -11,7 +11,7 @@ import type {
 } from './canvas/design-system-types'
 import { resolvePrototypeViewportFrame } from './prototype-player'
 
-/** Project-level Kun handoff. Root DESIGN.md is the canonical theme source. */
+/** Project-level Xiaoling AI handoff. Root DESIGN.md is the canonical theme source. */
 export const STITCH_DESIGN_MD_PATH = '.kun-design/HANDOFF.md'
 
 export type BuildStitchDesignMarkdownOptions = {
@@ -148,7 +148,7 @@ function formatDesignArtifacts(
 }
 
 export function buildStitchDesignMarkdown(options: BuildStitchDesignMarkdownOptions): string {
-  const title = clean(options.title) || 'Kun design project'
+  const title = clean(options.title) || 'Xiaoling AI design project'
   const updatedAt = options.updatedAt ?? new Date().toISOString()
   const contextLines = formatDesignContextLines(options.designContext).filter((line) => line.trim())
   const preset = options.designContext?.designSystemPreset
@@ -158,14 +158,14 @@ export function buildStitchDesignMarkdown(options: BuildStitchDesignMarkdownOpti
   return [
     `# DESIGN.md: ${title}`,
     '',
-    'Portable project design guide for Kun, Stitch-style workflows, and code agents.',
+    'Portable project design guide for Xiaoling AI, Stitch-style workflows, and code agents.',
     '',
     '## Source',
     '',
     `- Updated: ${updatedAt}`,
     `- Project brief: ${code(options.projectBriefPath)}`,
     `- Shared token file: ${code(options.designSystemMdPath)}`,
-    '- Origin: Kun design mode',
+    '- Origin: Xiaoling AI design mode',
     '',
     '## Product Brief',
     '',
@@ -185,7 +185,7 @@ export function buildStitchDesignMarkdown(options: BuildStitchDesignMarkdownOpti
     '## Components',
     '',
     ...(referencesCanonicalTheme
-      ? ['See root `DESIGN.md` for public component guidance; Kun-native rich component trees remain in internal document sidecars.']
+      ? ['See root `DESIGN.md` for public component guidance; runtime-native rich component trees remain in internal document sidecars.']
       : formatComponents(options.designSystem)),
     '',
     '## Screens and Prototype Flow',

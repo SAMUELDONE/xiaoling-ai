@@ -1,7 +1,8 @@
 import { composeFrameworkGuidance } from './pm-skill-frameworks'
+import { PRODUCT_NAME_EN } from '@shared/product-identity'
 
 export const SDD_VERIFY_INTRO =
-  'Kun is asking you to verify an implemented SDD requirement draft against its acceptance criteria.'
+  `${PRODUCT_NAME_EN} is asking you to verify an implemented SDD requirement draft against its acceptance criteria.`
 
 /**
  * Acceptance-verification turn: the agent checks every requirement block's

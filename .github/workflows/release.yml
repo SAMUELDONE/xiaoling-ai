@@ -190,9 +190,9 @@ jobs:
         run: |
           set -euo pipefail
           if [[ "$(node -p 'process.arch')" == "arm64" ]]; then
-            resources="dist/mac-arm64/Kun.app/Contents/Resources"
+            resources="dist/mac-arm64/Xiaoling AI.app/Contents/Resources"
           else
-            resources="dist/mac/Kun.app/Contents/Resources"
+            resources="dist/mac/Xiaoling AI.app/Contents/Resources"
           fi
           npm run smoke:packaged-update-handoff -- --resources "${resources}"
 

@@ -1,4 +1,5 @@
 import { composeFrameworkGuidance } from './pm-skill-frameworks'
+import { PRODUCT_NAME_EN } from '@shared/product-identity'
 
 export function composeSddAssistantPrompt(options: {
   userPrompt: string
@@ -10,7 +11,7 @@ export function composeSddAssistantPrompt(options: {
 }): string {
   const frameworkGuidance = composeFrameworkGuidance(options.frameworkIds ?? [])
   return [
-    'You are helping clarify and improve an SDD requirement draft inside Kun.',
+    `You are helping clarify and improve an SDD requirement draft inside ${PRODUCT_NAME_EN}.`,
     `Workspace: ${options.workspaceRoot}`,
     `Draft file: ${options.draftRelativePath}`,
     '',

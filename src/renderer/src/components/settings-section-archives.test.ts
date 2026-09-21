@@ -165,7 +165,7 @@ describe('ArchivedThreadsSettingsSection', () => {
     expect(html.indexOf('Workbench')).toBeLessThan(html.indexOf('Intelligence'))
     expect(html.indexOf('Intelligence')).toBeLessThan(html.indexOf('Data'))
     expect(html.indexOf('Data')).toBeLessThan(html.indexOf('System'))
-    expect(html).toContain('Kun')
+    expect(html).toContain('小灵 AI')
     expect(html).toContain('Settings')
   })
 })

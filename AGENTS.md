@@ -1,12 +1,12 @@
-# DeepSeek-GUI Agent Guide
+# Xiaoling AI Agent Guide
 
 This guide is for AI agents working in this repository. It collects the project facts, recurring pitfalls, and validation paths that should be checked before making changes.
 
 ## Project Boundaries
 
-- This is an `Electron + React + TypeScript` desktop app. The product name is `Kun`; the top-level build entries are `package.json`, `electron.vite.config.ts`, and `electron-builder.config.cjs`.
-- The only active agent runtime is the bundled `kun/` TypeScript package. The GUI talks to `kun serve` over local `HTTP + SSE`; the renderer does not run the agent loop directly.
-- The main data path is `Renderer -> preload -> main -> Kun runtime`:
+- This is an `Electron + React + TypeScript` desktop app. The product name is `Xiaoling AI`; the top-level build entries are `package.json`, `electron.vite.config.ts`, and `electron-builder.config.cjs`.
+- The only active agent runtime is the bundled `kun/` TypeScript package. The GUI talks to the Kun-compatible `kun serve` runtime over local `HTTP + SSE`; the renderer does not run the agent loop directly.
+- The main data path is `Renderer -> preload -> main -> Kun-compatible runtime`:
   - `src/renderer/src`: React workbench, Code/Design/Write/Connect phone UI, and Zustand state.
   - `src/preload`: the constrained IPC bridge exposed to the renderer as `window.kunGui`.
   - `src/main`: Electron main process, windows, system services, settings, runtime host, and IPC handlers.
@@ -57,7 +57,7 @@ This guide is for AI agents working in this repository. It collects the project 
 
 ## Renderer And UX Notes
 
-- Settings -> Agents should show only Kun configuration. Do not restore the agent switcher, connection status bar, runtime diagnostics dialog, runtime insights panel, or `/usage` and `/runtime` runtime-control commands.
+- Settings -> Agents should show only Xiaoling AI configuration. Do not restore the agent switcher, connection status bar, runtime diagnostics dialog, runtime insights panel, or `/usage` and `/runtime` runtime-control commands.
 - For local icons, badges, and model capability labels, trace the real renderer data flow instead of changing only the visible label. Retina blur, badge wrapping, and long model names need actual layout validation.
 - Image and attachment paths must be propagated from renderer to Kun through contract fields such as `localFilePath` / `FilePath`. Appending a path only in final text is usually insufficient; check renderer, main bridge, attachment store, agent loop, and model fallback.
 - The current bridge name is `window.kunGui`. Do not use the old `window.dsGui` name.
@@ -98,7 +98,7 @@ This guide is for AI agents working in this repository. It collects the project 
 - For feature fixes, sync to the latest `upstream/develop` first when the worktree baseline is suspicious. Old worktree diffs may already be upstream.
 - New branches should use the `codex/` prefix, for example `codex/fix-provider-endpoint`.
 - Use Angular-style commit messages such as `fix(scope): ...`, `feat(scope): ...`, or `docs(agents): ...`. Keep the title outcome-focused and do not include `[codex]`.
-- DeepSeek-GUI/Kun PRs should target `develop` explicitly. Do not rely on the GitHub default branch, and do not accidentally open PRs against `master`.
+- Xiaoling AI PRs should target `develop` explicitly. Do not rely on the GitHub default branch, and do not accidentally open PRs against `master`.
 - Before creating a PR, verify the canonical repository slug and the issue repository. Remote names can be misleading; prefer `gh repo view --json nameWithOwner,defaultBranchRef` or `gh api repos/<owner>/<repo>`.
 - PR creation example:
 

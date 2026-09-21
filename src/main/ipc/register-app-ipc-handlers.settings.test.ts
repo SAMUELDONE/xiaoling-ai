@@ -374,7 +374,7 @@ describe('registerAppIpcHandlers settings and approvals', () => {
       mainWindow,
       expect.objectContaining({
         detail: expect.stringContaining(
-          'Full access lets Kun access any local file, execute host commands, and use network-capable tools'
+          'Full access lets Xiaoling AI access any local file, execute host commands, and use network-capable tools'
         )
       })
     )

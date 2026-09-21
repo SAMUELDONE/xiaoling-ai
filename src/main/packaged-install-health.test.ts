@@ -43,7 +43,7 @@ describe('inspectPackagedInstallHealth', () => {
 
     expect(inspectPackagedInstallHealth({ isPackaged: true, ...input })).toEqual({
       ok: false,
-      missing: ['resources/app.asar', 'Kun service manager entry']
+      missing: ['resources/app.asar', 'Xiaoling AI service manager entry']
     })
   })
 

@@ -5,6 +5,7 @@ const { existsSync } = require('node:fs')
 const { createRequire } = require('node:module')
 const { join, resolve } = require('node:path')
 const { resolvePackagedRuntimeExecutable } = require('./smoke-packaged-extensions.cjs')
+const packageMetadata = require('../package.json')
 
 const REEXEC_MARKER = 'KUN_PACKAGED_OCR_SMOKE_REEXEC'
 const SUCCESS_MARKER = '[packaged-ocr-smoke] OCR dependencies loaded from '
@@ -24,8 +25,8 @@ function resolveResourcesDir({ root = process.cwd(), environment = process.env }
     environment.KUN_PACKAGED_RESOURCES_DIR,
     join(root, 'dist', 'linux-unpacked', 'resources'),
     join(root, 'dist', 'win-unpacked', 'resources'),
-    join(root, 'dist', 'mac-arm64', 'Kun.app', 'Contents', 'Resources'),
-    join(root, 'dist', 'mac', 'Kun.app', 'Contents', 'Resources')
+    join(root, 'dist', 'mac-arm64', `${packageMetadata.productName || 'Xiaoling AI'}.app`, 'Contents', 'Resources'),
+    join(root, 'dist', 'mac', `${packageMetadata.productName || 'Xiaoling AI'}.app`, 'Contents', 'Resources')
   ].map((candidate) => candidate && resolve(root, candidate)))
   if (!resourcesDir) {
     fail('Could not find packaged app resources. Set KUN_PACKAGED_RESOURCES_DIR or build a packaged app first.')

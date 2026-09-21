@@ -16,6 +16,7 @@ import {
   normalizeModelProviderId
 } from '../shared/app-settings'
 import { runtimeErrorMessage } from './claw-runtime-helpers'
+import { PRODUCT_NAME, PRODUCT_NAME_EN } from '../shared/product-identity'
 
 export function runtimeErrorCode(result: { body: string }): string {
   try {
@@ -188,16 +189,16 @@ export function imCommandHelpText(settings: AppSettingsV1): string {
       '- `/help`：查看命令帮助',
       '- `/new`：当前 IM 连接开启新话题',
       '- `/clear`：等同于 `/new`，当前 IM 连接开启新话题',
-      '- `/stop`：停止当前 Kun 会话里正在运行的任务',
-      '- `/pwd`：查看当前 Kun 会话工作目录本地路径',
-      '- `/usage`：查看当前 Kun 会话 token 消耗、供应商和模型',
-      '- `/list-skills`：查看当前 Kun 可用技能',
-      '- `/list-mcp`：查看当前 Kun MCP 服务器',
-      '- `/list-goal`：查看当前 Kun 会话目标',
-      '- `/goal <目标>`：设置当前 Kun 会话目标',
-      '- `/list-threads`：列出最近的 Kun 会话',
-      '- `/current`：查看当前 IM 会话连接的 Kun 会话',
-      '- `/switch <序号|thread id>`：切换当前 IM 会话到指定 Kun 会话',
+      `- \`/stop\`：停止当前 ${PRODUCT_NAME} 会话里正在运行的任务`,
+      `- \`/pwd\`：查看当前 ${PRODUCT_NAME} 会话工作目录本地路径`,
+      `- \`/usage\`：查看当前 ${PRODUCT_NAME} 会话 token 消耗、供应商和模型`,
+      `- \`/list-skills\`：查看当前 ${PRODUCT_NAME} 可用技能`,
+      `- \`/list-mcp\`：查看当前 ${PRODUCT_NAME} MCP 服务器`,
+      `- \`/list-goal\`：查看当前 ${PRODUCT_NAME} 会话目标`,
+      `- \`/goal <目标>\`：设置当前 ${PRODUCT_NAME} 会话目标`,
+      `- \`/list-threads\`：列出最近的 ${PRODUCT_NAME} 会话`,
+      `- \`/current\`：查看当前 IM 会话连接的 ${PRODUCT_NAME} 会话`,
+      `- \`/switch <序号|thread id>\`：切换当前 IM 会话到指定 ${PRODUCT_NAME} 会话`,
       '- `/list-model`：查看所有可用文本模型',
       '- `/model <序号>`：按 `/list-model` 列出的序号切换当前 IM 连接模型',
       '命令前缀可以从 `/` 改成 `-`，例如 `-new`、`-list-threads`、`-switch 2`。'
@@ -208,16 +209,16 @@ export function imCommandHelpText(settings: AppSettingsV1): string {
     '- `/help`: show command help',
     '- `/new`: start a new topic for this IM connection',
     '- `/clear`: same as `/new`, start a new topic for this IM connection',
-    '- `/stop`: stop the running task in the current Kun conversation',
-    '- `/pwd`: show the local workspace path for the current Kun conversation',
-    '- `/usage`: show token usage plus provider/model for the current Kun conversation',
-    '- `/list-skills`: list available Kun skills',
-    '- `/list-mcp`: list Kun MCP servers',
-    '- `/list-goal`: show the current Kun conversation goal',
-    '- `/goal <objective>`: set the current Kun conversation goal',
-    '- `/list-threads`: list recent Kun conversations',
-    '- `/current`: show the Kun conversation connected to this IM chat',
-    '- `/switch <number|thread id>`: switch this IM chat to a Kun conversation',
+    `- \`/stop\`: stop the running task in the current ${PRODUCT_NAME_EN} conversation`,
+    `- \`/pwd\`: show the local workspace path for the current ${PRODUCT_NAME_EN} conversation`,
+    `- \`/usage\`: show token usage plus provider/model for the current ${PRODUCT_NAME_EN} conversation`,
+    `- \`/list-skills\`: list available ${PRODUCT_NAME_EN} skills`,
+    `- \`/list-mcp\`: list ${PRODUCT_NAME_EN} MCP servers`,
+    `- \`/list-goal\`: show the current ${PRODUCT_NAME_EN} conversation goal`,
+    `- \`/goal <objective>\`: set the current ${PRODUCT_NAME_EN} conversation goal`,
+    `- \`/list-threads\`: list recent ${PRODUCT_NAME_EN} conversations`,
+    `- \`/current\`: show the ${PRODUCT_NAME_EN} conversation connected to this IM chat`,
+    `- \`/switch <number|thread id>\`: switch this IM chat to a ${PRODUCT_NAME_EN} conversation`,
     '- `/list-model`: list all available text models',
     '- `/model <number>`: switch this IM connection to a model listed by `/list-model`',
     'The command prefix can be changed from `/` to `-`, for example `-new`, `-list-threads`, or `-switch 2`.'
@@ -310,19 +311,24 @@ export function imKunErrorText(_settings: AppSettingsV1, message: string): strin
 
 export function imKunSystemText(message: string): string {
   const trimmed = message.trim()
-  if (trimmed.startsWith('[Kun]')) return trimmed
-  if (trimmed.startsWith('Kun:')) return `[Kun] ${trimmed.slice('Kun:'.length).trim()}`
-  return `[Kun] ${trimmed}`
+  const productPrefix = `[${PRODUCT_NAME_EN}]`
+  if (trimmed.startsWith(productPrefix) || trimmed.startsWith('[Kun]')) return trimmed
+  if (trimmed.startsWith('Kun:')) return `${productPrefix} ${trimmed.slice('Kun:'.length).trim()}`
+  if (trimmed.startsWith(`${PRODUCT_NAME_EN}:`)) {
+    return `${productPrefix} ${trimmed.slice(`${PRODUCT_NAME_EN}:`.length).trim()}`
+  }
+  return `${productPrefix} ${trimmed}`
 }
 
 
 export function imWelcomeText(settings: AppSettingsV1, channel?: ClawImChannelV1): string {
   const profile = channel?.agentProfile
-  const name = profile?.name.trim() || channel?.label.trim() || 'Kun'
+  const chinese = isChineseLocale(settings)
+  const name = profile?.name.trim() || channel?.label.trim() || (chinese ? PRODUCT_NAME : PRODUCT_NAME_EN)
   const description = profile?.description.trim() ?? ''
-  if (isChineseLocale(settings)) {
+  if (chinese) {
     return [
-      `你好，我是 ${name}，通过 Kun 连接到这个对话的 AI 助手。`,
+      `你好，我是 ${name}，通过 ${PRODUCT_NAME} 连接到这个对话的 AI 助手。`,
       ...(description ? [description] : []),
       '你可以直接发消息让我帮忙：回答问题、查资料、读写已连接电脑工作区里的文件、生成文档等，完成后我会在这里回复你。',
       imCommandHelpText(settings),
@@ -330,7 +336,7 @@ export function imWelcomeText(settings: AppSettingsV1, channel?: ClawImChannelV1
     ].join('\n\n')
   }
   return [
-    `Hi, I am ${name}, an AI assistant connected to this chat through Kun.`,
+    `Hi, I am ${name}, an AI assistant connected to this chat through ${PRODUCT_NAME_EN}.`,
     ...(description ? [description] : []),
     'Send me a message and I will handle it on the connected computer: answering questions, research, reading and writing workspace files, generating documents — I reply here once done.',
     imCommandHelpText(settings),

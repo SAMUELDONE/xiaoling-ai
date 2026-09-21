@@ -387,7 +387,7 @@ describe('registerAppIpcHandlers UI plugins and runtime', () => {
         defaultId: 1,
         cancelId: 1,
         detail: expect.stringMatching(
-          /Only the Kun Runtime owned by this desktop app will restart[\s\S]*TUI processes[\s\S]*Kun Service Manager will not be scanned or stopped[\s\S]*Running Agent tasks, tool calls, background work, and pending approvals may be interrupted[\s\S]*Workspace changes already in progress will remain and may be incomplete[\s\S]*Saved sessions and conversations, memory, archives, settings, logs, and workspace files will not be deleted/u
+          /Only the Xiaoling AI runtime owned by this desktop app will restart[\s\S]*TUI processes[\s\S]*Xiaoling AI Service Manager will not be scanned or stopped[\s\S]*Running Agent tasks, tool calls, background work, and pending approvals may be interrupted[\s\S]*Workspace changes already in progress will remain and may be incomplete[\s\S]*Saved sessions and conversations, memory, archives, settings, logs, and workspace files will not be deleted/u
         )
       })
     )
@@ -421,7 +421,7 @@ describe('registerAppIpcHandlers UI plugins and runtime', () => {
         defaultId: 1,
         cancelId: 1,
         detail: expect.stringMatching(
-          /只会重启当前桌面应用拥有的 Kun Runtime[\s\S]*不会扫描或停止 TUI[\s\S]*Kun Service Manager[\s\S]*Agent 任务、工具调用、后台任务和待审批操作可能中断[\s\S]*工作区修改会原样保留，可能处于未完成状态[\s\S]*会话和对话记录、记忆、归档、设置、日志及工作区文件不会被删除/u
+          /只会重启当前桌面应用拥有的 小灵 AI Runtime[\s\S]*不会扫描或停止 TUI[\s\S]*小灵 AI Service Manager[\s\S]*Agent 任务、工具调用、后台任务和待审批操作可能中断[\s\S]*工作区修改会原样保留，可能处于未完成状态[\s\S]*会话和对话记录、记忆、归档、设置、日志及工作区文件不会被删除/u
         )
       })
     )
@@ -430,14 +430,14 @@ describe('registerAppIpcHandlers UI plugins and runtime', () => {
   it.each([
     {
       locale: 'en-US',
-      title: 'Kun restart failed',
+      title: 'Xiaoling AI restart failed',
       message: 'The desktop Runtime could not finish restarting.',
       detail: 'The previous desktop Runtime may already have stopped. Saved data was not deleted; check the logs and retry.',
       error: 'Restart failed. Check the logs and retry.'
     },
     {
       locale: 'zh-CN',
-      title: 'Kun 重启失败',
+      title: '小灵 AI 重启失败',
       message: '桌面 Runtime 未能完成重启。',
       detail: '原桌面 Runtime 可能已经停止。已保存的数据未被删除；请查看日志后重试。',
       error: '重启失败，请查看日志后重试。'

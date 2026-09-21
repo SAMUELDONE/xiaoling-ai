@@ -1,4 +1,4 @@
-# Kun Memory Foundation
+# Xiaoling AI Memory Foundation
 
 The canonical store is `{dataDir}/memory/*.json`; `{dataDir}/memory-index.sqlite3` is a disposable,
 rebuildable FTS5 projection. Records are normalized to schema V2 on read without eagerly rewriting

@@ -53,7 +53,7 @@ describe('Kun runtime health monitor', () => {
 
   it('keeps timeout diagnostics stable', () => {
     expect(describeKunStartupTimeout(60_000, 'stderr', false)).toBe(
-      'Kun did not report ready within 60000ms\nstderr'
+      'Xiaoling AI did not report ready within 60000ms\nstderr'
     )
   })
 

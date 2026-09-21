@@ -6,6 +6,7 @@ const {
 const {
   KUN_ROOT_UNPACKED_SHARED_JS_PACKAGES
 } = require('./scripts/after-pack-hoisted-dependencies.cjs')
+const packageMetadata = JSON.parse(readFileSync(join(__dirname, 'package.json'), 'utf8'))
 
 // 品牌升级后构建环境变量改用 KUN_* 前缀;旧的 DEEPSEEK_GUI_* 仍然
 // 兼容读取,避免 CI / 本地发布脚本一刀切失效。
@@ -87,7 +88,11 @@ const developmentFlavor = appFlavor === 'development'
 const appId = developmentFlavor
   ? 'com.xingyuzhong.deepseekgui.dv'
   : 'com.xingyuzhong.deepseekgui'
-const productName = developmentFlavor ? 'kun-dv' : 'Kun'
+const productName = developmentFlavor ? 'Xiaoling AI Dev' : packageMetadata.productName
+// Keep the artifact prefix stable for the existing updater feed. The app and
+// installer display name is Xiaoling AI; a future release can introduce a
+// second feed after the legacy-prefix migration is explicitly tested.
+const legacyArtifactProductName = developmentFlavor ? 'kun-dv' : 'Kun'
 const linuxBuildArch = normalizeOptionalLinuxBuildArch(process.env.KUN_LINUX_BUILD_ARCH)
 
 function normalizeUpdateChannel(raw) {
@@ -130,6 +135,10 @@ module.exports = {
   //  - macOS TCC 权限、通知授权也都挂在这个 id 上。
   appId,
   productName,
+  // Keep the executable name stable while the display name moves to Xiaoling
+  // AI. Runtime launchers and packaged CLI smoke tests still discover this
+  // compatibility name.
+  executableName: 'kun-gui',
   asar: true,
   asarUnpack: [
     '**/kun/dist/**/*',
@@ -277,7 +286,7 @@ module.exports = {
       filter: ['LICENSE', 'NOTICE', 'THIRD-PARTY-NOTICES.txt']
     },
   ],
-  artifactName: `${productName}-${artifactVersion}-\${os}-\${arch}.\${ext}`,
+  artifactName: `${legacyArtifactProductName}-${artifactVersion}-\${os}-\${arch}.\${ext}`,
   ...(developmentFlavor
     ? { publish: [] }
     : {
@@ -306,7 +315,7 @@ module.exports = {
     entitlementsInherit: 'build/entitlements.mac.inherit.plist',
     extendInfo: {
       // 语音输入：渲染进程通过 getUserMedia 录音做语音转文字。
-      NSMicrophoneUsageDescription: 'Kun uses the microphone for voice-to-text input.'
+      NSMicrophoneUsageDescription: 'Xiaoling AI uses the microphone for voice-to-text input.'
     },
     // macOS 不会自动套圆角遮罩,图标文件本身需要是「圆角方块 + 透明边距」
     icon: './src/asset/img/kun_mac.png',
@@ -372,7 +381,7 @@ module.exports = {
     electronLanguages: chromiumPakLanguages,
     category: 'Development',
     icon: './src/asset/img/kun.png',
-    maintainer: 'Kun Contributors <1736101137@qq.com>',
+    maintainer: 'SAMUELDONE',
     // AppImage covers generic Linux; deb covers Debian-family installers such as
     // openKylin / Ubuntu that expect apt/software-store packages.
     target: [

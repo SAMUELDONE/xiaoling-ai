@@ -62,7 +62,7 @@
   "projectBoardTitleRequired": "请输入任务标题。",
   "projectBoardPlanTitleReadOnly": "Plan 任务标题需要在 Plan 文档中编辑。",
   "projectBoardSaving": "保存中…",
-  "projectBoardOffline": "Kun 当前离线。已缓存看板保持只读，运行时恢复后可继续编辑。",
+  "projectBoardOffline": "小灵 AI 当前离线。已缓存看板保持只读，运行时恢复后可继续编辑。",
   "projectBoardLoadMore": "加载更多任务",
   "projectBoardArchiveEmpty": "暂无归档任务",
   "projectBoardTotal": "任务总数",

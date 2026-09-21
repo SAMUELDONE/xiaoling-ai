@@ -5,7 +5,7 @@
 # invented. Anything not in this block is editorial, not authoritative.
 
 schema_version: 1
-project: Kun
+project: Xiaoling AI
 single_runtime: kun
 themes: [light, dark, system]
 
@@ -286,8 +286,8 @@ i18n:
 
 # ---------- 13. Brand & voice ----------
 brand:
-  product_name: "Kun"
-  tagline: "把 Kun 的本地智能体能力带进桌面窗口"
+  product_name: "Xiaoling AI"
+  tagline: "把本地优先的智能体能力带进桌面窗口"
   hero_kw: [Code, Design, Write, Connect phone]
   pillars:
     - "本地优先 (Local-first): settings, sessions, logs all on disk; model calls use your own DeepSeek API key."
@@ -311,7 +311,7 @@ a11y:
 
 # ---------- 15. Don't (anti-patterns enforced by the codebase) ----------
 dont:
-  - "Use a second live agent runtime — Kun is the only one."
+  - "Use a second live agent runtime — the Kun-compatible runtime is the only one."
   - "Add AgentSwitcher / ConnectionStatusBar / RuntimeDiagnosticsDialog."
   - "Add CodeWhale/Reasonix adapters, process managers, RPC bridges, updaters, importers."
   - "Add a design/drawing starter card in the core workbench."
@@ -324,13 +324,13 @@ dont:
 ---
 
 
-# Kun — DESIGN.md
+# 小灵 AI — DESIGN.md
 
-机器可读的设计令牌 frontmatter 继续保留在这个稳定入口文件中。正文已按功能拆成独立章节；下方保留原章节标题作为稳定导航锚点。
+机器可读的设计令牌 frontmatter 继续保留在这个稳定入口文件中。正文已按功能拆成独立章节；下方保留原章节标题作为稳定导航锚点。Kun 仅表示兼容运行时和上游来源。
 
 ## Focused chapters
 
-- [Foundations, visual language, architecture, and Kun runtime](docs/design/zh-CN/foundations-and-runtime.md)
+- [Foundations, visual language, architecture, and Xiaoling AI runtime](docs/design/zh-CN/foundations-and-runtime.md)
 - [Desktop shell, renderer, persistence, operations, and references](docs/design/zh-CN/desktop-renderer-and-operations.md)
 
 ## Stable section navigation

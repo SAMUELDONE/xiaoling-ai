@@ -28,6 +28,7 @@ import {
   type InstallerRecoveryEnvironment
 } from './gui-updater-pending'
 import { resolveUpdateTransactionFacts, transactionCountsAsInstalled } from './update-transaction-states'
+import { PRODUCT_NAME_EN } from '../shared/product-identity'
 
 type InstallerDetails = {
   hasDownloaded: boolean
@@ -79,7 +80,7 @@ export class GuiUpdateInstaller {
     if (this.installPromise) return this.installPromise
     if (this.blockedForMissingRollbackRecord) {
       return Promise.resolve(failedResult(
-        'A previous update left an unresolved transaction. Reinstall Kun before updating again.'
+        `A previous update left an unresolved transaction. Reinstall ${PRODUCT_NAME_EN} before updating again.`
       ))
     }
     if (this.attemptActive || this.handoffPending || this.handoffStarted) return Promise.resolve({ ok: true })
@@ -189,7 +190,7 @@ export class GuiUpdateInstaller {
           )
           this.blockedForMissingRollbackRecord = true
           this.emitInstallFailure(
-            'The update transaction record is missing. Reinstall Kun to recover rollback safety.'
+            `The update transaction record is missing. Reinstall ${PRODUCT_NAME_EN} to recover rollback safety.`
           )
           return
         }
@@ -232,7 +233,7 @@ export class GuiUpdateInstaller {
       return
     }
     const attempts = recovery.healthAttempts + 1
-    const message = 'GUI update installed, but Kun Runtime health checks are still failing.'
+    const message = `GUI update installed, but ${PRODUCT_NAME_EN} runtime health checks are still failing.`
     const nextRecovery = await writeGuiUpdateRecovery({ ...recovery, healthAttempts: attempts,
       nextHealthCheckAt: new Date(Date.now() + GUI_UPDATE_HEALTH_RETRY_MS).toISOString(), lastError: message })
     if (attempts >= GUI_UPDATE_MAX_HEALTH_ATTEMPTS) {
@@ -252,7 +253,7 @@ export class GuiUpdateInstaller {
     try {
       await scheduleUpdateRollbackAfterExit(recovery.recoveryEnvironment)
       this.deps.emit({ status: 'error', info: this.deps.stateInfo(), code: 'install_failed',
-        message: 'Kun Runtime health checks failed repeatedly. Restoring the previous version.' })
+        message: `${PRODUCT_NAME_EN} runtime health checks failed repeatedly. Restoring the previous version.` })
       app.exit(0)
     } catch (error) {
       console.error('[kun-gui updater] failed to schedule update rollback:', error)
@@ -297,7 +298,7 @@ export class GuiUpdateInstaller {
       )
       this.blockedForMissingRollbackRecord = true
       this.emitInstallFailure(
-        'The update recovery record is incomplete. Reinstall Kun to restore rollback safety.'
+        `The update recovery record is incomplete. Reinstall ${PRODUCT_NAME_EN} to restore rollback safety.`
       )
       return
     }
@@ -337,7 +338,7 @@ export class GuiUpdateInstaller {
     )
     this.blockedForMissingRollbackRecord = true
     this.emitInstallFailure(
-      result.message || 'The update installer stopped repeatedly. Reinstall Kun to recover.'
+      result.message || `The update installer stopped repeatedly. Reinstall ${PRODUCT_NAME_EN} to recover.`
     )
   }
 
@@ -392,7 +393,7 @@ export class GuiUpdateInstaller {
 
   private emitDegraded(attempts: number, message?: string): void {
     this.deps.emit({ status: 'error', info: this.deps.stateInfo(), code: 'install_failed',
-      message: `${message || 'Kun Runtime needs repair after the GUI update.'} Health attempts: ${attempts}.` })
+      message: `${message || `${PRODUCT_NAME_EN} runtime needs repair after the GUI update.`} Health attempts: ${attempts}.` })
   }
 
   private async installOnce(): Promise<GuiUpdateInstallResult> {
@@ -496,7 +497,7 @@ export class GuiUpdateInstaller {
       status: 'error',
       info: this.deps.stateInfo(),
       code: 'install_failed',
-      message: `Kun could not verify the previous owner before updating (${kind}); stopping automatic retries.`
+      message: `${PRODUCT_NAME_EN} could not verify the previous owner before updating (${kind}); stopping automatic retries.`
     })
   }
 

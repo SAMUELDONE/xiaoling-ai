@@ -1,4 +1,5 @@
 import type { AppEnvironmentInfo } from '../shared/app-environment'
+import { PRODUCT_NAME } from '../shared/product-identity'
 
 export function parseAppEnvironment(encoded: string | undefined): AppEnvironmentInfo {
   if (encoded) {
@@ -18,7 +19,7 @@ export function parseAppEnvironment(encoded: string | undefined): AppEnvironment
   }
   return Object.freeze({
     flavor: 'production',
-    appName: 'Kun',
+    appName: PRODUCT_NAME,
     appId: 'com.xingyuzhong.deepseekgui',
     runtimeFlavor: 'production',
     profilePath: '',

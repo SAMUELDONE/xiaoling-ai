@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect } from 'react'
 import { AppErrorBoundary } from './components/AppErrorBoundary'
 import { installIssue781DocumentUsability } from './lib/issue-781-document-usability'
 import { useChatStore } from './store/chat-store'
+import { PRODUCT_NAME_EN } from '@shared/product-identity'
 import { KUN_MODEL_CONNECTIONS_PATH } from '@shared/kun-endpoints'
 
 type AppShellModule = typeof import('./AppShell')
@@ -106,7 +107,7 @@ function StartupShell(): React.ReactElement {
     <div className="flex h-full min-h-0 items-center justify-center bg-ds-main text-ds-muted">
       <div className="flex items-center gap-2 rounded-full border border-ds-border-muted bg-ds-card px-4 py-2 text-[13px] shadow-sm">
         <span className="h-2 w-2 animate-pulse rounded-full bg-accent" aria-hidden />
-        <span>Loading Kun...</span>
+        <span>Loading {PRODUCT_NAME_EN}...</span>
       </div>
     </div>
   )

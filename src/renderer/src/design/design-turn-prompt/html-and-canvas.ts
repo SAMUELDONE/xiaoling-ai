@@ -19,6 +19,7 @@ import type { DerivedTokens } from "../design-token-extract"
 import type { DesignContextLocation, DesignHtmlElementContext } from "../design-composer-context"
 import { formatDesignHtmlQualityFindings, type DesignHtmlQualityFinding } from "../design-html-quality"
 import type { DesignFrameContext, DesignTurnOptions, ScreenTurnOptions } from './shared'
+import { PRODUCT_NAME_EN } from '@shared/product-identity'
 import { formatCanvasTargetFrameLines, formatContextLocationLines, formatDerivedTokenLines, formatDesignTargetFrameLines, formatScreenManifestLines } from './shared'
 
 /**
@@ -33,8 +34,8 @@ export function buildScreenTurnPrompt(options: ScreenTurnOptions): string {
     : `\`${options.artifactRelativePath}\``
   const lines = [
     options.basePath
-      ? `Kun is asking you to ITERATE on an existing screen design: "${options.screenName}".`
-      : `Kun is asking you to design a new screen: "${options.screenName}".`,
+      ? `${PRODUCT_NAME_EN} is asking you to ITERATE on an existing screen design: "${options.screenName}".`
+      : `${PRODUCT_NAME_EN} is asking you to design a new screen: "${options.screenName}".`,
     `Workspace: ${options.workspaceRoot}`,
     ...formatProjectDesignSystemLines(options),
     ...formatDesignTargetFrameLines(options.designContext),
@@ -328,8 +329,8 @@ export function buildCanvasTurnPrompt(options: DesignTurnOptions): string {
   const placementFrameLabel = codeCanvasMode ? 'UI frame placeholders' : 'target screen frames'
   const lines = [
     codeCanvasMode
-      ? 'Kun is asking you to operate the Code sidebar whiteboard with the dedicated canvas tools.'
-      : 'Kun is asking you to operate the design canvas with the dedicated design tools.',
+      ? `${PRODUCT_NAME_EN} is asking you to operate the Code sidebar whiteboard with the dedicated canvas tools.`
+      : `${PRODUCT_NAME_EN} is asking you to operate the design canvas with the dedicated design tools.`,
     `Workspace: ${options.workspaceRoot}`,
     ...formatProjectDesignSystemLines(options),
     ...formatCanvasTargetFrameLines(options.designContext, options.canvasSurface ?? 'design'),

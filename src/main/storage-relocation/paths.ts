@@ -7,6 +7,7 @@ import type {
   StorageRelocationRoot,
   StorageRelocationRootName
 } from '../../shared/storage-relocation'
+import { PRODUCT_NAME_EN } from '../../shared/product-identity'
 
 const execFileAsync = promisify(execFile)
 const WINDOWS_STORAGE_RELOCATION_VOLUME_ROOT_ENV = 'KUN_STORAGE_RELOCATION_VOLUME_ROOT'
@@ -76,7 +77,7 @@ export function validateDestinationPath(input: {
   }
   if (destination === parsed.root || destination === win32.resolve(input.homeDir)) {
     if (!input.restoreDefault || destination !== win32.resolve(input.homeDir)) {
-      throw new Error('invalid_destination: A drive or user-profile root cannot own Kun data directly.')
+      throw new Error(`invalid_destination: A drive or user-profile root cannot own ${PRODUCT_NAME_EN} data directly.`)
     }
   }
   if (!input.restoreDefault) {
@@ -87,7 +88,7 @@ export function validateDestinationPath(input: {
       storageLogicalRoot('.deepseekgui', input.homeDir)
     ]
     if (protectedPaths.some((candidate) => windowsPathsOverlap(destination, candidate))) {
-      throw new Error('invalid_destination: The selected folder overlaps protected Kun data.')
+      throw new Error(`invalid_destination: The selected folder overlaps protected ${PRODUCT_NAME_EN} data.`)
     }
   }
   return destination
@@ -154,7 +155,7 @@ export async function ensureDestinationIsEmpty(path: string): Promise<void> {
   await mkdir(path, { recursive: true, mode: 0o700 })
   const entries = await readdir(path)
   if (entries.length > 0) {
-    throw new Error('destination_not_empty: Choose an empty folder reserved for Kun data.')
+    throw new Error(`destination_not_empty: Choose an empty folder reserved for ${PRODUCT_NAME_EN} data.`)
   }
 }
 

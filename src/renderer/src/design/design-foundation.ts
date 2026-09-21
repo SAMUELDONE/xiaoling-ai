@@ -10,6 +10,7 @@ import {
 import { DESIGN_PAGES_MAX, DESIGN_PAGES_MIN } from './design-pages'
 import type { ScreenManifestEntry } from './design-turn-prompt'
 import type { DesignArtifact } from './design-types'
+import { PRODUCT_NAME_EN } from '@shared/product-identity'
 
 /** Foundation role of a Stitch-style artifact (shared style guide / brand logo). */
 export type DesignFoundationRole = NonNullable<DesignArtifact['role']>
@@ -105,7 +106,7 @@ export function buildDesignSpecPrompt(options: {
     Math.max(DESIGN_PAGES_MIN, options.maxPages ?? DESIGN_PAGES_MAX)
   )
   const lines = [
-    'Kun is asking you to LAY THE FOUNDATION for a multi-page design before any screen is built.',
+    `${PRODUCT_NAME_EN} is asking you to LAY THE FOUNDATION for a multi-page design before any screen is built.`,
     `Workspace: ${options.workspaceRoot}`,
     `Design brief file (already created — fill it in): ${options.designMdPath}`,
     ...formatFoundationTargetLines(options.designContext, 'spec'),
@@ -170,7 +171,7 @@ export function buildDesignLogoPrompt(options: {
   designContext?: DesignContext
 }): string {
   const lines = [
-    'Kun is asking you to design the BRAND LOGO for this product.',
+    `${PRODUCT_NAME_EN} is asking you to design the BRAND LOGO for this product.`,
     `Workspace: ${options.workspaceRoot}`,
     ...(options.designMdPath ? [`Design brief to honor: ${options.designMdPath}.`] : []),
     ...(options.designSystemMdPath

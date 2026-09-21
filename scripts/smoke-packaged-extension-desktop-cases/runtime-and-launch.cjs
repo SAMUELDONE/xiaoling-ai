@@ -8,6 +8,7 @@ const { tmpdir } = require('node:os')
 const { join, resolve } = require('node:path')
 const test = require('node:test')
 const { parse: parseYaml } = require('yaml')
+const packageMetadata = require('../../../package.json')
 const {
   EXTENSION_ID,
   PACKAGED_EXTENSION_SMOKE_SUCCESS_MARKER,
@@ -180,22 +181,39 @@ test('selects host-native packaged resources and never launches desktop Electron
   assert.equal(platformDesktopArguments('linux').includes('--disable-setuid-sandbox'), false)
   assert.equal(platformDesktopArguments('linux').includes('--no-sandbox'), false)
   assert.deepEqual(platformDesktopArguments('darwin'), [])
-  assert.deepEqual(desktopResourceCandidates('darwin', 'arm64'), ['dist/mac-arm64/Kun.app/Contents/Resources'])
-  assert.deepEqual(desktopResourceCandidates('darwin', 'x64'), ['dist/mac/Kun.app/Contents/Resources'])
+  const appName = packageMetadata.productName || 'Xiaoling AI'
+  const macArm64ResourcePath = `dist/mac-arm64/${appName}.app/Contents/Resources`
+  const macX64ResourcePath = `dist/mac/${appName}.app/Contents/Resources`
+  assert.deepEqual(desktopResourceCandidates('darwin', 'arm64'), [
+    macArm64ResourcePath,
+    'dist/mac-arm64/Kun.app/Contents/Resources'
+  ])
+  assert.deepEqual(desktopResourceCandidates('darwin', 'x64'), [
+    macX64ResourcePath,
+    'dist/mac/Kun.app/Contents/Resources'
+  ])
   assert.deepEqual(desktopResourceCandidates('win32', 'x64'), ['dist/win-unpacked/resources'])
   assert.deepEqual(desktopResourceCandidates('linux', 'x64'), ['dist/linux-unpacked/resources'])
-  assert.deepEqual(packagedResourceCandidates('darwin', 'arm64'), ['dist/mac-arm64/Kun.app/Contents/Resources'])
-  assert.deepEqual(packagedResourceCandidates('darwin', 'x64'), ['dist/mac/Kun.app/Contents/Resources'])
+  assert.deepEqual(packagedResourceCandidates('darwin', 'arm64'), [
+    macArm64ResourcePath,
+    'dist/mac-arm64/Kun.app/Contents/Resources'
+  ])
+  assert.deepEqual(packagedResourceCandidates('darwin', 'x64'), [
+    macX64ResourcePath,
+    'dist/mac/Kun.app/Contents/Resources'
+  ])
   const workspaceRoot = resolve('/workspace')
   const macArm64Resources = resolve(
     workspaceRoot,
-    'dist/mac-arm64/Kun.app/Contents/Resources'
+    `dist/mac-arm64/${appName}.app/Contents/Resources`
   )
   assert.deepEqual(resolvedPackagedResourceCandidates('darwin', 'arm64', workspaceRoot), [
-    macArm64Resources
+    macArm64Resources,
+    resolve(workspaceRoot, 'dist/mac-arm64/Kun.app/Contents/Resources')
   ])
   assert.deepEqual(resolvedDesktopResourceCandidates('darwin', 'arm64', workspaceRoot), [
-    macArm64Resources
+    macArm64Resources,
+    resolve(workspaceRoot, 'dist/mac-arm64/Kun.app/Contents/Resources')
   ])
   assert.equal(desktopApplicationEntry('/packaged/Resources', '/packaged/Kun', '/packaged/Kun'), undefined)
   assert.equal(

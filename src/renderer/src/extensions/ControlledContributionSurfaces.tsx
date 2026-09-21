@@ -17,6 +17,7 @@ import {
 import { ExtensionWebview } from './ExtensionWebview'
 import { ExtensionExternalBrowser } from './ExtensionExternalBrowser'
 import { boundedPlainText, isSecretLikeSettingKey } from './safe-text'
+import { PRODUCT_NAME_EN } from '@shared/product-identity'
 import {
   ContributionIcon,
   isTrustedNotificationActivation,
@@ -571,7 +572,7 @@ export function ExtensionViewOutlet({
   onClose?: () => void
 }): ReactElement {
   if (contribution.owner.kind !== 'extension') {
-    return <div role="alert">Built-in Views are rendered by their owning Kun component.</div>
+    return <div role="alert">Built-in Views are rendered by their owning {PRODUCT_NAME_EN} component.</div>
   }
   if (
     contribution.point !== 'message.resultPreviews' &&

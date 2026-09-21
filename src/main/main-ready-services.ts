@@ -102,6 +102,7 @@ import {
   revealMainWindow,
   syncTray
 } from './main-tray'
+import { PRODUCT_NAME_EN } from '../shared/product-identity'
 
 export interface MainServices {
   initial: AppSettingsV1
@@ -149,23 +150,23 @@ export async function initializeMainServices(input: {
       : join(app.getPath('appData'), 'Kun')
     const productionSettingsPath = input.productionSettingsPath
     if (appIdentity.flavor === 'production') {
-      input.onPhase?.('services_starting', 'Checking the installed Kun runtime...')
+      input.onPhase?.('services_starting', `Checking the installed ${PRODUCT_NAME_EN} runtime...`)
       const preMigrationDataDir = await resolveKunManagerDataDirFromSettings(productionSettingsPath)
       if (await preparePackagedKunBuildHandoff({
         dataDir: preMigrationDataDir,
         settingsPath: productionSettingsPath,
         onHandoffEvent: (event) => {
           if (event.phase === 'quiesce-runtimes') {
-            input.onPhase?.('services_starting', 'Waiting for the previous Kun runtime to finish...')
+            input.onPhase?.('services_starting', `Waiting for the previous ${PRODUCT_NAME_EN} runtime to finish...`)
           } else if (event.phase === 'stop-runtimes') {
-            input.onPhase?.('services_starting', 'Switching to the installed Kun runtime...')
+            input.onPhase?.('services_starting', `Switching to the installed ${PRODUCT_NAME_EN} runtime...`)
           }
         }
       })) {
         traceStartup('installed Runtime build handoff:done')
       }
       traceStartup('runtime data migration:start')
-      input.onPhase?.('data_migrating', 'Migrating Kun data safely...')
+      input.onPhase?.('data_migrating', 'Migrating Xiaoling AI data safely...')
       const migrationResult = await runStartupLegacyMigrations()
       traceStartup('runtime data migration:done', {
         status: migrationResult.status
@@ -187,17 +188,17 @@ export async function initializeMainServices(input: {
         if (status.kind === 'waiting') {
           input.onPhase?.(
             'manager_starting',
-            `Waiting for the previous Kun runtime to finish ${status.activeTurnCount} active task(s)...`
+            `Waiting for the previous ${PRODUCT_NAME_EN} runtime to finish ${status.activeTurnCount} active task(s)...`
           )
         } else if (status.kind === 'shutdown-requested') {
-          input.onPhase?.('manager_starting', 'Switching to the installed Kun runtime...')
+          input.onPhase?.('manager_starting', `Switching to the installed ${PRODUCT_NAME_EN} runtime...`)
         }
       },
       onHandoffEvent: (event) => {
         if (event.phase === 'quiesce-runtimes') {
-          input.onPhase?.('manager_starting', 'Waiting for the previous Kun runtime to finish...')
+          input.onPhase?.('manager_starting', `Waiting for the previous ${PRODUCT_NAME_EN} runtime to finish...`)
         } else if (event.phase === 'stop-runtimes') {
-          input.onPhase?.('manager_starting', 'Switching to the installed Kun runtime...')
+          input.onPhase?.('manager_starting', `Switching to the installed ${PRODUCT_NAME_EN} runtime...`)
         }
       }
     })

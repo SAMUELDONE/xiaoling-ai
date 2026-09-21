@@ -8,6 +8,7 @@ import type {
   WorkspaceFileWriteResult
 } from '@shared/workspace-file'
 import { writeDesignWorkspaceFile } from './design-persistence-coordinator'
+import { PRODUCT_NAME_EN } from '@shared/product-identity'
 
 type DesignPreviewPrepareApi = {
   readWorkspaceFile?: (options: WorkspaceFileTarget) => Promise<WorkspaceFileReadResult>
@@ -49,7 +50,7 @@ export type StartDesignHtmlPreviewWatchOptions = {
 const DEFAULT_REVISION_DEBOUNCE_MS = 200
 
 const SKELETON_TITLE = '<title>Generating design preview</title>'
-const SKELETON_MARKER = 'Kun is preparing a live preview'
+const SKELETON_MARKER = `${PRODUCT_NAME_EN} is preparing a live preview`
 const HTML_CODE_FENCE_RE = /^```/
 const HTML_SHELL_OPEN_RE = /<!doctype\s+html\b|<html[\s>]|<body[\s>]/i
 const HTML_SHELL_CLOSE_RE = /<\/html\s*>|<\/body\s*>/i
@@ -198,7 +199,7 @@ export function buildDesignPreviewSkeleton(relativePath: string): string {
   <main aria-live="polite">
     <div class="mark" aria-hidden="true"><div class="pulse"></div></div>
     <h1>Generating design...</h1>
-    <p>Kun is preparing a live preview for <code>${safePath}</code>. The canvas will refresh as the HTML file changes.</p>
+    <p>${PRODUCT_NAME_EN} is preparing a live preview for <code>${safePath}</code>. The canvas will refresh as the HTML file changes.</p>
   </main>
 </body>
 </html>

@@ -16,5 +16,5 @@ concurrency:
 jobs:
   release:
     name: Run develop prerelease
-    uses: KunAgent/Kun/.github/workflows/daily-dev-prerelease.yml@develop
+    uses: SAMUELDONE/xiaoling-ai/.github/workflows/daily-dev-prerelease.yml@develop
     secrets: inherit

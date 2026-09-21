@@ -124,7 +124,7 @@ new Error('Kun Runtime is already owned by tui process 4313'),
 { code: 'client_runtime_owner_busy' }
 ))
 
-expect(presentation.message).toContain('Close the other Kun GUI or TUI')
+    expect(presentation.message).toContain('Close the other Xiaoling AI GUI or TUI')
 expect(presentation.message).toContain('will not stop another client automatically')
 })
 
@@ -141,7 +141,7 @@ it('presents a typed handoff failure with safe owner details and task continuity
     expect(presentation.message).toContain(`Build: ${'a'.repeat(12)}`)
     expect(presentation.message).not.toContain('do-not-render')
     expect(html).toContain('pause and checkpoint active work')
-    expect(html).toContain('Safely stop old Kun and retry')
+    expect(html).toContain('Safely stop old Xiaoling AI and retry')
   })
 
   it('does not render retry or force actions for an unverified owner', () => {
@@ -224,7 +224,7 @@ describe('showStartupFailureWindow', () => {
     expect(window).toBeNull()
     expect(workbenchWindow.destroy).not.toHaveBeenCalled()
     expect(electron.dialog.showErrorBox).toHaveBeenCalledWith(
-      'Kun failed to start',
+      'Xiaoling AI failed to start',
       'manager failed'
     )
   })
@@ -259,8 +259,8 @@ describe('showStartupFailureWindow', () => {
     })
 
     showStartupFailureWindow(error, '/tmp/kun-logs', { recoverHandoff, recoverRetry })
-    expect(lastRenderedHtml()).toContain('Retry Kun')
-    expect(lastRenderedHtml()).not.toContain('Safely stop old Kun')
+    expect(lastRenderedHtml()).toContain('Retry Xiaoling AI')
+    expect(lastRenderedHtml()).not.toContain('Safely stop old Xiaoling AI')
 
     electron.webHandlers.get('will-navigate')?.(
       { preventDefault: vi.fn() },
@@ -278,7 +278,7 @@ describe('showStartupFailureWindow', () => {
     let reject!: (error: Error) => void
     const recoverRetry = vi.fn(() => new Promise<void>((_resolve, rejectPromise) => { reject = rejectPromise }))
     showStartupFailureWindow(new ServiceManagerUnavailableError('transport_refused', 11288), '/tmp/logs', { recoverRetry })
-    expect(lastRenderedHtml()).toContain('Recheck Kun')
+    expect(lastRenderedHtml()).toContain('Recheck Xiaoling AI')
     const navigate = electron.webHandlers.get('will-navigate')!
     navigate({ preventDefault: vi.fn() }, 'kun-startup-action:retry')
     navigate({ preventDefault: vi.fn() }, 'kun-startup-action:retry')
@@ -321,7 +321,7 @@ describe('showStartupFailureWindow', () => {
     expect(recoverHandoff).toHaveBeenCalledOnce()
     expect(electron.app.relaunch).not.toHaveBeenCalled()
     expect(electron.app.quit).not.toHaveBeenCalled()
-    expect(lastRenderedHtml()).toContain('Safely stopping old Kun')
+    expect(lastRenderedHtml()).toContain('Safely stopping old Xiaoling AI')
 
     finishRecovery()
     await vi.waitFor(() => expect(electron.app.relaunch).toHaveBeenCalledOnce())

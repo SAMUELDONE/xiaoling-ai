@@ -38,7 +38,7 @@ describe('DesktopStartupState', () => {
     } as never))
 
     state.transition('shell_ready')
-    state.transition('manager_starting', 'Waiting for the previous Kun runtime...')
+    state.transition('manager_starting', 'Waiting for the previous Xiaoling AI runtime...')
     state.noteDetail('Still waiting for 2 active task(s)...')
 
     expect(state.phase).toBe('manager_starting')

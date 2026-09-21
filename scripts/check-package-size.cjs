@@ -3,6 +3,7 @@
 
 const { existsSync, lstatSync, readFileSync, readdirSync, statSync } = require('node:fs')
 const { extname, join, resolve } = require('node:path')
+const packageMetadata = require('../package.json')
 
 const MIB = 1024 * 1024
 const MAC_ARM64_BUDGETS = {
@@ -50,7 +51,7 @@ function parseArgs(argv) {
 
 function packagedAppPath(distDir, platform, arch) {
   if (platform === 'darwin') {
-    return join(distDir, arch === 'arm64' ? 'mac-arm64' : 'mac', 'Kun.app')
+    return join(distDir, arch === 'arm64' ? 'mac-arm64' : 'mac', `${packageMetadata.productName || 'Xiaoling AI'}.app`)
   }
   if (platform === 'win32') return join(distDir, 'win-unpacked')
   return join(distDir, arch === 'arm64' ? 'linux-arm64-unpacked' : 'linux-unpacked')

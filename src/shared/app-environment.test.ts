@@ -10,6 +10,10 @@ import {
   createAppEnvironmentInfo,
   resolveAppFlavor
 } from './app-environment'
+import {
+  PRODUCT_DEVELOPMENT_NAME,
+  PRODUCT_NAME
+} from './product-identity'
 
 describe('application environment contracts', () => {
   it('keeps the production identity compatible', () => {
@@ -19,7 +23,8 @@ describe('application environment contracts', () => {
       appId: PRODUCTION_APP_ID,
       runtimeFlavor: 'production'
     })
-    expect(PRODUCTION_APP_NAME).toBe('Kun')
+    expect(PRODUCTION_APP_NAME).toBe(PRODUCT_NAME)
+    expect(PRODUCTION_APP_NAME).toBe('小灵 AI')
     expect(PRODUCTION_APP_ID).toBe('com.xingyuzhong.deepseekgui')
   })
 
@@ -30,14 +35,15 @@ describe('application environment contracts', () => {
       appId: DEVELOPMENT_APP_ID,
       runtimeFlavor: 'development'
     })
-    expect(DEVELOPMENT_APP_NAME).toBe('kun-dv')
+    expect(DEVELOPMENT_APP_NAME).toBe(PRODUCT_DEVELOPMENT_NAME)
+    expect(DEVELOPMENT_APP_NAME).toBe('小灵 AI Dev')
     expect(DEVELOPMENT_APP_ID).toBe('com.xingyuzhong.deepseekgui.dv')
   })
 
   it('puts the DV marker in the development window title only', () => {
     expect(appWindowTitleForFlavor('development')).toBe(DEVELOPMENT_WINDOW_TITLE)
-    expect(DEVELOPMENT_WINDOW_TITLE).toBe('kun-dv · DV')
-    expect(appWindowTitleForFlavor('production')).toBe('Kun')
+    expect(DEVELOPMENT_WINDOW_TITLE).toBe('小灵 AI Dev · DV')
+    expect(appWindowTitleForFlavor('production')).toBe('小灵 AI')
   })
 
   it('prefers an explicit process argument over environment and package metadata', () => {
@@ -67,7 +73,7 @@ describe('application environment contracts', () => {
     })
     expect(environment).toMatchObject({
       flavor: 'development',
-      appName: 'kun-dv',
+      appName: '小灵 AI Dev',
       profilePath: '/profiles/kun-dv',
       runtimeFlavor: 'development',
       isPackaged: false

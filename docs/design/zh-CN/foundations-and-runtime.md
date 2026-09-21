@@ -1,6 +1,6 @@
 [返回 DESIGN.zh-CN.md](../../../DESIGN.zh-CN.md)
 
-# Kun — DESIGN.md
+# Xiaoling AI — DESIGN.md
 
 > 单一权威设计文档。所有屏幕、所有组件、所有视觉决策,都从这里出。
 
@@ -30,8 +30,8 @@ the frontmatter wins, and the markdown needs an update.
 
 ## 1. Project at a glance
 
-Kun (formerly DeepSeek GUI) is a local desktop workbench built
-around its namesake **Kun** runtime. The desktop shell is Electron; the runtime is a TypeScript
+Xiaoling AI is a local desktop workbench built around the Kun-compatible
+runtime. The desktop shell is Electron; the runtime is a TypeScript
 package that speaks HTTP/SSE; the renderer is React 19 + Zustand 5;
 the visual system is TailwindCSS 3 with a hand-built token layer on
 top.
@@ -49,7 +49,8 @@ human staying in the loop on every mutating call.
 | **Work** | An office workspace for Markdown and other documents, with FIM completion and a selection-scoped inline agent. |
 | **Connect phone** | Background automation: Feishu / Lark channels, webhook / relay, scheduled tasks. Internal route and storage names still use `claw` for compatibility. |
 
-All product surfaces share the same Kun HTTP/SSE boundary, the same
+All product surfaces share the same Xiaoling AI HTTP/SSE boundary, backed by the
+Kun-compatible runtime, and the same
 settings (API key, base URL, model), and the same visual system.
 
 ---
@@ -297,8 +298,8 @@ first.
   Work, and Connect phone"), second person for the user. No emoji. No
   marketing language. Error messages are full sentences ending in
   punctuation; never a raw stack trace.
-- The product name is "Kun" (formerly "DeepSeek GUI"). The bundled
-  runtime shares the name; say "Kun runtime" when the distinction matters.
+- The product name is "Xiaoling AI"（小灵 AI）。内置运行时为协议和升级兼容仍保留
+  Kun 兼容名称；只有在需要说明技术边界时才称为 "Kun runtime"。
   The main workbenches are "Code" and "Work"; the phone/IM surface is
   "Connect phone" in English and "连接手机" in zh copy. Internal code may
   still say `claw`, but production copy should not expose it as the product name.

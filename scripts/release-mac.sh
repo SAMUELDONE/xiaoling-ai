@@ -26,6 +26,10 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
+# The display name controls the macOS bundle directory; release artifact names
+# intentionally keep the legacy Kun-* prefix for updater compatibility.
+PRODUCT_NAME="$(node -p "require('./package.json').productName || 'Xiaoling AI'")"
+MAC_APP_BUNDLE="${PRODUCT_NAME}.app"
 # shellcheck source=lib/release-common.sh
 source "${ROOT}/scripts/lib/release-common.sh"
 release_load_local_env
@@ -90,12 +94,12 @@ resolve_mac_resources() {
   case "${arch}" in
     arm64)
       candidates=(
-        "${ROOT}/dist/mac-arm64/Kun.app/Contents/Resources"
+        "${ROOT}/dist/mac-arm64/${MAC_APP_BUNDLE}/Contents/Resources"
       )
       ;;
     x64)
       candidates=(
-        "${ROOT}/dist/mac/Kun.app/Contents/Resources"
+        "${ROOT}/dist/mac/${MAC_APP_BUNDLE}/Contents/Resources"
       )
       ;;
     *) die "Unsupported macOS Extension smoke architecture: ${arch}" ;;
@@ -311,7 +315,7 @@ NOTES_TMP=$(mktemp "${TMPDIR:-/tmp}/release-notes.XXXXXX")
 UNSIGNED_NOTE=""
 if ! $SIGNING; then
   UNSIGNED_NOTE=$(
-    cat <<'EOF'
+    cat <<EOF
 
 ### ⚠️ macOS: Unsigned Build
 
@@ -319,7 +323,7 @@ This is an unsigned build. macOS Gatekeeper will block first launch.
 Run this after downloading:
 
 ```sh
-xattr -cr "Kun.app"
+xattr -cr "${MAC_APP_BUNDLE}"
 # or
 npm run mac:unquarantine
 ```
@@ -366,4 +370,4 @@ green "macOS release ${TAG_NAME} ready (draft)."
 cyan "  Meta: dist/.release-meta.env"
 cyan "  Channel: ${RELEASE_CHANNEL}"
 cyan "  Next on Windows: ./scripts/release-win.sh --tag ${TAG_NAME} --channel ${RELEASE_CHANNEL}"
-cyan "  https://github.com/KunAgent/Kun/releases/tag/${TAG_NAME}"
+cyan "  https://github.com/SAMUELDONE/xiaoling-ai/releases/tag/${TAG_NAME}"

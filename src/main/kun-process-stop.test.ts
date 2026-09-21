@@ -42,7 +42,7 @@ describe('stopKunChildAndWait', () => {
 
     const module = await import('./kun-process')
     const stopped = expect(module.stopKunChildAndWait()).rejects.toThrow(
-      `Kun runtime process ${childPid} remained alive after SIGKILL`
+      `Xiaoling AI runtime process ${childPid} remained alive after SIGKILL`
     )
     await vi.advanceTimersByTimeAsync(KUN_STOP_GRACE_MS + KUN_STOP_FORCE_MS)
     await stopped

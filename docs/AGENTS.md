@@ -1,6 +1,6 @@
 # Agent Runtime Notes
 
-Kun has one agent implementation: the bundled **Kun** runtime. Runtime process
+Xiaoling AI has one agent implementation: the bundled **Kun-compatible** runtime. Runtime process
 lifecycle is client-owned. For one `(canonical data directory, runtime flavor)`
 slot, a normal GUI or TUI session owns at most one live `kun serve` process;
 another normal client must report an ownership conflict instead of attaching,
@@ -180,7 +180,7 @@ Manual smoke:
 - Work can open the workspace, request inline completion, and use selected-text
   assistant actions.
 - Connect phone can save settings and run a manual task through a Kun thread.
-- Settings -> Agents shows only Kun.
+- Settings -> Agents shows only Xiaoling AI configuration.
 - Real GUI quit removes its exact Runtime process; close-to-tray keeps it alive.
 - A default TUI exits with no owned Runtime left behind, while `--url` and
   `--no-start` leave the external Runtime untouched.

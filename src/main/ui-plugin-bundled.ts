@@ -28,7 +28,7 @@ const BUNDLED_IKUN_MANIFEST = {
   id: UI_PLUGIN_BUNDLED_IKUN_ID,
   name: 'iKun 模式',
   version: '1.0.0',
-  author: 'Kun Team',
+  author: 'SAMUELDONE',
   description: '预装示例插件:坤鸡全家福,附手工运球/快攻/喝奶茶动画与出没彩蛋。',
   figures: {
     swim: 'img/dribble.png',

@@ -222,11 +222,11 @@ requireBoundedJobTimeout(prMacJob, 'package-macos', 90)
 requireJobDependencies(prMacJob, 'package-macos', ['test'])
 requireOrderedCommands(prMacJob, 'package-macos', [
   'npm run dist:mac',
-  'npm run verify:packaged-macos-native -- --resources dist/mac/Kun.app/Contents/Resources --arch x64',
-  'npm run verify:packaged-macos-native -- --resources dist/mac-arm64/Kun.app/Contents/Resources --arch arm64',
+  'npm run verify:packaged-macos-native -- --resources dist/mac/Xiaoling AI.app/Contents/Resources --arch x64',
+  'npm run verify:packaged-macos-native -- --resources dist/mac-arm64/Xiaoling AI.app/Contents/Resources --arch arm64',
   smokePackagedOcrCommand,
-  'npm run smoke:packaged-extensions -- --resources dist/mac/Kun.app/Contents/Resources',
-  'npm run smoke:packaged-extensions -- --resources dist/mac-arm64/Kun.app/Contents/Resources',
+  'npm run smoke:packaged-extensions -- --resources dist/mac/Xiaoling AI.app/Contents/Resources',
+  'npm run smoke:packaged-extensions -- --resources dist/mac-arm64/Xiaoling AI.app/Contents/Resources',
   nativeMediaSmokeCommand,
   'npm run smoke:packaged-extension-desktop',
   nativeEvidenceCommand

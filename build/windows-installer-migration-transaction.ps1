@@ -165,7 +165,7 @@ function Get-ShortcutRoots {
 }
 
 function Get-ShortcutSnapshot([string]$BackupRoot) {
-  $names = @('Kun.lnk', 'DeepSeek GUI.lnk')
+  $names = @(Get-InstallerShortcutNames)
   $records = @()
   $index = 0
   foreach ($root in @(Get-ShortcutRoots)) {
@@ -185,7 +185,7 @@ function Remove-TransactionShortcuts {
   foreach ($root in @(Get-ShortcutRoots)) {
     if ([string]::IsNullOrWhiteSpace($root) -or -not (Test-Path -LiteralPath $root -PathType Container)) { continue }
     foreach ($path in @(Get-ChildItem -LiteralPath $root -Filter '*.lnk' -File -Recurse -ErrorAction Stop |
-        Where-Object { @('Kun.lnk', 'DeepSeek GUI.lnk') -contains $_.Name })) {
+        Where-Object { (Get-InstallerShortcutNames) -contains $_.Name })) {
       Remove-Item -LiteralPath $path.FullName -Force -ErrorAction Stop
     }
   }
@@ -516,15 +516,16 @@ function Assert-UpdateCutover {
   $shortcutCount = 0
   foreach ($root in @(Get-ShortcutRoots)) {
     if ([string]::IsNullOrWhiteSpace($root) -or -not (Test-Path -LiteralPath $root -PathType Container)) { continue }
-    foreach ($shortcut in @(Get-ChildItem -LiteralPath $root -Filter 'Kun.lnk' -File -Recurse -ErrorAction SilentlyContinue)) {
+    foreach ($shortcut in @(Get-ChildItem -LiteralPath $root -Filter '*.lnk' -File -Recurse -ErrorAction SilentlyContinue |
+        Where-Object { (Get-InstallerShortcutNames) -contains $_.Name })) {
       $shortcutCount += 1
       if (-not (Test-ShortcutTarget $shortcut.FullName $expectedExecutable)) {
-        throw "A committed Kun shortcut does not reference the final executable: $($shortcut.FullName)"
+        throw "A committed product shortcut does not reference the final executable: $($shortcut.FullName)"
       }
     }
   }
   if ($shortcutCount -eq 0) {
-    throw 'No committed Kun shortcut exists for the selected install scope.'
+    throw 'No committed product shortcut exists for the selected install scope.'
   }
   Set-UpdateTransactionPhase $transaction 'awaiting_health' | Out-Null
   Invoke-InstallerFaultPoint 'cutover.after_awaiting_health'

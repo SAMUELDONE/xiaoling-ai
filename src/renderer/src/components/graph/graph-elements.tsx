@@ -15,6 +15,7 @@ import {
   SubagentLivenessLane
 } from '../subagents/SubagentLiveness'
 import { StatusPill, terminalRunStatuses } from './graph-panel-shared'
+import { PRODUCT_NAME_EN } from '@shared/product-identity'
 
 export function graphElements(
   run: GraphRun,
@@ -231,7 +232,7 @@ export function graphElements(
 
 export function plannedAssignmentLabel(node: GraphPlanNode): string {
   const assignment = node.assignment
-  if (!assignment) return 'Kun auto route'
+  if (!assignment) return `${PRODUCT_NAME_EN} auto route`
   if (assignment.kind === 'existing') {
     return assignment.profileVersion
       ? `${assignment.profileId}@${assignment.profileVersion}`

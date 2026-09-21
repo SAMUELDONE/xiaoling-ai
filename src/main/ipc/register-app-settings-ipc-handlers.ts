@@ -51,9 +51,8 @@ import {
   type KunExecutionSettingsConsentAction,
   type KunExecutionSecuritySettings
 } from '../execution-settings-consent'
-import {
-  resolveModelProviderProxyUrl
-} from '../../shared/app-settings'
+import { resolveModelProviderProxyUrl } from '../../shared/app-settings'
+import { PRODUCT_NAME, PRODUCT_NAME_EN } from '../../shared/product-identity'
 import {
   claudeSubscriptionStatus,
   probeClaudeSubscription,
@@ -173,7 +172,7 @@ export function registerAppSettingsIpcHandlers(options: RegisterAppIpcHandlersOp
     }
     const confirmation = await showMainWindowMessageBox(parent, {
       type: 'warning',
-      title: 'Change Kun execution permissions',
+      title: `Change ${PRODUCT_NAME_EN} execution permissions`,
       message: 'Apply this tool approval and sandbox configuration?',
       detail: [
         `Current approval policy: ${change.current.approvalPolicy}`,
@@ -189,7 +188,7 @@ export function registerAppSettingsIpcHandlers(options: RegisterAppIpcHandlersOp
           change.next.approvalReviewer === 'user'
           ? [
               '',
-              'Full access lets Kun access any local file, execute host commands, and use network-capable tools without Kun approval.'
+              `Full access lets ${PRODUCT_NAME_EN} access any local file, execute host commands, and use network-capable tools without ${PRODUCT_NAME_EN} approval.`
             ]
           : []),
         '',
@@ -214,7 +213,7 @@ export function registerAppSettingsIpcHandlers(options: RegisterAppIpcHandlersOp
       approvalReview: latest.agents.kun.approvalReview
     }
     if (!executionSettingsEqual(latestExecution, change.current)) {
-      throw new Error('Kun execution settings changed while confirmation was open; retry the change.')
+      throw new Error(`${PRODUCT_NAME_EN} execution settings changed while confirmation was open; retry the change.`)
     }
 
     const action: KunExecutionSettingsConsentAction = {
@@ -265,7 +264,7 @@ export function registerAppSettingsIpcHandlers(options: RegisterAppIpcHandlersOp
       title: 'Reset encrypted credentials',
       message: 'Reset the credentials that Windows can no longer decrypt?',
       detail: [
-        'Kun will back up the unreadable encrypted data before resetting it.',
+        `${PRODUCT_NAME_EN} will back up the unreadable encrypted data before resetting it.`,
         'Saved API keys and OAuth sessions must be entered or authorized again.',
         'Conversations, workspaces, and ordinary settings are not removed.'
       ].join('\n'),
@@ -543,8 +542,8 @@ export function registerAppSettingsIpcHandlers(options: RegisterAppIpcHandlersOp
             type: 'warning',
             title: allow ? 'Approve tool action' : 'Deny tool action',
             message: allow
-              ? 'Allow this pending Kun tool action once?'
-              : 'Deny this pending Kun tool action?',
+              ? `Allow this pending ${PRODUCT_NAME_EN} tool action once?`
+              : `Deny this pending ${PRODUCT_NAME_EN} tool action?`,
             detail: `Approval reference: ${approvalRef}\n\nThis protected native prompt cannot be controlled by extension Webviews or Direct DOM content scripts.`,
             buttons: [allow ? 'Allow once' : 'Deny', 'Cancel'],
             defaultId: 1,
@@ -602,7 +601,7 @@ export function registerAppSettingsIpcHandlers(options: RegisterAppIpcHandlersOp
           status: 0,
           body: JSON.stringify({
             code: 'runtime_unhealthy',
-            message: 'Kun Runtime is unavailable. Retry after it finishes starting.'
+            message: `${PRODUCT_NAME_EN} runtime is unavailable. Retry after it finishes starting.`
           })
         }
       }
@@ -642,7 +641,7 @@ export function registerAppSettingsIpcHandlers(options: RegisterAppIpcHandlersOp
     assertTrustedWorkbenchSender(event, getMainWindow)
     options.assertRendererRuntimeReady()
     const parent = getMainWindow()
-    if (!parent || parent.isDestroyed()) throw new Error('Kun restart window is unavailable.')
+    if (!parent || parent.isDestroyed()) throw new Error(`${PRODUCT_NAME_EN} restart window is unavailable.`)
     const chinese = app.getLocale?.().toLowerCase().startsWith('zh') === true
     const confirmation = await showMainWindowMessageBox(parent, {
       type: 'warning',
@@ -652,12 +651,12 @@ export function registerAppSettingsIpcHandlers(options: RegisterAppIpcHandlersOp
         : 'Stop and restart the Runtime owned by this desktop app?',
       detail: chinese
         ? [
-            '只会重启当前桌面应用拥有的 Kun Runtime；不会扫描或停止 TUI、其他数据目录的 Runtime 或 Kun Service Manager。',
+            `只会重启当前桌面应用拥有的 ${PRODUCT_NAME} Runtime；不会扫描或停止 TUI、其他数据目录的 Runtime 或 ${PRODUCT_NAME} Service Manager。`,
             '运行中的 Agent 任务、工具调用、后台任务和待审批操作可能中断。已经开始的工作区修改会原样保留，可能处于未完成状态。',
             '已保存的会话和对话记录、记忆、归档、设置、日志及工作区文件不会被删除。'
           ].join('\n\n')
         : [
-            'Only the Kun Runtime owned by this desktop app will restart. TUI processes, Runtimes for other data directories, and Kun Service Manager will not be scanned or stopped.',
+            `Only the ${PRODUCT_NAME_EN} runtime owned by this desktop app will restart. TUI processes, runtimes for other data directories, and ${PRODUCT_NAME_EN} Service Manager will not be scanned or stopped.`,
             'Running Agent tasks, tool calls, background work, and pending approvals may be interrupted. Workspace changes already in progress will remain and may be incomplete.',
             'Saved sessions and conversations, memory, archives, settings, logs, and workspace files will not be deleted.'
           ].join('\n\n'),
@@ -672,12 +671,12 @@ export function registerAppSettingsIpcHandlers(options: RegisterAppIpcHandlersOp
       await restartKunServe()
       return { accepted: true }
     } catch (error) {
-      logError('runtime-restart-serve', 'Failed to restart the GUI-owned Kun Runtime', {
+      logError('runtime-restart-serve', `Failed to restart the GUI-owned ${PRODUCT_NAME_EN} runtime`, {
         message: error instanceof Error ? error.message : String(error)
       })
       await showMainWindowMessageBox(parent, {
         type: 'error',
-        title: chinese ? 'Kun 重启失败' : 'Kun restart failed',
+        title: chinese ? `${PRODUCT_NAME} 重启失败` : `${PRODUCT_NAME_EN} restart failed`,
         message: chinese
           ? '桌面 Runtime 未能完成重启。'
           : 'The desktop Runtime could not finish restarting.',

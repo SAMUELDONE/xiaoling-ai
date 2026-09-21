@@ -122,7 +122,7 @@ describe('protected extension prompt localization', () => {
       message: '请审核 kun-examples.video-editor 0.3.0 的权限，确认后将立即启用。',
       approveLabel: '应用并启用'
     })
-    expect(prompt.detail).toContain('应用到当前工作区，并在全局启用此扩展')
+    expect(prompt.detail).toContain('小灵 AI 会把这些权限应用到当前工作区，并在全局启用此扩展')
     expect(prompt.detail).toContain('变更后的 Broker 权限：')
   })
 
@@ -188,7 +188,7 @@ describe('protected extension prompt localization', () => {
       ].join('\n')
     }, 'zh')
 
-    expect(prompt.message).toBe('要允许 Example Provider 处理 Kun 的模型请求吗？')
+    expect(prompt.message).toBe('要允许 Example Provider 处理 小灵 AI 的模型请求吗？')
     expect(prompt.detail).toContain('提供商： Example (provider.example)')
     expect(prompt.detail).toContain('模型： example-model')
     expect(prompt.detail).toContain('账户引用： account-1')

@@ -7,6 +7,7 @@ import {
   startupFailurePresentation,
   startupFailureHtml
 } from './startup-failure-content'
+import { PRODUCT_NAME_EN } from '../shared/product-identity'
 
 export function showStartupFailureWindow(
   error: unknown,
@@ -22,7 +23,7 @@ export function showStartupFailureWindow(
   const canRecoverHandoff = presentation.handoff &&
     presentation.retryable &&
     Boolean(options.recoverHandoff)
-  logError('startup', 'Kun failed before the desktop became ready.', {
+  logError('startup', `${PRODUCT_NAME_EN} failed before the desktop became ready.`, {
     platform: process.platform,
     packaged: app.isPackaged,
     message
@@ -34,7 +35,7 @@ export function showStartupFailureWindow(
       height: 560,
       minWidth: 620,
       minHeight: 460,
-      title: 'Kun startup recovery',
+      title: `${PRODUCT_NAME_EN} startup recovery`,
       icon: appIcon.isEmpty() ? undefined : appIcon,
       autoHideMenuBar: true,
       show: false,
@@ -82,7 +83,7 @@ export function showStartupFailureWindow(
           }).catch((recoveryError) => {
             recoveryInFlight = false
             const detail = sanitizeStartupFailureMessage(recoveryError)
-            logWarn('startup', 'Kun startup retry cleanup failed.', { message: detail })
+            logWarn('startup', `${PRODUCT_NAME_EN} startup retry cleanup failed.`, { message: detail })
             render(`${message}\n\nRetry failed: ${detail}`)
           })
           return
@@ -96,7 +97,7 @@ export function showStartupFailureWindow(
         }).catch((recoveryError) => {
           recoveryInFlight = false
           const detail = sanitizeStartupFailureMessage(recoveryError)
-          logWarn('startup', 'Safe Kun handoff retry failed.', { message: detail })
+          logWarn('startup', `Safe ${PRODUCT_NAME_EN} handoff retry failed.`, { message: detail })
           render(`${message}\n\nRetry failed: ${detail}`)
         })
       } else if (action === 'quit') {
@@ -124,7 +125,7 @@ export function showStartupFailureWindow(
           message: sanitizeStartupFailureMessage(loadError)
         })
         if (!window.isDestroyed()) window.show()
-        dialog.showErrorBox('Kun failed to start', message)
+        dialog.showErrorBox(`${PRODUCT_NAME_EN} failed to start`, message)
       })
     const replacedWindow = options.replaceWindow
     if (replacedWindow && replacedWindow !== window && !replacedWindow.isDestroyed()) {
@@ -135,7 +136,7 @@ export function showStartupFailureWindow(
     logError('startup', 'Failed to create startup recovery window.', {
       message: sanitizeStartupFailureMessage(fallbackError)
     })
-    dialog.showErrorBox('Kun failed to start', message)
+    dialog.showErrorBox(`${PRODUCT_NAME_EN} failed to start`, message)
     return null
   }
 }

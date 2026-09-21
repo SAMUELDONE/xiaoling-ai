@@ -2,6 +2,7 @@ import type { SddDraftImageReference } from './sdd-draft-images'
 import type { SddDesignContext } from './sdd-draft-store'
 import { formatSddDesignContextLines } from './sdd-design-context'
 import { composeFrameworkGuidance } from './pm-skill-frameworks'
+import { PRODUCT_NAME_EN } from '@shared/product-identity'
 
 export type SddPlanImageMode = 'attachments' | 'base64' | 'none'
 
@@ -58,7 +59,7 @@ export function buildSddDraftToPlanPrompt(options: {
         : 'No local SDD images were referenced in the draft.'
 
   return [
-    'Kun is asking you to upgrade an SDD requirement draft into a concrete implementation plan.',
+    `${PRODUCT_NAME_EN} is asking you to upgrade an SDD requirement draft into a concrete implementation plan.`,
     `Workspace: ${options.workspaceRoot}`,
     `Draft file: ${options.draftRelativePath}`,
     `Reserved plan file: ${options.planRelativePath}`,

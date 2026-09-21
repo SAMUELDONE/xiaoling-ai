@@ -5,6 +5,7 @@ const { existsSync, statSync } = require('node:fs')
 const { mkdir, readFile, realpath, stat, writeFile } = require('node:fs/promises')
 const { isAbsolute, join, resolve } = require('node:path')
 const { pathToFileURL } = require('node:url')
+const packageMetadata = require('../package.json')
 const {
   DEFAULT_TIMEOUT_MS,
   EXTENSION_ID,
@@ -394,8 +395,15 @@ function resolveDesktopLaunchSelection({
 
 function desktopResourceCandidates(platform = process.platform, arch = process.arch) {
   if (platform === 'darwin') {
-    if (arch === 'arm64') return ['dist/mac-arm64/Kun.app/Contents/Resources']
-    if (arch === 'x64') return ['dist/mac/Kun.app/Contents/Resources']
+    const appName = packageMetadata.productName || 'Xiaoling AI'
+    if (arch === 'arm64') return [
+      `dist/mac-arm64/${appName}.app/Contents/Resources`,
+      'dist/mac-arm64/Kun.app/Contents/Resources'
+    ]
+    if (arch === 'x64') return [
+      `dist/mac/${appName}.app/Contents/Resources`,
+      'dist/mac/Kun.app/Contents/Resources'
+    ]
     return []
   }
   if (platform === 'win32') return ['dist/win-unpacked/resources']

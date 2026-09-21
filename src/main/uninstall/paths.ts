@@ -11,6 +11,7 @@ import {
   classifyCanonicalKunDataDir
 } from '../kun-data-dir-paths'
 import { COMPATIBLE_USER_DATA_DIR_NAMES } from '../settings-file-paths'
+import { PRODUCT_NAME_EN } from '../../shared/product-identity'
 
 export type UninstallPlatform = NodeJS.Platform
 
@@ -156,7 +157,7 @@ export async function resolveAppRemovalTarget(input: {
   if (platform === 'darwin') {
     const bundleRoot = findMacBundleRoot(execPath)
     if (bundleRoot) return { mode: 'bundle', target: bundleRoot, installPath: bundleRoot }
-    return { mode: 'none', hint: 'Could not locate the Kun.app bundle for removal.' }
+    return { mode: 'none', hint: `Could not locate the ${PRODUCT_NAME_EN}.app bundle for removal.` }
   }
   if (platform === 'win32') {
     const installDir = dirname(execPath)
@@ -164,7 +165,7 @@ export async function resolveAppRemovalTarget(input: {
     if (uninstaller) return { mode: 'uninstaller', target: uninstaller, installPath: installDir }
     return {
       mode: 'none',
-      hint: 'Could not locate the Kun uninstaller in the installation directory.'
+      hint: `Could not locate the ${PRODUCT_NAME_EN} uninstaller in the installation directory.`
     }
   }
   if (platform === 'linux') {
@@ -172,7 +173,7 @@ export async function resolveAppRemovalTarget(input: {
     if (appImage) return { mode: 'appimage', target: appImage, installPath: appImage }
     return {
       mode: 'none',
-      hint: 'Kun was installed via a system package (deb). Remove it with your package manager, for example: sudo dpkg -r <package>'
+      hint: `${PRODUCT_NAME_EN} was installed via a system package (deb). Remove it with your package manager, for example: sudo dpkg -r <package>`
     }
   }
   return { mode: 'none', hint: 'Application removal is not supported on this platform.' }

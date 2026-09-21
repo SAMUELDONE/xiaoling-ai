@@ -27,7 +27,7 @@ if (!version) {
 
 const distDir = resolve(process.env.KUN_DIST_DIR || process.env.DEEPSEEK_GUI_DIST_DIR || join(root, 'dist'))
 const appOutDir = join(distDir, arch === 'arm64' ? 'mac-arm64' : 'mac')
-const appName = 'Kun.app'
+const appName = `${pkg.productName || 'Xiaoling AI'}.app`
 const appPath = join(appOutDir, appName)
 const zipPath = join(distDir, `Kun-${version}-mac-${arch}.zip`)
 

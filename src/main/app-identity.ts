@@ -2,6 +2,7 @@ import { app } from 'electron'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import {
+  PRODUCTION_USER_DATA_DIR_NAME,
   PRODUCTION_APP_NAME,
   appIdentityForFlavor,
   isAppFlavor,
@@ -30,10 +31,11 @@ export function configureAppIdentity(options: {
 } = {}): AppIdentity {
   const identity = appIdentityForFlavor(options.flavor ?? 'production')
   app.setName(identity.appName)
-  if (identity.flavor === 'development') {
-    const appDataPath = options.appDataPath ?? app.getPath('appData')
-    app.setPath('userData', join(appDataPath, identity.appName))
-  }
+  const appDataPath = options.appDataPath ?? app.getPath('appData')
+  const userDataDirName = identity.flavor === 'development'
+    ? identity.appName
+    : PRODUCTION_USER_DATA_DIR_NAME
+  app.setPath('userData', join(appDataPath, userDataDirName))
   return identity
 }
 

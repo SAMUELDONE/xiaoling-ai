@@ -24,6 +24,7 @@ import {
   runtimeProcessIsAlive,
   type RuntimeProcessIsAlive
 } from '../../kun/src/server/runtime-process-identity.js'
+import { PRODUCT_NAME_EN } from '../shared/product-identity'
 
 type MigrationLockOwner = {
   schemaVersion: 1
@@ -274,13 +275,13 @@ function reclaimLockFileIfUnchangedSync(
   try {
     displacedRaw = readFileSync(displacedPath, 'utf8')
   } catch (error) {
-    throw new Error(`could not verify displaced Kun Runtime lock at ${displacedPath}`, {
+    throw new Error(`could not verify displaced ${PRODUCT_NAME_EN} Runtime lock at ${displacedPath}`, {
       cause: error
     })
   }
   if (displacedRaw !== expectedRaw) {
     restoreDisplacedLockSync(path, displacedPath)
-    throw new Error('Kun Runtime lock owner changed during stale-owner recovery')
+    throw new Error(`${PRODUCT_NAME_EN} Runtime lock owner changed during stale-owner recovery`)
   }
   rmSync(displacedPath, { force: true })
 }

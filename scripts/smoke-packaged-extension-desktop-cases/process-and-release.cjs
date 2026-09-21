@@ -156,11 +156,11 @@ test('automated release workflows use build gates while local release paths reta
   const nativeEvidenceCommand = 'npm run evidence:extension-native'
   const packagedOcrCommand = 'node scripts/smoke-packaged-ocr.cjs'
   const verifyMacX64Command =
-    'npm run verify:packaged-macos-native -- --resources dist/mac-x64-verified/Kun.app/Contents/Resources --arch x64'
+    'npm run verify:packaged-macos-native -- --resources dist/mac-x64-verified/Xiaoling AI.app/Contents/Resources --arch x64'
   const smokeMacX64ExtensionsCommand =
-    'npm run smoke:packaged-extensions -- --resources dist/mac-x64-verified/Kun.app/Contents/Resources'
+    'npm run smoke:packaged-extensions -- --resources dist/mac-x64-verified/Xiaoling AI.app/Contents/Resources'
   const smokeMacX64DesktopCommand =
-    'npm run smoke:packaged-extension-desktop -- --resources dist/mac-x64-verified/Kun.app/Contents/Resources'
+    'npm run smoke:packaged-extension-desktop -- --resources dist/mac-x64-verified/Xiaoling AI.app/Contents/Resources'
   const prWorkflowSource = readFileSync(join(root, '.github', 'workflows', 'pr-checks.yml'), 'utf8')
   // The update handoff smoke is now part of packaging acceptance even while
   // the rest of the broad native/Extension smoke matrix remains local-only.
@@ -237,11 +237,11 @@ test('automated release workflows use build gates while local release paths reta
   }
 
   assertOrderedCommands(release.jobs['build-macos'], [
-    'npm run verify:packaged-macos-native -- --resources dist/mac/Kun.app/Contents/Resources --arch x64',
-    'npm run verify:packaged-macos-native -- --resources dist/mac-arm64/Kun.app/Contents/Resources --arch arm64',
+    'npm run verify:packaged-macos-native -- --resources dist/mac/Xiaoling AI.app/Contents/Resources --arch x64',
+    'npm run verify:packaged-macos-native -- --resources dist/mac-arm64/Xiaoling AI.app/Contents/Resources --arch arm64',
     packagedOcrCommand,
-    'npm run smoke:packaged-extensions -- --resources dist/mac/Kun.app/Contents/Resources',
-    'npm run smoke:packaged-extensions -- --resources dist/mac-arm64/Kun.app/Contents/Resources',
+    'npm run smoke:packaged-extensions -- --resources dist/mac/Xiaoling AI.app/Contents/Resources',
+    'npm run smoke:packaged-extensions -- --resources dist/mac-arm64/Xiaoling AI.app/Contents/Resources',
     desktopCommand,
     nativeEvidenceCommand
   ])
@@ -277,11 +277,11 @@ test('automated release workflows use build gates while local release paths reta
   assertStepAfter(pr.jobs.package, 'Upload Linux package', nativeEvidenceCommand)
   assertOrderedCommands(pr.jobs['package-macos'], [
     'npm run dist:mac',
-    'npm run verify:packaged-macos-native -- --resources dist/mac/Kun.app/Contents/Resources --arch x64',
-    'npm run verify:packaged-macos-native -- --resources dist/mac-arm64/Kun.app/Contents/Resources --arch arm64',
+    'npm run verify:packaged-macos-native -- --resources dist/mac/Xiaoling AI.app/Contents/Resources --arch x64',
+    'npm run verify:packaged-macos-native -- --resources dist/mac-arm64/Xiaoling AI.app/Contents/Resources --arch arm64',
     packagedOcrCommand,
-    'npm run smoke:packaged-extensions -- --resources dist/mac/Kun.app/Contents/Resources',
-    'npm run smoke:packaged-extensions -- --resources dist/mac-arm64/Kun.app/Contents/Resources',
+    'npm run smoke:packaged-extensions -- --resources dist/mac/Xiaoling AI.app/Contents/Resources',
+    'npm run smoke:packaged-extensions -- --resources dist/mac-arm64/Xiaoling AI.app/Contents/Resources',
     desktopCommand,
     nativeEvidenceCommand
   ])
@@ -313,11 +313,11 @@ test('automated release workflows use build gates while local release paths reta
   }
   assertOrderedCommands(daily.jobs['build-macos'], [
     'npm run dist:mac',
-    'npm run verify:packaged-macos-native -- --resources dist/mac/Kun.app/Contents/Resources --arch x64',
-    'npm run verify:packaged-macos-native -- --resources dist/mac-arm64/Kun.app/Contents/Resources --arch arm64',
+    'npm run verify:packaged-macos-native -- --resources dist/mac/Xiaoling AI.app/Contents/Resources --arch x64',
+    'npm run verify:packaged-macos-native -- --resources dist/mac-arm64/Xiaoling AI.app/Contents/Resources --arch arm64',
     packagedOcrCommand,
-    'npm run smoke:packaged-extensions -- --resources dist/mac/Kun.app/Contents/Resources',
-    'npm run smoke:packaged-extensions -- --resources dist/mac-arm64/Kun.app/Contents/Resources',
+    'npm run smoke:packaged-extensions -- --resources dist/mac/Xiaoling AI.app/Contents/Resources',
+    'npm run smoke:packaged-extensions -- --resources dist/mac-arm64/Xiaoling AI.app/Contents/Resources',
     desktopCommand,
     nativeEvidenceCommand
   ])

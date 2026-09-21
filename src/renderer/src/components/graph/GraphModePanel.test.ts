@@ -404,8 +404,8 @@ describe('Graph Mode panel projection', () => {
     expect(reduced.edges[0]?.animated).toBe(false)
     expect(reduced.edges[0]?.className).toBe('graph-flow-edge-processing')
     expect(reduced.nodes.map((item) => item.ariaLabel)).toEqual([
-      'start: accepted; Kun auto route',
-      'finish: running; Kun auto route'
+      'start: accepted; Xiaoling AI auto route',
+      'finish: running; Xiaoling AI auto route'
     ])
     expect(renderToStaticMarkup(animated.nodes[1]?.data.label as ReactElement))
       .toContain('ds-subagent-lane-sweep')

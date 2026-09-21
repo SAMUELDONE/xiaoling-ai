@@ -23,7 +23,7 @@ describe('WriteWorkspaceStart', () => {
 
     expect(html).toContain('Create your first Work space')
     expect(html).toContain('Create Work space')
-    expect(html).toContain('Use Kun default space')
+    expect(html).toContain('Use Xiaoling AI default space')
     expect(html).toContain('separately from code projects')
     expect(html).toContain('Office files open as read-only previews')
   })
@@ -41,7 +41,7 @@ describe('WriteWorkspaceStart', () => {
     expect(html).toContain('Ask about a PDF')
     expect(html).toContain('Analyze a spreadsheet')
     expect(html).toContain('Create a presentation')
-    expect(html).not.toContain('Use Kun default space')
+    expect(html).not.toContain('Use Xiaoling AI default space')
   })
 
   it('creates a whiteboard from the Work start page', async () => {

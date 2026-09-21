@@ -1,4 +1,5 @@
 import type { DesktopStartupPhase } from '@shared/desktop-startup-state'
+import { PRODUCT_NAME_EN } from '@shared/product-identity'
 
 const STARTUP_PHASE_RANK: Record<DesktopStartupPhase, number> = {
   bootstrapping: 0,
@@ -23,23 +24,23 @@ export function mergeStartupPhase(
 export function startupPhaseLabel(phase: DesktopStartupPhase): string {
   switch (phase) {
     case 'bootstrapping':
-      return 'Preparing Kun desktop...'
+      return `Preparing ${PRODUCT_NAME_EN} desktop...`
     case 'shell_ready':
-      return 'Kun window is ready. Starting background services...'
+      return `${PRODUCT_NAME_EN} window is ready. Starting background services...`
     case 'services_starting':
       return 'Starting background services...'
     case 'data_migrating':
-      return 'Migrating Kun data...'
+      return `Migrating ${PRODUCT_NAME_EN} data...`
     case 'manager_starting':
-      return 'Connecting to the Kun service manager...'
+      return `Connecting to the ${PRODUCT_NAME_EN} service manager...`
     case 'runtime_handoff':
-      return 'Updating the bundled Kun runtime...'
+      return `Updating the bundled ${PRODUCT_NAME_EN} runtime...`
     case 'runtime_starting':
-      return 'Starting Kun runtime...'
+      return `Starting ${PRODUCT_NAME_EN} runtime...`
     case 'recovery_required':
-      return 'Kun startup requires recovery.'
+      return `${PRODUCT_NAME_EN} startup requires recovery.`
     case 'ready':
-      return 'Kun is ready.'
+      return `${PRODUCT_NAME_EN} is ready.`
   }
 }
 

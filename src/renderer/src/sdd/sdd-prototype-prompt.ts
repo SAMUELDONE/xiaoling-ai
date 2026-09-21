@@ -1,6 +1,7 @@
 import { WRITE_PROTOTYPE_DEFAULT_PROMPT, WRITE_PROTOTYPE_MAX_TEXT_CHARS } from '@shared/write-prototype'
 import type { SddDesignContext } from './sdd-draft-store'
 import { formatSddDesignContextLines } from './sdd-design-context'
+import { PRODUCT_NAME_EN } from '@shared/product-identity'
 
 export type SddPrototypeTurnOptions = {
   mode: 'text' | 'image'
@@ -24,7 +25,7 @@ export type SddPrototypeTurnOptions = {
 export function buildSddPrototypeTurnPrompt(options: SddPrototypeTurnOptions): string {
   const requirements = options.customPrompt?.trim() || WRITE_PROTOTYPE_DEFAULT_PROMPT
   const lines = [
-    'Kun is asking you to build an interactive HTML prototype for an SDD requirement.',
+    `${PRODUCT_NAME_EN} is asking you to build an interactive HTML prototype for an SDD requirement.`,
     `Workspace: ${options.workspaceRoot}`,
     `Reserved prototype file: ${options.prototypeRelativePath}`,
     '',

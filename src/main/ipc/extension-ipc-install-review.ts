@@ -17,6 +17,7 @@ import {
 } from './app-ipc-schemas/extensions'
 import type { RuntimeRequest } from './extension-ipc-handler-options'
 import { isRecord, runtimeResultError, safeJsonParse } from './extension-ipc-common'
+import { PRODUCT_NAME_EN } from '../../shared/product-identity'
 
 export async function resolveInstallIdentity(
   request:
@@ -187,7 +188,7 @@ function permissionRiskLabels(permissions: readonly string[]): string[] {
     labels.push('Media export permission can write to user-approved output targets.')
   }
   if (permissions.some((permission) => permission === 'agent.run' || permission === 'tools.register')) {
-    labels.push('Agent and tool permissions can start private Agent runs and expose declared tools to Kun.')
+    labels.push(`Agent and tool permissions can start private Agent runs and expose declared tools to ${PRODUCT_NAME_EN}.`)
   }
   if (permissions.some((permission) => permission === 'hostDom')) {
     labels.push('Direct DOM permission can read and alter visible workbench content and may imitate ordinary UI.')
@@ -236,7 +237,7 @@ export function formatInstallReviewDetail(review: ExtensionInstallReview): strin
   const signature = review.signatureStatus === 'verified'
     ? 'verified'
     : review.signatureStatus === 'present-unverified'
-      ? 'signature present, but not verified by Kun'
+      ? `signature present, but not verified by ${PRODUCT_NAME_EN}`
       : 'unsigned'
   const permissions = boundedReviewList(review.requestedPermissions, 40)
   const risks = boundedReviewList(review.contributionRisks, 12)

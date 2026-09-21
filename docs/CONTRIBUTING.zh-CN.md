@@ -2,7 +2,7 @@
 
 [English](./CONTRIBUTING.md)
 
-感谢你为 Kun 做贡献。
+感谢你为小灵 AI 做贡献。
 
 这份文档说明了贡献者应该如何协作、遵循什么标准，以及改动应如何提交。
 
@@ -10,7 +10,7 @@
 
 代码不难，难得的是好品味。
 
-在 Kun 里，品味意味着清晰的流程、克制的界面、自然的文案，以及用一次就能理解的行为。好的贡献不只是把功能做出来，也要体现判断力。
+在小灵 AI 里，品味意味着清晰的流程、克制的界面、自然的文案，以及用一次就能理解的行为。好的贡献不只是把功能做出来，也要体现判断力。
 
 ## 贡献范围
 
@@ -47,7 +47,7 @@
 
 ## 典型 PR 的结构
 
-一个结构良好的 Kun PR 应该聚焦且自包含。通常：
+一个结构良好的小灵 AI PR 应该聚焦且自包含。通常：
 
 - 涉及 **1-3 个新文件**，修改 **2-5 个现有文件**进行接入
 - 范围限定在单个功能、修复或文档更新
@@ -184,14 +184,14 @@ npm run dev
 
 - `docs: rewrite README and contribution guides`
 - `feat: improve runtime connection recovery`
-- `fix: handle missing Kun binary path`
+- `fix: handle missing Kun-compatible runtime binary path`
 
 ## 提交 Issue
 
 提交 Issue 时，请尽可能包含以下信息：
 
 - 操作系统及版本
-- Kun 版本（可在设置页或关于对话框查看）
+- 小灵 AI 版本（可在设置页或关于对话框查看）
 - 内置的 `kun` 版本（如可用，在同目录下执行 `kun --version`）
 - 复现步骤
 - 预期行为与实际行为
@@ -214,6 +214,6 @@ npm run dev
 
 ## 许可证
 
-外部贡献基于英文 [Contributor License Agreement](../CLA.md) 接收。提交贡献即表示你同意 CLA 中的授权条款，包括项目所有者可将你的贡献作为 Kun 的一部分进行再授权、商业授权或其他形式授权。
+外部贡献基于英文 [Contributor License Agreement](../CLA.md) 接收。提交贡献即表示你同意 CLA 中的授权条款，包括项目所有者可将你的贡献作为小灵 AI 的一部分进行再授权、商业授权或其他形式授权。
 
 项目本身默认仍基于 [PolyForm Noncommercial License 1.0.0](../LICENSE) 发布；除非项目所有者另行提供书面商业授权。

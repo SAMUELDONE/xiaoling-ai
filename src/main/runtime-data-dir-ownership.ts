@@ -3,6 +3,7 @@ import { readFileSync, readlinkSync, realpathSync, statSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { posix, win32 } from 'node:path'
 import { RUNTIME_DATA_DIR_OWNER_FILE } from '../../kun/src/server/runtime-data-dir-lease.js'
+import { PRODUCT_NAME_EN } from '../shared/product-identity'
 
 export type ProcessCommand = {
   pid: number
@@ -428,6 +429,6 @@ export function assertNoActiveKunRuntimeUsingDataDir(
   const pids = activeKunRuntimePidsForDataDir(dataDir, options)
   if (pids.length === 0) return
   throw new Error(
-    `an active Kun Runtime still owns the data directory (pid${pids.length === 1 ? '' : 's'} ${pids.join(', ')})`
+    `an active ${PRODUCT_NAME_EN} Runtime still owns the data directory (pid${pids.length === 1 ? '' : 's'} ${pids.join(', ')})`
   )
 }

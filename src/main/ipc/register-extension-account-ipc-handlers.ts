@@ -30,6 +30,7 @@ import {
   presentProtectedAccountAuthorization,
   redactAccountSessionInteraction
 } from './extension-ipc-account-utils'
+import { PRODUCT_NAME_EN } from '../../shared/product-identity'
 
 export function registerExtensionAccountIpcHandlers(options: RegisterExtensionIpcHandlersOptions): void {
   ipcMain.handle('extension:accounts:list', async (event, payload: unknown) => {
@@ -103,7 +104,7 @@ export function registerExtensionAccountIpcHandlers(options: RegisterExtensionIp
       title: 'Connect provider account',
       message: `Start account authorization for ${request.providerId}?`,
       detail: [
-        `Kun will activate ${request.extensionId} for the declared authentication flow. Extension Webviews cannot approve this action.`,
+        `${PRODUCT_NAME_EN} will activate ${request.extensionId} for the declared authentication flow. Extension Webviews cannot approve this action.`,
         effectiveScopes.length ? `OAuth scopes: ${effectiveScopes.join(', ')}` : undefined
       ].filter(Boolean).join('\n\n')
     }, () => options.runtimeRequest(
@@ -154,7 +155,7 @@ export function registerExtensionAccountIpcHandlers(options: RegisterExtensionIp
     const callback = await options.credentialSurface.prompt(options.getMainWindow(), {
       title: 'Complete provider authorization',
       message: 'Paste the final OAuth callback URL from your browser.',
-      detail: `Kun will validate the authorization state and connect it to ${request.extensionId}. The callback URL is never exposed to extension code or Webviews.`,
+      detail: `${PRODUCT_NAME_EN} will validate the authorization state and connect it to ${request.extensionId}. The callback URL is never exposed to extension code or Webviews.`,
       label: 'OAuth callback URL',
       placeholder: 'https://callback.example/?code=...&state=...',
       submitLabel: 'Complete authorization'
@@ -262,7 +263,7 @@ export function registerExtensionAccountIpcHandlers(options: RegisterExtensionIp
     const credential = await options.credentialSurface.prompt(options.getMainWindow(), {
       title: 'Add provider account',
       message: `Enter an API key for ${request.providerId}.`,
-      detail: `The key will be stored by Kun and associated with ${request.extensionId}. Extension Webviews never receive it.`,
+      detail: `The key will be stored by ${PRODUCT_NAME_EN} and associated with ${request.extensionId}. Extension Webviews never receive it.`,
       label: 'API key',
       placeholder: 'Paste API key',
       submitLabel: 'Save account'
@@ -354,7 +355,7 @@ export function registerExtensionAccountIpcHandlers(options: RegisterExtensionIp
     const credential = await options.credentialSurface.prompt(options.getMainWindow(), {
       title: 'Replace provider API key',
       message: `Enter the replacement API key for the selected ${request.providerId} account.`,
-      detail: 'Kun replaces the protected credential atomically. The account reference and existing provider bindings stay unchanged.',
+      detail: `${PRODUCT_NAME_EN} replaces the protected credential atomically. The account reference and existing provider bindings stay unchanged.`,
       label: 'Replacement API key',
       placeholder: 'Paste replacement API key',
       submitLabel: 'Replace API key'
@@ -425,14 +426,14 @@ export function registerExtensionAccountIpcHandlers(options: RegisterExtensionIp
       senderId: event.sender.id
     }, undefined, {
       title: 'Use extension model provider',
-      message: `Allow ${extension.manifest.displayName ?? request.extensionId} to handle Kun model requests?`,
+      message: `Allow ${extension.manifest.displayName ?? request.extensionId} to handle ${PRODUCT_NAME_EN} model requests?`,
       detail: [
         `Provider: ${provider.displayName} (${request.providerId})`,
         `Model: ${request.modelId}`,
         `Account reference: ${request.accountId}`,
         'The extension Node adapter can receive:',
         ...dataCategories.map((category) => `• ${category}`),
-        'Kun stores only the provider, opaque account reference, model, extension version, and acknowledgement. Credential material is not copied into this binding. Requests will fail explicitly if this exact provider/account/model becomes unavailable.'
+        `${PRODUCT_NAME_EN} stores only the provider, opaque account reference, model, extension version, and acknowledgement. Credential material is not copied into this binding. Requests will fail explicitly if this exact provider/account/model becomes unavailable.`
       ].join('\n')
     }, () => options.runtimeRequest(
       '/v1/extensions/model-providers/binding',

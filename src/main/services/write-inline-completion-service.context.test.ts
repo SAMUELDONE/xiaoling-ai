@@ -414,7 +414,7 @@ it('uses the long-completion prompt and token budget for inspiration mode', asyn
     const request = createRequest()
 
     const prompt = buildWriteInlineCompletionPrompt(request, null)
-    expect(prompt).toContain('Kun inline completion')
+    expect(prompt).toContain('Xiaoling AI inline completion')
     expect(prompt).toContain('<<<PREFIX')
     expect(prompt).toContain('<<<SUFFIX')
     expect(prompt).not.toContain('<<<SHORT')

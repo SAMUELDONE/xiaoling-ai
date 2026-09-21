@@ -24,6 +24,7 @@ import type {
   CliInstallResult,
   CliInstallStatus
 } from '../shared/cli-install'
+import { PRODUCT_NAME_EN } from '../shared/product-identity'
 
 const execFileAsync = promisify(execFile)
 const LINUX_MARKER = '# Kun CLI launcher — managed by Kun'
@@ -35,9 +36,9 @@ const PATH_BLOCK_END = '# <<< Kun CLI <<<'
 export function terminalCommandPromptOptions(): MessageBoxOptions {
   return {
     type: 'question',
-    title: 'Enable Kun terminal command',
+    title: `Enable ${PRODUCT_NAME_EN} terminal command`,
     message: 'Enable the `kun` command?',
-    detail: 'The TUI is already included with Kun. Enable the terminal command to launch it by running `kun` in a new terminal.',
+    detail: `The TUI is already included with ${PRODUCT_NAME_EN}. Enable the terminal command to launch it by running \`kun\` in a new terminal.`,
     buttons: ['Enable', 'Later'],
     defaultId: 0,
     cancelId: 1

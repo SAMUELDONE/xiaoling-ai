@@ -1,3 +1,5 @@
+import { PRODUCT_NAME_EN } from '../shared/product-identity'
+
 /**
  * Base URL resolution for the Kun local HTTP server. The
  * server is always bound to localhost; the GUI reads the port from
@@ -13,7 +15,7 @@ export function normalizeLocalKunHost(host: string): string {
   if (normalized === 'localhost') return 'localhost'
   if (normalized === '127.0.0.1') return '127.0.0.1'
   if (normalized === '::1' || normalized === '[::1]') return '::1'
-  throw new Error(`Kun local host must be localhost, 127.0.0.1, or ::1; got "${host}".`)
+  throw new Error(`${PRODUCT_NAME_EN} local host must be localhost, 127.0.0.1, or ::1; got "${host}".`)
 }
 
 function formatHostForUrl(host: string): string {

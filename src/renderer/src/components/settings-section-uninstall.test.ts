@@ -77,7 +77,7 @@ describe('UninstallSettingsSection', () => {
     expect(text).toContain('/Users/Alice/.kun/data')
     expect(text).not.toContain('/Users/Alice/.deepseekgui/kun')
     expect(text).toContain('/Applications/Kun.app')
-    expect(text).toContain('Uninstall Kun')
+    expect(text).toContain('Uninstall Xiaoling AI')
   })
 
   it('requires acknowledgement and the typed word before calling perform', async () => {
@@ -85,7 +85,7 @@ describe('UninstallSettingsSection', () => {
     vi.stubGlobal('window', { kunGui: { uninstall } })
     let renderer!: ReactTestRenderer
     await act(async () => { renderer = create(createElement(UninstallSettingsSection)) })
-    await act(async () => { await findButton(renderer, 'Uninstall Kun').props.onClick() })
+    await act(async () => { await findButton(renderer, 'Uninstall Xiaoling AI').props.onClick() })
     const confirm = findButton(renderer, 'Confirm uninstall')
     expect(confirm.props.disabled).toBe(true)
 
@@ -131,7 +131,7 @@ describe('UninstallSettingsSection', () => {
     await act(async () => { renderer = create(createElement(UninstallSettingsSection)) })
     await act(async () => { checkbox(renderer, 0).props.onChange({ target: { checked: false } }) })
     await act(async () => { checkbox(renderer, 1).props.onChange({ target: { checked: false } }) })
-    await act(async () => { await findButton(renderer, 'Uninstall Kun').props.onClick() })
+    await act(async () => { await findButton(renderer, 'Uninstall Xiaoling AI').props.onClick() })
     await act(async () => { checkbox(renderer, 2).props.onChange({ target: { checked: true } }) })
     await act(async () => {
       findInput(renderer, 'uninstall-confirm-word').props.onChange({ target: { value: 'UNINSTALL' } })

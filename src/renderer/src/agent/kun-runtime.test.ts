@@ -10,10 +10,10 @@ afterEach(() => {
 })
 
 describe('KunRuntimeProvider', () => {
-  it('reports the kun id and Kun display name', () => {
+  it('reports the kun compatibility id and Xiaoling AI display name', () => {
     const provider = new KunRuntimeProvider()
     expect(provider.id).toBe('kun')
-    expect(provider.displayName).toBe('Kun')
+    expect(provider.displayName).toBe('Xiaoling AI')
   })
 
   it('exposes the local HTTP/SSE capabilities', () => {

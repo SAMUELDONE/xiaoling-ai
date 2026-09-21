@@ -16,6 +16,7 @@ import type { DesignContextLocation, DesignHtmlElementContext } from "../design-
 import { formatDesignHtmlQualityFindings, type DesignHtmlQualityFinding } from "../design-html-quality"
 import { formatDesignTargetAssetLines } from './shared'
 import { buildCanvasTurnPrompt } from './html-and-canvas'
+import { PRODUCT_NAME_EN } from '@shared/product-identity'
 
 /**
  * Code-mode entry point for the canvas ShapeOps turn prompt. It uses the same
@@ -70,7 +71,7 @@ export type DesignImageNodeOptions = {
  */
 export function buildDesignImageNodePrompt(options: DesignImageNodeOptions): string {
   const lines = [
-    'Kun is asking you to generate an IMAGE for a design node.',
+    `${PRODUCT_NAME_EN} is asking you to generate an IMAGE for a design node.`,
     `Workspace: ${options.workspaceRoot}`,
     `Reserved output file: ${options.outputRelativePath}`,
     ...formatDesignTargetAssetLines(options.designContext),

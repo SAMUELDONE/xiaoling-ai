@@ -9,6 +9,7 @@ import { runStorageRelocationMaintenance } from './main-migrations'
 import { resolveLogDirectory } from './main-paths'
 import { SETTINGS_FILE_NAME } from './settings-file-paths'
 import { normalizeAppSettings, type AppSettingsV1 } from '../shared/app-settings'
+import { PRODUCT_NAME_EN } from '../shared/product-identity'
 import {
   appEnvironment,
   appIcon,
@@ -66,7 +67,7 @@ export async function initializeWindowShell(): Promise<WindowShell | null> {
   })
   if (!installHealth.ok) {
     throw new Error(
-      `Kun installation needs repair. The installed application is incomplete (${installHealth.missing.join(', ')}). Reinstall Kun and try again.`
+      `${PRODUCT_NAME_EN} installation needs repair. The installed application is incomplete (${installHealth.missing.join(', ')}). Reinstall ${PRODUCT_NAME_EN} and try again.`
     )
   }
 

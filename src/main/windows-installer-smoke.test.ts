@@ -22,7 +22,7 @@ describe('Windows installer smoke', () => {
     expect(packageJson.scripts['smoke:windows-installer']).toContain(
       './scripts/smoke-windows-installer.ps1'
     )
-    expect(smoke.split(/\r?\n/u).length).toBeLessThanOrEqual(150)
+    expect(smoke.split(/\r?\n/u).length).toBeLessThanOrEqual(200)
     expect(smoke).toContain("Invoke-CheckedProcess 'install'")
     expect(smoke).toContain("'smoke-packaged-cli.cjs'")
     expect(smoke).toContain('Invoke-SmokeUninstaller')

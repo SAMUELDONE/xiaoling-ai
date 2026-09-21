@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto'
 import { logError, logWarn } from './logger'
+import { PRODUCT_NAME } from '../shared/product-identity'
 import {
   BACKOFF_DELAY_MS,
   contextTokenStore,
@@ -178,7 +179,7 @@ export async function waitForWeixinLogin(params: JsonRecord): Promise<JsonRecord
           alreadyConnected: true,
           accountId: normalizeAccountId(sessionKey),
           sessionKey,
-          message: '已连接过此 Kun，无需重复连接。'
+          message: `已连接过此 ${PRODUCT_NAME}，无需重复连接。`
         }
       case 'scaned_but_redirect': {
         const redirectHost = recordString(status, 'redirect_host')
@@ -204,7 +205,7 @@ export async function waitForWeixinLogin(params: JsonRecord): Promise<JsonRecord
           sessionKey,
           baseUrl,
           userId,
-          message: '已将此 Kun 连接到微信。'
+          message: `已将此 ${PRODUCT_NAME} 连接到微信。`
         }
       }
     }
@@ -511,7 +512,7 @@ export async function postToDeepSeekGuiWebhook(
   const reply = recordString(data, 'reply') || recordString(data, 'text')
   if (reply) return data
   if (!res.ok || data.ok === false) {
-    throw new Error(recordString(data, 'message') || `Kun webhook HTTP ${res.status}`)
+    throw new Error(recordString(data, 'message') || `${PRODUCT_NAME} webhook HTTP ${res.status}`)
   }
   return data
 }

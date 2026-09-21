@@ -52,7 +52,7 @@
   "speakKeepTracks": "Сохранять созданные записи",
   "speakKeepTracksDesc": "Сохранять звук каждого ответа, чтобы повторное чтение было мгновенным и запись можно было скачать.",
   "speakStoredTracks": "Сохранённые записи",
-  "speakStoredTracksDesc": "Хранятся в каталоге данных Kun в формате WAV.",
+  "speakStoredTracksDesc": "Хранятся в каталоге данных Xiaoling AI в формате WAV.",
   "speakStoredTracksUsage_one": "{{count}} файл, {{size}}",
   "speakStoredTracksUsage_other": "{{count}} файлов, {{size}}",
   "speakStoredTracksClear": "Очистить"

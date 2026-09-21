@@ -9,6 +9,7 @@ import {
   resolveKunRuntimeSettings
 } from '../shared/app-settings'
 import { clawScheduleMcpSettingsChanged } from './claw-schedule-mcp-config'
+import { PRODUCT_NAME_EN } from '../shared/product-identity'
 
 export type RuntimeSettingsApplyMode = 'none' | 'hot' | 'restart'
 
@@ -77,7 +78,7 @@ export function runtimeRollbackTerminalStatus(input: {
       : {
           state: 'stopped',
           source: 'settings-apply',
-          message: 'Kun is stopped because automatic startup is disabled; newer settings remain durable.'
+        message: `${PRODUCT_NAME_EN} is stopped because automatic startup is disabled; newer settings remain durable.`
         }
   }
   if (outcome.kind === 'running') {
@@ -86,7 +87,7 @@ export function runtimeRollbackTerminalStatus(input: {
           state: 'running',
           source: 'settings-apply',
           rolledBack: true,
-          message: `The new settings failed to apply (${applyFailure}); Kun is running on the previous settings again.`
+          message: `The new settings failed to apply (${applyFailure}); ${PRODUCT_NAME_EN} is running on the previous settings again.`
         }
       : {
           state: 'running',
@@ -103,7 +104,7 @@ export function runtimeRollbackTerminalStatus(input: {
     : {
         state: 'failed',
         source: 'settings-apply-rollback',
-        message: `Kun is unavailable after a failed settings rollback (${outcome.detail}); newer settings remain durable.`
+        message: `${PRODUCT_NAME_EN} is unavailable after a failed settings rollback (${outcome.detail}); newer settings remain durable.`
       }
 }
 

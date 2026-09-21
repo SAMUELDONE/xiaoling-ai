@@ -125,6 +125,7 @@ exit /b %errorlevel%\r
 function installCliLaunchers(context) {
   const platform = normalizePlatform(context.electronPlatformName)
   const entryRelative = 'app.asar.unpacked/kun/dist/cli/serve-entry.js'
+  const executableName = context.packager.executableName || context.packager.appInfo.productFilename
   const development = context.packager.appInfo.productFilename === 'kun-dv' ||
     context.packager.config?.extraMetadata?.kunAppFlavor === 'development'
   const launcherName = development ? 'kun-dv' : 'kun'
@@ -159,7 +160,7 @@ while [ -L "$launcher_path" ]; do
 done
 self_dir=$(CDPATH= cd -P "$(dirname "$launcher_path")" && pwd -P)
 resources_dir=$(CDPATH= cd -P "$self_dir/.." && pwd -P)
-app_exec="$resources_dir/../MacOS/${context.packager.appInfo.productFilename}"
+app_exec="$resources_dir/../MacOS/${executableName}"
 cli_entry="$resources_dir/${entryRelative}"
 ${flavorShellEnv}ELECTRON_RUN_AS_NODE=1 exec "$app_exec" "$cli_entry" "$@"
 `, { encoding: 'utf8', mode: 0o755 })
@@ -171,7 +172,7 @@ ${flavorShellEnv}ELECTRON_RUN_AS_NODE=1 exec "$app_exec" "$cli_entry" "$@"
     mkdirSync(binDir, { recursive: true })
     writeFileSync(
       join(binDir, `${launcherName}.cmd`),
-      windowsCliLauncherContent(context.packager.appInfo.productFilename, development),
+      windowsCliLauncherContent(executableName, development),
       'utf8'
     )
   }

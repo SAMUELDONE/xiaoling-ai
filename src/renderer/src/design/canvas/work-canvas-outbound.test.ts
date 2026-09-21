@@ -72,7 +72,7 @@ describe('Work canvas outbound prompt', () => {
         previousErrors: [{ code: 'SHAPE_NOT_FOUND', message: 'Missing slide' }]
       }
     })
-    expect(JSON.stringify(context)).not.toContain('Kun is asking you')
+    expect(JSON.stringify(context)).not.toContain('Xiaoling AI is asking you')
     expect(JSON.stringify(context)).not.toContain('/work')
     expect(snapshotForPrompt).toHaveBeenCalledWith(expect.objectContaining({
       workspaceRoot: '/work', boardId: 'board-1', selectedIds: new Set(['shape-1'])

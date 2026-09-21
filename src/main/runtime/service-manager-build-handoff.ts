@@ -10,6 +10,7 @@ import {
 } from '../../../kun/src/manager/manager-client.js'
 import { waitForPidExit } from '../kun-process-ports'
 import { stopSharedRuntimeForReplacement } from './kun-serve-replacement'
+import { PRODUCT_NAME_EN } from '../../shared/product-identity'
 
 const HANDOFF_PROBE_ATTEMPTS = 3
 const HANDOFF_PROBE_TIMEOUT_MS = 3_000
@@ -54,7 +55,7 @@ export async function handoffExistingKunServiceManagerForDataDir(
     sameCanonicalPath(existing.discovery.settingsPath, settingsPath)
   ) return
   if (!sameCanonicalPath(existing.discovery.settingsPath, settingsPath)) {
-    throw new Error('Kun Service Manager owns a different canonical settings path')
+    throw new Error(`${PRODUCT_NAME_EN} Service Manager owns a different canonical settings path`)
   }
 
   const inspect = overrides.inspect ?? inspectSharedRuntime
@@ -69,10 +70,10 @@ export async function handoffExistingKunServiceManagerForDataDir(
     const activeTurnCount = inspected.connection?.activeTurnCount ??
       await probe(inspected, existing.discovery.dataDir, fetch)
     if (activeTurnCount === undefined) {
-      throw new Error(`Kun ${runtimeFlavor} Runtime could not be verified for a safe data-directory handoff`)
+      throw new Error(`${PRODUCT_NAME_EN} ${runtimeFlavor} Runtime could not be verified for a safe data-directory handoff`)
     }
     if (activeTurnCount > 0) {
-      throw new Error(`Kun ${runtimeFlavor} Runtime still has active turns; custom data-directory handoff was deferred`)
+      throw new Error(`${PRODUCT_NAME_EN} ${runtimeFlavor} Runtime still has active turns; custom data-directory handoff was deferred`)
     }
   }
 
@@ -89,7 +90,7 @@ export async function handoffExistingKunServiceManagerForDataDir(
       timeoutMs: 10_000
     })
   if (!(await (overrides.waitForExit ?? waitForPidExit)(existing.discovery.pid, 15_000))) {
-    throw new Error('Kun Service Manager did not exit during custom data-directory handoff')
+    throw new Error(`${PRODUCT_NAME_EN} Service Manager did not exit during custom data-directory handoff`)
   }
 }
 

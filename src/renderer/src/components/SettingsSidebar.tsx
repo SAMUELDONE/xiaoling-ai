@@ -27,6 +27,7 @@ import {
   UsersRound,
   type LucideIcon
 } from 'lucide-react'
+import { PRODUCT_NAME } from '@shared/product-identity'
 
 export type SettingsCategory =
   | 'general'
@@ -292,7 +293,7 @@ export function SettingsSidebar({
             <ShieldCheck className="h-3.5 w-3.5" strokeWidth={1.8} />
           </div>
           <div className="min-w-0 text-[11px] leading-4 text-ds-faint">
-            <div className="truncate font-medium text-ds-muted">Kun</div>
+            <div className="truncate font-medium text-ds-muted">{PRODUCT_NAME}</div>
             <div className="truncate">{t('settingsFooter')}</div>
           </div>
           <Settings aria-hidden className="ml-auto h-3.5 w-3.5 shrink-0 text-ds-faint" strokeWidth={1.75} />

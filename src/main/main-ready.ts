@@ -24,6 +24,7 @@ import {
 import {
   runtimeSupervisor
 } from './main-runtime-health'
+import { PRODUCT_NAME_EN } from '../shared/product-identity'
 import {
   ensureKunServeFreshOnStartup,
   ensureRuntime,
@@ -151,7 +152,7 @@ export function startMainApp(): Promise<void> {
       windowAvailable: () => activation.windowAvailable(),
       syncTray,
       startBackground: async (shell) => {
-        mainState.startupState.transition('services_starting', 'Preparing the desktop-owned Kun Runtime...')
+        mainState.startupState.transition('services_starting', `Preparing the desktop-owned ${PRODUCT_NAME_EN} Runtime...`)
         return initializeMainServices({
           productionSettingsPath: shell.productionSettingsPath,
           onPhase: (phase, detail) => {

@@ -158,7 +158,7 @@ describe('requestWriteInlineCompletion', () => {
       suffix: ' a test.',
       max_tokens: 64
     })
-    expect(body.prompt).toContain('Kun inline completion')
+    expect(body.prompt).toContain('Xiaoling AI inline completion')
     expect(body.prompt).toContain('Return only the text to insert at the cursor')
     expect(body.prompt).not.toContain('<<<SHORT')
     expect(body.prompt).toContain('<<<PREFIX')
@@ -242,7 +242,7 @@ describe('requestWriteInlineCompletion', () => {
       suffix: ' a test.',
       responseChars: 0
     })
-    expect(debugEntries[0].prompt).toContain('Kun inline completion')
+    expect(debugEntries[0].prompt).toContain('Xiaoling AI inline completion')
     expect(debugEntries[0].prompt.endsWith('# Draft\n\nThis is')).toBe(true)
   })
 

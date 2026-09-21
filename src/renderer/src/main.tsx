@@ -22,6 +22,7 @@ import { installDataMigrationRendererRpc } from './data-migration/renderer-state
 import { resolveDesktopTitleBarMode } from '@shared/desktop-title-bar'
 import { StartupGate } from './StartupGate'
 import { installProviderMutationFlushHandler } from './services/provider-mutation-flush-service'
+import { PRODUCT_NAME_EN } from '@shared/product-identity'
 
 document.documentElement.dataset.platform = window.kunGui?.platform ?? 'unknown'
 document.documentElement.dataset.desktopTitleBar = window.kunGui?.desktopTitleBarMode
@@ -71,7 +72,7 @@ function renderBootstrapFailure(target: HTMLElement, error: unknown): void {
     'border:1px solid #e2e3e6;border-radius:1rem;background:#ffffff;padding:2rem;text-align:center;'
 
   const title = document.createElement('h1')
-  title.textContent = 'Failed to start Kun'
+  title.textContent = `Failed to start ${PRODUCT_NAME_EN}`
   title.style.cssText = 'font-size:1rem;font-weight:600;margin:0;'
 
   const detail = document.createElement('p')

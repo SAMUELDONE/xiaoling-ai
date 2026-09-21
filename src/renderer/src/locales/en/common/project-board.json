@@ -62,7 +62,7 @@
   "projectBoardTitleRequired": "Enter a task title.",
   "projectBoardPlanTitleReadOnly": "Plan task titles are edited in the Plan document.",
   "projectBoardSaving": "Saving…",
-  "projectBoardOffline": "Kun is offline. Cached board data is read-only until the runtime reconnects.",
+  "projectBoardOffline": "Xiaoling AI is offline. Cached board data is read-only until the runtime reconnects.",
   "projectBoardLoadMore": "Load more tasks",
   "projectBoardArchiveEmpty": "No archived tasks",
   "projectBoardTotal": "Total tasks",

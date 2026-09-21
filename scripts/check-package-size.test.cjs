@@ -5,6 +5,7 @@ const { mkdirSync, mkdtempSync, rmSync, writeFileSync } = require('node:fs')
 const { tmpdir } = require('node:os')
 const { join, resolve } = require('node:path')
 const test = require('node:test')
+const packageMetadata = require('../package.json')
 const {
   MIB,
   MAC_ARM64_BUDGETS,
@@ -18,8 +19,9 @@ const {
 } = require('./check-package-size.cjs')
 
 test('resolves platform-specific unpacked application paths', () => {
-  assert.match(packagedAppPath('/dist', 'darwin', 'arm64'), /mac-arm64[\\/]Kun\.app$/u)
-  assert.match(packagedAppPath('/dist', 'darwin', 'x64'), /mac[\\/]Kun\.app$/u)
+  const appName = packageMetadata.productName || 'Xiaoling AI'
+  assert.equal(packagedAppPath('/dist', 'darwin', 'arm64'), join('/dist', 'mac-arm64', `${appName}.app`))
+  assert.equal(packagedAppPath('/dist', 'darwin', 'x64'), join('/dist', 'mac', `${appName}.app`))
   assert.match(packagedAppPath('/dist', 'win32', 'x64'), /win-unpacked$/u)
   assert.match(packagedAppPath('/dist', 'linux', 'x64'), /linux-unpacked$/u)
   assert.match(packagedAppPath('/dist', 'linux', 'arm64'), /linux-arm64-unpacked$/u)
@@ -71,7 +73,7 @@ test('formats binary package sizes explicitly', () => {
 test('reports root and Kun dependencies plus aggregate extra resources', (t) => {
   const distDir = mkdtempSync(join(tmpdir(), 'kun-package-size-'))
   t.after(() => rmSync(distDir, { recursive: true, force: true }))
-  const resources = join(distDir, 'mac-arm64', 'Kun.app', 'Contents', 'Resources')
+  const resources = join(distDir, 'mac-arm64', `${packageMetadata.productName || 'Xiaoling AI'}.app`, 'Contents', 'Resources')
   const files = [
     ['app.asar', 11],
     ['app.asar.unpacked/node_modules/runtime.js', 13],

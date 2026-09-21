@@ -5,6 +5,7 @@ import {
   kunRuntimeAdapter,
   runtimeAuthHeaders
 } from './kun-adapter'
+import { PRODUCT_NAME_EN } from '../../shared/product-identity'
 
 type BrowserUseBindingRevokeOptions = {
   fetch?: typeof fetch
@@ -56,10 +57,10 @@ export async function revokeManagedRuntimeBrowserUseBinding(
     if (response.ok && payload?.ok === true) return true
     logWarn(
       'browser-use-shutdown',
-      `Kun Browser Use authority revoke was not applied (HTTP ${response.status}).`
+      `${PRODUCT_NAME_EN} Browser Use authority revoke was not applied (HTTP ${response.status}).`
     )
   } catch (error) {
-    logWarn('browser-use-shutdown', 'Kun Browser Use authority revoke failed closed', {
+    logWarn('browser-use-shutdown', `${PRODUCT_NAME_EN} Browser Use authority revoke failed closed`, {
       message: error instanceof Error ? error.message : String(error)
     })
   }

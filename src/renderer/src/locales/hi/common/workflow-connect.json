@@ -614,7 +614,7 @@
   "clawTelegramConnectTitle": "टेलीग्राम बॉट कनेक्ट करें",
   "clawTelegramConnectDesc": "इस कंप्यूटर को टेलीग्राम संदेश प्राप्त करने देने के लिए @BotFather से बॉट टोकन दर्ज करें।",
   "clawTelegramCredentialTitle": "टेलीग्राम बॉट क्रेडेंशियल",
-  "connectPhoneTitle": "कुन को कनेक्ट करने के लिए अपने फ़ोन का उपयोग करें",
+  "connectPhoneTitle": "Xiaoling AI को कनेक्ट करने के लिए अपने फ़ोन का उपयोग करें",
   "connectPhoneSubtitle": "इस कंप्यूटर तक आईएम टूल के माध्यम से पहुंचें ताकि आप अपने फोन से काम करना जारी रख सकें।",
   "connectPhoneGenerateQr": "प्राधिकरण क्यूआर उत्पन्न करें",
   "connectPhoneQrLoading": "क्यूआर उत्पन्न हो रहा है...",

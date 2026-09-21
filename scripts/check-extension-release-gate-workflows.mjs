@@ -28,11 +28,11 @@ export const nativeMediaSmokeCommand = 'npm run smoke:extension-native-media'
 export const nativeEvidenceCommand = 'npm run evidence:extension-native'
 const nativeEvidenceVerifierCommand = 'npm run verify:extension-native-evidence'
 export const verifyMacX64Command =
-  'npm run verify:packaged-macos-native -- --resources dist/mac-x64-verified/Kun.app/Contents/Resources --arch x64'
+  'npm run verify:packaged-macos-native -- --resources dist/mac-x64-verified/Xiaoling AI.app/Contents/Resources --arch x64'
 export const smokeMacX64ExtensionsCommand =
-  'npm run smoke:packaged-extensions -- --resources dist/mac-x64-verified/Kun.app/Contents/Resources'
+  'npm run smoke:packaged-extensions -- --resources dist/mac-x64-verified/Xiaoling AI.app/Contents/Resources'
 export const smokeMacX64DesktopCommand =
-  'npm run smoke:packaged-extension-desktop -- --resources dist/mac-x64-verified/Kun.app/Contents/Resources'
+  'npm run smoke:packaged-extension-desktop -- --resources dist/mac-x64-verified/Xiaoling AI.app/Contents/Resources'
 export const smokePackagedOcrCommand = 'node scripts/smoke-packaged-ocr.cjs'
 const updateHandoffSmokeCommand = 'npm run smoke:packaged-update-handoff'
 const buildOnlyProbe = prWorkflow.replaceAll(updateHandoffSmokeCommand, '')
@@ -329,11 +329,11 @@ const releaseMacJob = workflowJob(releaseWorkflowDocument, 'build-macos', 'macos
 requireBoundedJobTimeout(releaseMacJob, 'build-macos', 90)
 requireOrderedCommands(releaseMacJob, 'build-macos', [
   'npm run dist:mac:signed',
-  'npm run verify:packaged-macos-native -- --resources dist/mac/Kun.app/Contents/Resources --arch x64',
-  'npm run verify:packaged-macos-native -- --resources dist/mac-arm64/Kun.app/Contents/Resources --arch arm64',
+  'npm run verify:packaged-macos-native -- --resources dist/mac/Xiaoling AI.app/Contents/Resources --arch x64',
+  'npm run verify:packaged-macos-native -- --resources dist/mac-arm64/Xiaoling AI.app/Contents/Resources --arch arm64',
   smokePackagedOcrCommand,
-  'npm run smoke:packaged-extensions -- --resources dist/mac/Kun.app/Contents/Resources',
-  'npm run smoke:packaged-extensions -- --resources dist/mac-arm64/Kun.app/Contents/Resources',
+  'npm run smoke:packaged-extensions -- --resources dist/mac/Xiaoling AI.app/Contents/Resources',
+  'npm run smoke:packaged-extensions -- --resources dist/mac-arm64/Xiaoling AI.app/Contents/Resources',
   nativeMediaSmokeCommand,
   'npm run smoke:packaged-extension-desktop',
   nativeEvidenceCommand
@@ -461,11 +461,11 @@ const dailyMacJob = workflowJob(dailyWorkflowDocument, 'build-macos', 'macos-lat
 requireBoundedJobTimeout(dailyMacJob, 'daily build-macos', 90)
 requireOrderedCommands(dailyMacJob, 'daily build-macos', [
   'npm run dist:mac',
-  'npm run verify:packaged-macos-native -- --resources dist/mac/Kun.app/Contents/Resources --arch x64',
-  'npm run verify:packaged-macos-native -- --resources dist/mac-arm64/Kun.app/Contents/Resources --arch arm64',
+  'npm run verify:packaged-macos-native -- --resources dist/mac/Xiaoling AI.app/Contents/Resources --arch x64',
+  'npm run verify:packaged-macos-native -- --resources dist/mac-arm64/Xiaoling AI.app/Contents/Resources --arch arm64',
   smokePackagedOcrCommand,
-  'npm run smoke:packaged-extensions -- --resources dist/mac/Kun.app/Contents/Resources',
-  'npm run smoke:packaged-extensions -- --resources dist/mac-arm64/Kun.app/Contents/Resources',
+  'npm run smoke:packaged-extensions -- --resources dist/mac/Xiaoling AI.app/Contents/Resources',
+  'npm run smoke:packaged-extensions -- --resources dist/mac-arm64/Xiaoling AI.app/Contents/Resources',
   nativeMediaSmokeCommand,
   'npm run smoke:packaged-extension-desktop',
   nativeEvidenceCommand

@@ -20,6 +20,7 @@ import {
 import {
   canonicalCurrentKunDataDir
 } from './kun-data-dir-paths'
+import { PRODUCT_NAME_EN } from '../shared/product-identity'
 import {
   assertNoActiveKunRuntimeUsingDataDir
 } from './runtime-data-dir-ownership'
@@ -130,7 +131,7 @@ export class RuntimeDataDirRecovery {
       snapshot.status = {
         ...snapshot.status,
         state: 'completed',
-        message: 'Runtime data recovery completed. Kun can now restart.'
+        message: `Runtime data recovery completed. ${PRODUCT_NAME_EN} can now restart.`
       }
       return snapshot.status
     } catch (error) {
@@ -273,7 +274,7 @@ export class RuntimeDataDirRecovery {
     } catch (error) {
       throw new RuntimeDataRecoveryError(
         'scan_failed',
-        'Kun could not safely inspect preserved Runtime data.',
+        `${PRODUCT_NAME_EN} could not safely inspect preserved Runtime data.`,
         { cause: error }
       )
     }
@@ -471,7 +472,7 @@ export class RuntimeDataDirRecovery {
       writeRecoveryRecordBestEffort(operation, 90, 'failed', { code: 'cutover_failed' })
       throw new RuntimeDataRecoveryError(
         'cutover_failed',
-        'Kun could not atomically activate the recovered Runtime data.',
+        `${PRODUCT_NAME_EN} could not atomically activate the recovered Runtime data.`,
         { cause: error }
       )
     }
@@ -483,7 +484,7 @@ export class RuntimeDataDirRecovery {
     } catch (error) {
       throw new RuntimeDataRecoveryError(
         'active_writer',
-        'A Kun Runtime is still using preserved data. Stop it before recovery.',
+        `A ${PRODUCT_NAME_EN} Runtime is still using preserved data. Stop it before recovery.`,
         { cause: error }
       )
     }

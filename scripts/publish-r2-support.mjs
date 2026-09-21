@@ -4,7 +4,7 @@ import { createReadStream, existsSync, readFileSync } from 'node:fs'
 import { basename, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-export const PRODUCT_NAME = 'Kun'
+export const PRODUCT_NAME = 'Xiaoling AI'
 export const DEFAULT_RELEASE_PREFIX = 'deepseek-gui'
 export const DEFAULT_RELEASE_CHANNEL = 'frontier'
 export const PLATFORMS = ['mac', 'win', 'linux']

@@ -29,6 +29,7 @@ import {
   kunRuntimeAdapter,
   runtimeAuthHeaders
 } from './runtime/kun-adapter'
+import { PRODUCT_NAME_EN } from '../shared/product-identity'
 import {
   ensureKunServiceManager,
   resolveKunManagerDataDirFromSettings
@@ -129,7 +130,7 @@ export async function interruptStorageRelocationWork(manager: ServiceManagerConn
     if (remaining.length === 0) return
     await new Promise<void>((resolve) => setTimeout(resolve, 250))
   }
-  throw new Error('active_writer: Timed out waiting for active Kun writes to stop.')
+  throw new Error(`active_writer: Timed out waiting for active ${PRODUCT_NAME_EN} writes to stop.`)
 }
 
 export async function shutdownServiceManagerAndWait(manager: ServiceManagerConnection): Promise<void> {
@@ -147,7 +148,7 @@ export async function shutdownServiceManagerAndWait(manager: ServiceManagerConne
       return
     }
   }
-  throw new Error('active_writer: Kun Service Manager did not exit before migration.')
+  throw new Error(`active_writer: ${PRODUCT_NAME_EN} Service Manager did not exit before migration.`)
 }
 
 export async function shutdownActiveServiceManagerForUpdate(): Promise<void> {

@@ -152,7 +152,7 @@ export function registerMainIpc(services: MainServices): void {
             typeof requestedDataDir === 'string' &&
             requestedDataDir !== current.agents.kun.dataDir
           ) {
-            throw new Error('Kun data location is managed from Settings > Storage on Windows.')
+            throw new Error('Xiaoling AI data location is managed from Settings > Storage on Windows.')
           }
           const next = applySettingsPatchToSnapshot(current, effectivePartial)
           const runtimeValidationError = validateRuntimeSettingsForApply(next)
@@ -271,7 +271,7 @@ export function registerMainIpc(services: MainServices): void {
             typeof requestedDataDir === 'string' &&
             requestedDataDir !== current.agents.kun.dataDir
           ) {
-            throw new Error('Kun data location is managed from Settings > Storage on Windows.')
+            throw new Error('Xiaoling AI data location is managed from Settings > Storage on Windows.')
           }
           const next = applySettingsPatchToSnapshot(current, effectivePartial)
           const runtimeValidationError = validateRuntimeSettingsForApply(next)

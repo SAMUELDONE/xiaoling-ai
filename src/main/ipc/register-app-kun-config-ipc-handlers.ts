@@ -36,6 +36,7 @@ import {
   DEFAULT_KUN_DATA_DIR,
   resolveKunRuntimeSettings
 } from '../../shared/app-settings'
+import { PRODUCT_NAME, PRODUCT_NAME_EN } from '../../shared/product-identity'
 import {
   detectLegacySessions,
   importLegacySessions
@@ -202,8 +203,8 @@ export function registerAppKunConfigIpcHandlers(options: RegisterAppIpcHandlersO
             : isChinese ? '（无）' : '(none)',
           loaded.status === 'valid' ? `SHA-256: ${loaded.digest}` : '',
           isChinese
-            ? '仅批准你已审查且信任的项目配置。批准后，Kun 可以启动其中声明的命令。'
-            : 'Approve only a project configuration you reviewed and trust. Kun may start its declared commands.'
+            ? `仅批准你已审查且信任的项目配置。批准后，${PRODUCT_NAME} 可以启动其中声明的命令。`
+            : `Approve only a project configuration you reviewed and trust. ${PRODUCT_NAME_EN} may start its declared commands.`
         ].filter(Boolean).join('\n\n')
       : isChinese
         ? `工作区：${canonicalRoot}\n\n撤销后，项目 MCP 将在下一次配置应用时被移除。`

@@ -120,7 +120,7 @@ describe('FloatingComposer capability controls', () => {
         (match) => match[1]
       )
 
-      expect(html).toContain('Kun 如何执行操作？')
+      expect(html).toContain('小灵 AI 如何执行操作？')
       expect(html).toContain('了解权限')
       expect(html.match(/role="menuitemradio"/g)).toHaveLength(3)
       expect(html).toContain('data-permission-mode="full-access" aria-checked="true"')

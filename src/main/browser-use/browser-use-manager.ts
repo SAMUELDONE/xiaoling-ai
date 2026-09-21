@@ -20,6 +20,7 @@ import {
   resultError,
   resultOk
 } from './browser-use-manager-support'
+import { PRODUCT_NAME_EN } from '../../shared/product-identity'
 
 export class BrowserUseManager extends BrowserUseManagerInteractions {
   async execute(
@@ -66,7 +67,7 @@ export class BrowserUseManager extends BrowserUseManagerInteractions {
       if (entry.controlOwner === 'manual') {
         return resultError(
           'manual_control_active',
-          'The user currently has manual control. Wait until control is returned to Kun.',
+          `The user currently has manual control. Wait until control is returned to ${PRODUCT_NAME_EN}.`,
           entry
         )
       }
@@ -115,7 +116,7 @@ export class BrowserUseManager extends BrowserUseManagerInteractions {
       if (entry.controlOwner === 'manual') {
         return resultError(
           'manual_control_active',
-          'The user currently has manual control. Wait until control is returned to Kun.',
+          `The user currently has manual control. Wait until control is returned to ${PRODUCT_NAME_EN}.`,
           entry
         )
       }

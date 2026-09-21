@@ -24,6 +24,7 @@ import {
   AccountSessionCard,
   authenticationLabel
 } from './ExtensionAccountRows'
+import { PRODUCT_NAME, PRODUCT_NAME_EN } from '@shared/product-identity'
 
 export {
   AccountSessionCard,
@@ -354,8 +355,8 @@ export function ExtensionAccountManagement({
       })
       await loadCatalog()
     }, copy(
-      'Provider 绑定已保存；Kun 不会在不可用时静默切换供应商。',
-      'Provider binding saved; Kun will not silently switch providers if it becomes unavailable.'
+      `Provider 绑定已保存；${PRODUCT_NAME} 不会在不可用时静默切换供应商。`,
+      `Provider binding saved; ${PRODUCT_NAME_EN} will not silently switch providers if it becomes unavailable.`
     ))
   }
 
@@ -413,7 +414,7 @@ export function ExtensionAccountManagement({
               {list?.protection.degraded ? (
                 <div className="mt-2 flex gap-1.5 rounded-lg bg-amber-500/10 px-2 py-1.5 text-[9.5px] leading-4 text-amber-800 dark:text-amber-200">
                   <ShieldAlert className="mt-0.5 h-3 w-3 shrink-0" />
-                  {copy('系统凭据设施不可用，Kun 正使用认证加密的降级存储。', 'System credential storage is unavailable; Kun is using authenticated encrypted fallback storage.')}
+                  {copy(`系统凭据设施不可用，${PRODUCT_NAME} 正使用认证加密的降级存储。`, `System credential storage is unavailable; ${PRODUCT_NAME_EN} is using authenticated encrypted fallback storage.`)}
                 </div>
               ) : null}
 
@@ -425,7 +426,7 @@ export function ExtensionAccountManagement({
 
               {!descriptor.canRead ? (
                 <div className="mt-2 rounded-lg border border-dashed border-ds-border px-2 py-2 text-[9.5px] leading-4 text-ds-faint">
-                  {copy('此扩展未获 accounts.read；Kun 不会向 renderer 返回账号元数据，但仍可在受保护窗口创建新账号。', 'This extension has no accounts.read grant. Kun will not return account metadata to the renderer, but a new account can still be created in a protected window.')}
+                  {copy(`此扩展未获 accounts.read；${PRODUCT_NAME} 不会向 renderer 返回账号元数据，但仍可在受保护窗口创建新账号。`, `This extension has no accounts.read grant. ${PRODUCT_NAME_EN} will not return account metadata to the renderer, but a new account can still be created in a protected window.`)}
                 </div>
               ) : null}
 
@@ -457,7 +458,7 @@ export function ExtensionAccountManagement({
                     <Bot className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent" aria-hidden />
                     <div className="min-w-0 flex-1">
                       <div className="text-[10px] font-semibold text-ds-ink">
-                        {copy('用于 Kun / 扩展 Agent', 'Use for Kun / extension Agents')}
+                        {copy(`用于 ${PRODUCT_NAME} / 扩展 Agent`, `Use for ${PRODUCT_NAME_EN} / extension Agents`)}
                       </div>
                       <p className="mt-0.5 text-[9.5px] leading-4 text-ds-faint">
                         {copy(
@@ -498,8 +499,8 @@ export function ExtensionAccountManagement({
                   </select>
                   <div className="rounded-lg bg-amber-500/8 px-2 py-1.5 text-[9px] leading-4 text-amber-800 dark:text-amber-200">
                     {copy(
-                      '该 Node Provider 可接收完整对话历史、系统/模式指令、附件和工具 Schema。Kun 不会把凭据写入绑定，也不会在失败时改用其他 Provider。',
-                      'This Node provider can receive complete conversation history, system/mode instructions, attachments, and tool schemas. Kun never writes credentials into the binding or falls back to another provider.'
+                      `该 Node Provider 可接收完整对话历史、系统/模式指令、附件和工具 Schema。${PRODUCT_NAME} 不会把凭据写入绑定，也不会在失败时改用其他 Provider。`,
+                      `This Node provider can receive complete conversation history, system/mode instructions, attachments, and tool schemas. ${PRODUCT_NAME_EN} never writes credentials into the binding or falls back to another provider.`
                     )}
                   </div>
                   {catalogEntry?.binding ? (
@@ -510,8 +511,8 @@ export function ExtensionAccountManagement({
                             `Current binding: ${catalogEntry.binding.modelId} (acknowledged)`
                           )
                         : copy(
-                            '已有绑定当前不可用；Kun 会显式报错，不会自动替换账号或 Provider。',
-                            'The saved binding is currently unavailable; Kun fails explicitly instead of substituting an account or provider.'
+                            `已有绑定当前不可用；${PRODUCT_NAME} 会显式报错，不会自动替换账号或 Provider。`,
+                            `The saved binding is currently unavailable; ${PRODUCT_NAME_EN} fails explicitly instead of substituting an account or provider.`
                           )}
                     </div>
                   ) : null}

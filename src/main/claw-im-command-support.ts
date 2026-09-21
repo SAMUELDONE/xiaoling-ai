@@ -12,6 +12,7 @@ import {
   isChineseLocale,
   type ImModelResolution
 } from './claw-im-model-support'
+import { PRODUCT_NAME, PRODUCT_NAME_EN } from '../shared/product-identity'
 
 export type ImSkillSummary = {
   id: string
@@ -68,8 +69,8 @@ export function parseSkillsResponse(body: string): { enabled: boolean; skills: I
 export function imSkillListText(settings: AppSettingsV1, enabled: boolean, skills: readonly ImSkillSummary[]): string {
   if (!enabled) {
     return isChineseLocale(settings)
-      ? 'Kun 技能当前未启用。'
-      : 'Kun skills are currently disabled.'
+      ? `${PRODUCT_NAME} 技能当前未启用。`
+      : `${PRODUCT_NAME_EN} skills are currently disabled.`
   }
   if (skills.length === 0) {
     return isChineseLocale(settings)
@@ -86,7 +87,7 @@ export function imSkillListText(settings: AppSettingsV1, enabled: boolean, skill
     ? (isChineseLocale(settings) ? `还有 ${skills.length - rows.length} 个技能未显示。` : `${skills.length - rows.length} more skills not shown.`)
     : ''
   return [
-    isChineseLocale(settings) ? '可用 Kun 技能：' : 'Available Kun skills:',
+    isChineseLocale(settings) ? `可用 ${PRODUCT_NAME} 技能：` : `Available ${PRODUCT_NAME_EN} skills:`,
     ...rows,
     ...(extra ? [extra] : [])
   ].join('\n')
@@ -155,8 +156,8 @@ export function parseThreadUsageResponse(body: string, threadId: string): ImThre
 export function imMcpListText(settings: AppSettingsV1, servers: readonly ImMcpServerSummary[]): string {
   if (servers.length === 0) {
     return isChineseLocale(settings)
-      ? '当前没有配置 Kun MCP 服务器。'
-      : 'No Kun MCP servers are configured.'
+      ? `当前没有配置 ${PRODUCT_NAME} MCP 服务器。`
+      : `No ${PRODUCT_NAME_EN} MCP servers are configured.`
   }
   const rows = servers.map((server, index) => {
     const state = server.available
@@ -170,21 +171,21 @@ export function imMcpListText(settings: AppSettingsV1, servers: readonly ImMcpSe
     return `- ${index + 1}. \`${server.id}\` ${state}${transport}${tools}${error}`
   })
   return [
-    isChineseLocale(settings) ? 'Kun MCP 服务器：' : 'Kun MCP servers:',
+    isChineseLocale(settings) ? `${PRODUCT_NAME} MCP 服务器：` : `${PRODUCT_NAME_EN} MCP servers:`,
     ...rows
   ].join('\n')
 }
 
 export function imWorkspaceText(settings: AppSettingsV1, threadId: string, workspace: string): string {
   return isChineseLocale(settings)
-    ? `当前 Kun 会话 \`${threadId}\` 的工作目录：\n\`${workspace}\``
-    : `Workspace for current Kun conversation \`${threadId}\`:\n\`${workspace}\``
+    ? `当前 ${PRODUCT_NAME} 会话 \`${threadId}\` 的工作目录：\n\`${workspace}\``
+    : `Workspace for current ${PRODUCT_NAME_EN} conversation \`${threadId}\`:\n\`${workspace}\``
 }
 
 export function imWorkspaceMissingText(settings: AppSettingsV1, threadId: string): string {
   return imKunErrorText(settings, isChineseLocale(settings)
-    ? `没有读取到当前 Kun 会话 \`${threadId}\` 的工作目录。`
-    : `Could not read the workspace path for current Kun conversation \`${threadId}\`.`)
+    ? `没有读取到当前 ${PRODUCT_NAME} 会话 \`${threadId}\` 的工作目录。`
+    : `Could not read the workspace path for current ${PRODUCT_NAME_EN} conversation \`${threadId}\`.`)
 }
 
 export function imMarkdownLines(lines: string[]): string {
@@ -204,7 +205,7 @@ export function imUsageText(
   const costText = costParts.length > 0 ? costParts.join(' · ') : (isChineseLocale(settings) ? '无' : 'none')
   if (isChineseLocale(settings)) {
     return imMarkdownLines([
-      `当前 Kun 会话：\`${threadId}\``,
+      `当前 ${PRODUCT_NAME} 会话：\`${threadId}\``,
       `供应商：\`${model.provider.id}\``,
       `模型：\`${model.model}\``,
       `Token 消耗：total ${usage.totalTokens} · input ${usage.promptTokens} · output ${usage.completionTokens}`,
@@ -214,7 +215,7 @@ export function imUsageText(
     ])
   }
   return imMarkdownLines([
-    `Current Kun conversation: \`${threadId}\``,
+    `Current ${PRODUCT_NAME_EN} conversation: \`${threadId}\``,
     `Provider: \`${model.provider.id}\``,
     `Model: \`${model.model}\``,
     `Token usage: total ${usage.totalTokens} · input ${usage.promptTokens} · output ${usage.completionTokens}`,
@@ -244,15 +245,15 @@ export function parseGoalResponse(body: string): ImGoalSummary | null {
 
 export function imNoCurrentThreadText(settings: AppSettingsV1): string {
   return imKunErrorText(settings, isChineseLocale(settings)
-    ? '当前 IM 会话还没有绑定 Kun 会话。先发送普通消息创建会话，或用 `/list-threads` 和 `/switch` 切换到已有会话。'
-    : 'This IM chat is not connected to a Kun conversation yet. Send a normal message to create one, or use `/list-threads` and `/switch` to pick one.')
+    ? `当前 IM 会话还没有绑定 ${PRODUCT_NAME} 会话。先发送普通消息创建会话，或用 \`/list-threads\` 和 \`/switch\` 切换到已有会话。`
+    : `This IM chat is not connected to a ${PRODUCT_NAME_EN} conversation yet. Send a normal message to create one, or use \`/list-threads\` and \`/switch\` to pick one.`)
 }
 
 export function imGoalText(settings: AppSettingsV1, goal: ImGoalSummary | null): string {
   if (!goal) {
     return isChineseLocale(settings)
-      ? '当前 Kun 会话还没有设置目标。使用 `/goal <目标>` 设置。'
-      : 'The current Kun conversation has no goal yet. Set one with `/goal <objective>`.'
+      ? `当前 ${PRODUCT_NAME} 会话还没有设置目标。使用 \`/goal <目标>\` 设置。`
+      : `The current ${PRODUCT_NAME_EN} conversation has no goal yet. Set one with \`/goal <objective>\`.`
   }
   const status = goal.status ? ` · ${goal.status}` : ''
   const tokens = typeof goal.tokensUsed === 'number' ? ` · ${goal.tokensUsed} tokens` : ''
@@ -329,8 +330,8 @@ export function imThreadListText(
 ): string {
   if (threads.length === 0) {
     return isChineseLocale(settings)
-      ? '还没有找到可切换的 Kun 会话。先发送普通消息创建会话，或发送 `/new` 开启新话题。'
-      : 'No switchable Kun conversations were found yet. Send a normal message to create one, or send `/new` to start a new topic.'
+      ? `还没有找到可切换的 ${PRODUCT_NAME} 会话。先发送普通消息创建会话，或发送 \`/new\` 开启新话题。`
+      : `No switchable ${PRODUCT_NAME_EN} conversations were found yet. Send a normal message to create one, or send \`/new\` to start a new topic.`
   }
   const rows = threads.map((thread, index) => {
     const marker = thread.id === currentThreadId ? '*' : '-'
@@ -339,15 +340,15 @@ export function imThreadListText(
   })
   if (isChineseLocale(settings)) {
     return [
-      currentThreadId ? `当前会话：\`${currentThreadId}\`。` : '当前还没有绑定 Kun 会话。',
-      '最近 Kun 会话：',
+      currentThreadId ? `当前会话：\`${currentThreadId}\`。` : `当前还没有绑定 ${PRODUCT_NAME} 会话。`,
+      `最近 ${PRODUCT_NAME} 会话：`,
       ...rows,
       '切换会话：`/switch <序号|thread id>`。新话题：`/new`。'
     ].join('\n')
   }
   return [
-    currentThreadId ? `Current conversation: \`${currentThreadId}\`.` : 'No Kun conversation is connected yet.',
-    'Recent Kun conversations:',
+    currentThreadId ? `Current conversation: \`${currentThreadId}\`.` : `No ${PRODUCT_NAME_EN} conversation is connected yet.`,
+    `Recent ${PRODUCT_NAME_EN} conversations:`,
     ...rows,
     'Switch with `/switch <number|thread id>`. Start fresh with `/new`.'
   ].join('\n')
@@ -361,18 +362,18 @@ export function imCurrentThreadText(
 ): string {
   if (!currentThreadId) {
     return imKunErrorText(settings, isChineseLocale(settings)
-      ? '当前 IM 会话还没有绑定 Kun 会话。发送普通消息会创建一个新会话。'
-      : 'This IM chat is not connected to a Kun conversation yet. Send a normal message to create one.')
+      ? `当前 IM 会话还没有绑定 ${PRODUCT_NAME} 会话。发送普通消息会创建一个新会话。`
+      : `This IM chat is not connected to a ${PRODUCT_NAME_EN} conversation yet. Send a normal message to create one.`)
   }
   if (!thread) {
     return imKunErrorText(settings, isChineseLocale(settings)
-      ? `当前绑定的 Kun 会话是 \`${currentThreadId}\`，但线程列表里暂时没有读取到它。`
+      ? `当前绑定的 ${PRODUCT_NAME} 会话是 \`${currentThreadId}\`，但线程列表里暂时没有读取到它。`
       : `This IM chat is connected to \`${currentThreadId}\`, but it was not found in the thread list.`)
   }
   const status = thread.status?.trim() ? ` · ${thread.status.trim()}` : ''
   const text = isChineseLocale(settings)
-    ? `当前 Kun 会话：\`${thread.id}\` ${imThreadTitle(thread)}${status}。`
-    : `Current Kun conversation: \`${thread.id}\` ${imThreadTitle(thread)}${status}.`
+    ? `当前 ${PRODUCT_NAME} 会话：\`${thread.id}\` ${imThreadTitle(thread)}${status}。`
+    : `Current ${PRODUCT_NAME_EN} conversation: \`${thread.id}\` ${imThreadTitle(thread)}${status}.`
   return shared ? `${text}\n\n${imSharedThreadWarningText(settings)}` : text
 }
 
@@ -400,14 +401,14 @@ export function imThreadSwitchNotFoundText(settings: AppSettingsV1, target: stri
 
 export function imSharedThreadWarningText(settings: AppSettingsV1): string {
   return isChineseLocale(settings)
-    ? '注意：这个 Kun 会话也被其他 IM 会话持有。Kun 不会对共享会话做 IM 侧并发控制，请不要在多个 IM 里同时对话。'
-    : 'Note: this Kun conversation is also held by another IM chat. Kun does not add IM-side concurrency control for shared conversations, so avoid chatting into it from multiple IM chats at the same time.'
+    ? `注意：这个 ${PRODUCT_NAME} 会话也被其他 IM 会话持有。${PRODUCT_NAME} 不会对共享会话做 IM 侧并发控制，请不要在多个 IM 里同时对话。`
+    : `Note: this ${PRODUCT_NAME_EN} conversation is also held by another IM chat. ${PRODUCT_NAME_EN} does not add IM-side concurrency control for shared conversations, so avoid chatting into it from multiple IM chats at the same time.`
 }
 
 export function imThreadSwitchedText(settings: AppSettingsV1, thread: ThreadRecordJson, shared: boolean): string {
   const text = isChineseLocale(settings)
-    ? `已切换到 Kun 会话 \`${thread.id}\`：${imThreadTitle(thread)}。后续消息会继续这个上下文。`
-    : `Switched to Kun conversation \`${thread.id}\`: ${imThreadTitle(thread)}. Future messages will continue that context.`
+    ? `已切换到 ${PRODUCT_NAME} 会话 \`${thread.id}\`：${imThreadTitle(thread)}。后续消息会继续这个上下文。`
+    : `Switched to ${PRODUCT_NAME_EN} conversation \`${thread.id}\`: ${imThreadTitle(thread)}. Future messages will continue that context.`
   return shared ? `${text}\n\n${imSharedThreadWarningText(settings)}` : text
 }
 
@@ -435,14 +436,14 @@ export function hasOtherImThreadBinding(
 
 export function imStopNoRunningTurnText(settings: AppSettingsV1): string {
   return imKunErrorText(settings, isChineseLocale(settings)
-    ? '当前 Kun 会话没有正在运行的任务。'
-    : 'The current Kun conversation has no running task.')
+    ? `当前 ${PRODUCT_NAME} 会话没有正在运行的任务。`
+    : `The current ${PRODUCT_NAME_EN} conversation has no running task.`)
 }
 
 export function imStopSucceededText(settings: AppSettingsV1, turnId: string): string {
   return isChineseLocale(settings)
-    ? `Kun 已停止当前任务：\`${turnId}\`。`
-    : `Kun stopped the current task: \`${turnId}\`.`
+    ? `${PRODUCT_NAME} 已停止当前任务：\`${turnId}\`。`
+    : `${PRODUCT_NAME_EN} stopped the current task: \`${turnId}\`.`
 }
 
 /**

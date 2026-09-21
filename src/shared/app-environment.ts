@@ -1,11 +1,19 @@
+import {
+  PRODUCT_DEVELOPMENT_NAME,
+  PRODUCT_NAME
+} from './product-identity'
+
 export const APP_FLAVORS = ['production', 'development'] as const
 export type AppFlavor = (typeof APP_FLAVORS)[number]
 
 export type RuntimeFlavor = AppFlavor
 
-export const PRODUCTION_APP_NAME = 'Kun'
-export const DEVELOPMENT_APP_NAME = 'kun-dv'
-export const DEVELOPMENT_WINDOW_TITLE = 'kun-dv · DV'
+export const PRODUCTION_APP_NAME = PRODUCT_NAME
+export const DEVELOPMENT_APP_NAME = PRODUCT_DEVELOPMENT_NAME
+export const DEVELOPMENT_WINDOW_TITLE = `${PRODUCT_DEVELOPMENT_NAME} · DV`
+// Keep the production profile directory stable while the display name changes.
+// Existing releases created this directory from the old `Kun` app name.
+export const PRODUCTION_USER_DATA_DIR_NAME = 'Kun'
 export const PRODUCTION_APP_ID = 'com.xingyuzhong.deepseekgui'
 export const DEVELOPMENT_APP_ID = 'com.xingyuzhong.deepseekgui.dv'
 

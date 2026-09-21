@@ -590,8 +590,8 @@ describe('MessageTimeline Kun runtime metadata smoke', () => {
       createElement(MessageBubble, { block: reviewBlock })
     )
 
-    expect(html).toContain('Kun approval review')
-    expect(html).toContain('Denied by Kun')
+    expect(html).toContain('Xiaoling AI approval review')
+    expect(html).toContain('Denied by Xiaoling AI')
     expect(html).toContain('Risk: high')
     expect(html).toContain('The command targets a path outside the workspace.')
     expect(html).not.toContain('>Allow<')

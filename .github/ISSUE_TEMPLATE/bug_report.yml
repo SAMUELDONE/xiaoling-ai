@@ -1,5 +1,5 @@
 name: Bug report / 缺陷反馈
-description: Report a reproducible bug or regression in Kun / 反馈 Kun 中可复现的问题或回归
+description: Report a reproducible bug or regression in Xiaoling AI / 反馈小灵 AI 中可复现的问题或回归
 title: "[Bug] "
 labels:
   - bug
@@ -7,10 +7,10 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for helping us improve Kun.
+        Thanks for helping us improve Xiaoling AI.
         Please include enough detail for someone else to reproduce the issue.
 
-        感谢你帮助我们改进 Kun。
+        感谢你帮助我们改进小灵 AI。
         请提供足够的信息，方便其他人复现这个问题。
   - type: textarea
     id: summary
@@ -65,7 +65,7 @@ body:
   - type: input
     id: version
     attributes:
-      label: Kun version / Kun 版本
+      label: Xiaoling AI version / 小灵 AI 版本
       placeholder: e.g. v0.1.0 / 例如 v0.1.0
     validations:
       required: true
@@ -83,7 +83,7 @@ body:
       description: |
         Paste relevant logs or stack traces here. Do not paste screenshots in this field; screenshots should go in Actual behavior so they render as images.
 
-        You can find Kun logs in:
+        You can find Xiaoling AI logs in the existing compatibility profile locations:
 
         - macOS: `~/Library/Application Support/Kun/logs`
         - Windows: `C:\Users\<YourUserName>\AppData\Roaming\Kun\logs`
@@ -91,7 +91,7 @@ body:
 
         If you changed the default Linux config directory, check `<your config directory>/Kun/logs` instead.
 
-        Please attach the latest `kun-YYYY-MM-DD.log` file. If you upgraded from an older DeepSeek GUI version, also attach the latest `deepseek-gui-YYYY-MM-DD.log` file if it exists.
+        Please attach the latest `kun-YYYY-MM-DD.log` file. These filenames and profile paths are retained for runtime compatibility. If you upgraded from an older DeepSeek GUI version, also attach the latest `deepseek-gui-YYYY-MM-DD.log` file if it exists.
       render: shell
   - type: checkboxes
     id: terms

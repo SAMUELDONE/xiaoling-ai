@@ -248,7 +248,7 @@ describe('CLI install service on Windows', () => {
 describe('terminal command prompt copy', () => {
   it('explains that enabling the command does not install the bundled TUI', () => {
     expect(terminalCommandPromptOptions()).toMatchObject({
-      title: 'Enable Kun terminal command',
+      title: 'Enable Xiaoling AI terminal command',
       message: 'Enable the `kun` command?',
       detail: expect.stringContaining('TUI is already included'),
       buttons: ['Enable', 'Later']

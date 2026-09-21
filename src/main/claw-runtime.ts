@@ -21,6 +21,7 @@ import { ClawRuntimeInbound } from './claw-runtime-inbound'
 import type { TelegramInboundPayload } from './telegram-runtime'
 import { handleTelegramInbound } from './telegram-inbound-coordinator'
 import { handleFeishuInbound } from './feishu-inbound-coordinator'
+import { PRODUCT_NAME_EN } from '../shared/product-identity'
 
 export { imWelcomeText } from './claw-im-model-support'
 
@@ -173,7 +174,7 @@ export class ClawRuntime extends ClawRuntimeInbound {
   protected async handleWebhook(req: IncomingMessage, res: ServerResponse): Promise<void> {
     try {
       if (this.stopController.signal.aborted) {
-        writeJson(res, 503, { ok: false, message: 'Kun: Claw runtime is stopping.' })
+        writeJson(res, 503, { ok: false, message: `${PRODUCT_NAME_EN}: Claw runtime is stopping.` })
         return
       }
       const settings = await this.deps.store.load()
@@ -188,16 +189,16 @@ export class ClawRuntime extends ClawRuntimeInbound {
           ok: false,
           code: 'gui_plan_create_retired',
           message:
-            'Kun: The /claw/internal/gui-plan/create endpoint is no longer active. Use the Kun create_plan tool.'
+            `${PRODUCT_NAME_EN}: The /claw/internal/gui-plan/create endpoint is no longer active. Use the ${PRODUCT_NAME_EN} create_plan tool.`
         })
         return
       }
       if (req.method !== 'POST' || url.pathname !== im.path) {
-        writeJson(res, 404, { ok: false, message: 'Kun: Not found.' })
+        writeJson(res, 404, { ok: false, message: `${PRODUCT_NAME_EN}: Not found.` })
         return
       }
       if (!settings.claw.enabled || !im.enabled) {
-        writeJson(res, 503, { ok: false, message: 'Kun: Claw IM webhook is disabled.' })
+        writeJson(res, 503, { ok: false, message: `${PRODUCT_NAME_EN}: Claw IM webhook is disabled.` })
         return
       }
       if (im.secret) {
@@ -207,7 +208,7 @@ export class ClawRuntime extends ClawRuntimeInbound {
         const rawHeaderSecret = req.headers['x-kun-secret'] ?? req.headers['x-deepseek-gui-secret']
         const headerSecret = Array.isArray(rawHeaderSecret) ? rawHeaderSecret[0] : rawHeaderSecret
         if (auth !== `Bearer ${im.secret}` && headerSecret !== im.secret) {
-          writeJson(res, 401, { ok: false, message: 'Kun: Unauthorized.' })
+          writeJson(res, 401, { ok: false, message: `${PRODUCT_NAME_EN}: Unauthorized.` })
           return
         }
       }
@@ -215,12 +216,12 @@ export class ClawRuntime extends ClawRuntimeInbound {
       const body = await readRequestBody(req)
       const payload = parseJsonObject(body)
       if (!payload) {
-        writeJson(res, 400, { ok: false, message: 'Kun: Expected a JSON object.' })
+        writeJson(res, 400, { ok: false, message: `${PRODUCT_NAME_EN}: Expected a JSON object.` })
         return
       }
       const prompt = extractIncomingPrompt(payload)
       if (!prompt) {
-        writeJson(res, 400, { ok: false, message: 'Kun: No message text found.' })
+        writeJson(res, 400, { ok: false, message: `${PRODUCT_NAME_EN}: No message text found.` })
         return
       }
       const sender = extractSenderLabel(payload)
@@ -349,7 +350,7 @@ export class ClawRuntime extends ClawRuntimeInbound {
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error)
       this.deps.logError('claw-webhook', 'Claw IM webhook request failed', { message })
-      writeJson(res, 500, { ok: false, message: 'Kun: Internal server error.' })
+      writeJson(res, 500, { ok: false, message: `${PRODUCT_NAME_EN}: Internal server error.` })
     }
   }
 }

@@ -11,6 +11,7 @@ import type {
 import type { WriteTurnContext } from './write-turn-context'
 import type { ThreadListOptions, ThreadListPage } from './provider-types'
 import { getKunRuntimeSettings } from '@shared/app-settings-kun-defaults'
+import { PRODUCT_NAME_EN } from '@shared/product-identity'
 import type {
   ApprovalPolicy as KunApprovalPolicy,
   ApprovalReviewer as KunApprovalReviewer,
@@ -193,7 +194,7 @@ export type ThreadContentMatch = {
 
 export class KunRuntimeProvider extends KunRuntimeThreadServices implements AgentProvider {
   readonly id = 'kun' as const
-  readonly displayName = 'Kun'
+  readonly displayName = PRODUCT_NAME_EN
 
   getCapabilities(): {
     interrupt: boolean

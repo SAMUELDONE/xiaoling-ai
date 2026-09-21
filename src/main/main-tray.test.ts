@@ -61,7 +61,7 @@ vi.mock('./notification-preferences', () => ({ turnCompleteNotificationDisabledR
 vi.mock('./main-lifecycle', () => ({ runtimeShutdown: { requestQuit: vi.fn() } }))
 vi.mock('./main-app-context', () => ({
   __dirname: '/tmp',
-  appEnvironment: { appName: 'Kun', flavor: 'development' },
+  appEnvironment: { appName: '小灵 AI', flavor: 'development' },
   appIcon: { isEmpty: () => false },
   developmentRendererUrl: () => undefined,
   mainState: {
@@ -115,7 +115,7 @@ describe('syncTray', () => {
     expect(state.createdTrays).toHaveLength(1)
     expect(mainState.tray).toBe(state.createdTrays[0])
     expect(mainState.trayAvailable).toBe(true)
-    expect(state.createdTrays[0].setToolTip).toHaveBeenCalledWith('Kun')
+    expect(state.createdTrays[0].setToolTip).toHaveBeenCalledWith('小灵 AI')
     expect(state.createdTrays[0].on).toHaveBeenCalledWith('click', expect.any(Function))
     expect(state.createdTrays[0].on).toHaveBeenCalledWith('double-click', expect.any(Function))
     expect(state.createdTrays[0].on).toHaveBeenCalledWith('right-click', expect.any(Function))

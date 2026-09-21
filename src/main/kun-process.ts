@@ -124,6 +124,7 @@ import {
   withManagerStartLock
 } from '../../kun/src/manager/manager-discovery.js'
 import { configureManagerAtomicJsonClient } from '../../kun/src/extensions/atomic-json.js'
+import { PRODUCT_NAME_EN } from '../shared/product-identity'
 import { kunManagerLaunchEnvironment } from './runtime/kun-manager-launch-environment'
 import { handoffExistingKunServiceManagerForDataDir } from './runtime/service-manager-build-handoff'
 import {
@@ -194,7 +195,7 @@ export async function ensureKunServiceManager(input: {
   const serveEntry = resolution.args[0]
   if (!serveEntry || !existsSync(serveEntry)) {
     throw new Error(
-      `Kun Service Manager build is missing next to ${serveEntry || 'the bundled runtime entry'}. Run \`npm run build:kun\` first.`
+      `${PRODUCT_NAME_EN} Service Manager build is missing next to ${serveEntry || 'the bundled runtime entry'}. Run \`npm run build:kun\` first.`
     )
   }
   const buildId = await resolveKunRuntimeBuildId(resolution)
@@ -375,7 +376,7 @@ export async function startKunSharedRuntime(
   const runtimeFlavor = resolveCliRuntimeFlavor({ env: process.env })
   if (await hasUnpublishedKunWriter(runtime, dataDir, runtimeFlavor)) {
     throw new Error(
-      'An older GUI-private Kun runtime is already writing this data directory without shared discovery. Close or update that GUI once before starting the shared runtime.'
+      `An older GUI-private ${PRODUCT_NAME_EN} runtime is already writing this data directory without shared discovery. Close or update that GUI once before starting the shared runtime.`
     )
   }
   // A shared runtime is elected under the data-directory start lock. Let the
@@ -384,7 +385,7 @@ export async function startKunSharedRuntime(
   // live connection contract.
   const launch = await prepareKunLaunch(settings, runtime, { port: 0 })
   const serveEntry = launch.args.find((argument) => /serve-entry\.js$/u.test(argument))
-  if (!serveEntry) throw new Error('Kun service-manager entry could not be resolved from the runtime launch')
+  if (!serveEntry) throw new Error(`${PRODUCT_NAME_EN} service-manager entry could not be resolved from the runtime launch`)
   const managerEntry = join(dirname(serveEntry), '..', 'manager', 'manager-entry.js')
   const discoveredManager = await ensureServiceManager({
     flavor: runtimeFlavor,
@@ -466,7 +467,7 @@ async function prepareKunLaunch(
   const resolution = resolveKunExecutable(root, runtime.binaryPath)
   if (resolution.command === process.execPath && !existsSync(resolution.args[0])) {
     throw new Error(
-      `Kun runtime build is missing at ${resolution.args[0]}. Run \`npm run build:kun\` before starting the GUI.`
+      `${PRODUCT_NAME_EN} runtime build is missing at ${resolution.args[0]}. Run \`npm run build:kun\` before starting the GUI.`
     )
   }
   const expectedBuildId = await resolveKunRuntimeBuildId(resolution)
@@ -671,7 +672,7 @@ export async function stopKunChildAndWait(): Promise<void> {
     const forcedExit = await waitForKunChildExit(stoppingChild, KUN_STOP_FORCE_MS)
     if (!forcedExit) {
       throw new Error(
-        `Kun runtime process ${pid ?? 'unknown'} remained alive after SIGKILL; ` +
+        `${PRODUCT_NAME_EN} runtime process ${pid ?? 'unknown'} remained alive after SIGKILL; ` +
         'the exact child remains supervised and no replacement was started'
       )
     }

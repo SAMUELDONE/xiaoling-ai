@@ -6,6 +6,7 @@ import type {
 } from '../../shared/extension-ipc'
 import type { RegisterExtensionIpcHandlersOptions } from './extension-ipc-handler-options'
 import { isRecord, runtimeFailure, safeJsonParse } from './extension-ipc-common'
+import { PRODUCT_NAME_EN } from '../../shared/product-identity'
 
 export async function presentProtectedAccountAuthorization(
   options: RegisterExtensionIpcHandlersOptions,
@@ -44,7 +45,7 @@ export async function presentProtectedAccountAuthorization(
     })
     return runtimeFailure(
       'EXTENSION_PROTECTED_SURFACE_FAILED',
-      'Kun could not present the protected account authorization window.',
+      `${PRODUCT_NAME_EN} could not present the protected account authorization window.`,
       502
     )
   }

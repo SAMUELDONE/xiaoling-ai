@@ -1,4 +1,5 @@
 import { createHmac, randomBytes } from 'node:crypto'
+import { PRODUCT_NAME_EN } from '../shared/product-identity'
 
 export const KUN_APPROVAL_CONSENT_HEADER = 'x-kun-approval-consent'
 const APPROVAL_CONSENT_VERSION = 'v1'
@@ -9,7 +10,7 @@ export function createApprovalConsentToken(input: {
   decision: 'allow' | 'deny'
   expiresAt: number
 }): string {
-  if (!input.runtimeToken) throw new Error('Kun runtime token is required for protected approval.')
+  if (!input.runtimeToken) throw new Error(`${PRODUCT_NAME_EN} runtime token is required for protected approval.`)
   if (!Number.isSafeInteger(input.expiresAt)) throw new Error('Approval consent expiry is invalid.')
   const nonce = randomBytes(24).toString('base64url')
   const signature = createHmac('sha256', input.runtimeToken)

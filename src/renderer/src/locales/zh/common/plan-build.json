@@ -31,7 +31,7 @@
   "planScheduleBuildTimeZone": "时区",
   "planScheduleBuildConfirm": "确认定时",
   "planScheduleBuildConfirmPending": "正在设置定时…",
-  "planScheduleBuildRunningNotice": "需要保持 Kun 运行。等待中的任务会阻止系统自动休眠；完全退出 Kun 会停止执行。超时未运行的任务会在重启后排队补执行。",
+  "planScheduleBuildRunningNotice": "需要保持小灵 AI 运行。等待中的任务会阻止系统自动休眠；完全退出小灵 AI 会停止执行。超时未运行的任务会在重启后排队补执行。",
   "planScheduleBuildErrorInvalidDate": "请输入有效的日期和时间。",
   "planScheduleBuildErrorInvalidTimeZone": "请选择有效的 IANA 时区。",
   "planScheduleBuildErrorNonexistentTime": "所选时区不存在这个本地时间。",
@@ -70,7 +70,7 @@
   "planCreateFailed": "创建计划文件失败。",
   "planAgentStartFailed": "无法为这个计划启动智能体回合。",
   "planExtractFailed": "无法从智能体回复中提取计划 Markdown。",
-  "planToolResultMissing": "Kun 没有为这个计划返回匹配的 create_plan 结果。",
+  "planToolResultMissing": "小灵 AI 没有为这个计划返回匹配的 create_plan 结果。",
   "planLoadFailed": "计划加载失败，请点击「查看计划」重新加载。",
   "planRequestRequired": "请先描述需求，或使用 `/plan 你的需求` 创建新计划。",
   "planTodoSyncFailed": "计划已保存，但任务进度同步失败。"

@@ -3,12 +3,13 @@ import { DESIGN_CRAFT_LINES, formatDesignContextLines } from '../design-context'
 import type { DesignTurnOptions } from './shared'
 import { formatContextLocationLines } from './shared'
 import { formatProjectDesignSystemLines } from './html-and-canvas'
+import { PRODUCT_NAME_EN } from '@shared/product-identity'
 
 export function buildSvgTurnPrompt(options: DesignTurnOptions): string {
   const lines = [
     options.basePath
-      ? 'Kun is asking you to ITERATE on an existing standalone SVG motion artifact.'
-      : 'Kun is asking you to create a standalone SVG or SVG-motion artifact.',
+      ? `${PRODUCT_NAME_EN} is asking you to ITERATE on an existing standalone SVG motion artifact.`
+      : `${PRODUCT_NAME_EN} is asking you to create a standalone SVG or SVG-motion artifact.`,
     `Workspace: ${options.workspaceRoot}`,
     `Reserved SVG file: ${options.artifactRelativePath}`,
     ...(options.basePath ? [`Previous version to preserve and improve: ${options.basePath}`] : []),

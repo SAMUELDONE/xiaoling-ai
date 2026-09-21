@@ -23,6 +23,7 @@ import {
   type PathState,
   RuntimeDataRecoveryError
 } from './runtime-data-dir-recovery-types'
+import { PRODUCT_NAME, PRODUCT_NAME_EN } from '../shared/product-identity'
 
 
 
@@ -40,8 +41,8 @@ export function candidateOpaqueId(secret: Buffer, generation: string, descriptor
 }
 
 export function candidateLabel(kind: RuntimeDataRecoveryCandidateKind): string {
-  if (kind === 'current') return 'Current Kun data / 当前 Kun 数据'
-  if (kind === 'legacy') return 'Legacy Kun data / 旧版 Kun 数据'
+  if (kind === 'current') return `Current ${PRODUCT_NAME_EN} data / 当前 ${PRODUCT_NAME} 数据`
+  if (kind === 'legacy') return `Legacy ${PRODUCT_NAME_EN} data / 旧版 ${PRODUCT_NAME} 数据`
   if (kind === 'staging') return 'Verified recovery staging copy / 已验证恢复暂存副本'
   return 'Preserved migration backup / 已保留的迁移备份'
 }

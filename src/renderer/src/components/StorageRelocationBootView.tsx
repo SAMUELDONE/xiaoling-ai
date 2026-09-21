@@ -4,6 +4,7 @@ import type {
   StorageRelocationProgress,
   StorageRelocationStatus
 } from '@shared/storage-relocation'
+import { PRODUCT_NAME, PRODUCT_NAME_EN } from '@shared/product-identity'
 
 const phaseLabels: Record<StorageRelocationProgress['phase'], string> = {
   prepared: 'Preparing / 准备迁移',
@@ -11,7 +12,7 @@ const phaseLabels: Record<StorageRelocationProgress['phase'], string> = {
   copying: 'Copying data / 正在复制数据',
   verifying: 'Verifying data / 正在校验数据',
   cutover: 'Switching location / 正在切换位置',
-  'health-check': 'Checking Kun / 正在检查 Kun',
+  'health-check': `Checking ${PRODUCT_NAME_EN} / 正在检查 ${PRODUCT_NAME}`,
   'rolling-back': 'Rolling back / 正在回滚',
   'cleanup-pending': 'Cleanup pending / 等待清理旧数据',
   completed: 'Completed / 迁移完成',
@@ -68,7 +69,7 @@ export function StorageRelocationBootView(): React.JSX.Element {
         <div className="flex items-center gap-3">
           <div className="rounded-2xl bg-blue-500/10 p-3 text-blue-600"><Database className="h-7 w-7" /></div>
           <div>
-            <h1 className="text-xl font-semibold">Kun storage migration</h1>
+            <h1 className="text-xl font-semibold">{PRODUCT_NAME_EN} storage migration</h1>
             <p className="mt-1 text-sm text-ds-muted">正在安全迁移用户数据，请勿关闭电脑或断开目标磁盘。</p>
           </div>
         </div>
@@ -86,7 +87,7 @@ export function StorageRelocationBootView(): React.JSX.Element {
             <div className="h-full rounded-full bg-blue-500 transition-all" style={{ width: `${percent}%` }} />
           </div>
           <div className="mt-2 flex justify-between text-xs text-ds-muted">
-            <span>{progress?.currentItem || progress?.message || 'Kun data'}</span>
+            <span>{progress?.currentItem || progress?.message || `${PRODUCT_NAME_EN} data`}</span>
             <span>{formatBytes(progress?.completedBytes ?? 0)} / {formatBytes(progress?.totalBytes ?? 0)}</span>
           </div>
         </div>
@@ -98,7 +99,7 @@ export function StorageRelocationBootView(): React.JSX.Element {
         ) : null}
 
         <p className="mt-5 text-xs leading-5 text-ds-muted">
-          The original C-drive paths remain as compatibility junctions. Kun only removes a verified old backup after the new location passes its health check.
+          The original C-drive paths remain as compatibility junctions. {PRODUCT_NAME_EN} only removes a verified old backup after the new location passes its health check.
           <br />C 盘原路径会保留兼容 junction；新位置通过完整性和健康检查后，旧备份才会删除。
         </p>
 

@@ -2,6 +2,7 @@ import { chmod, lstat, mkdir, readFile, writeFile } from 'node:fs/promises'
 import { homedir } from 'node:os'
 import { basename, dirname, join } from 'node:path'
 import { atomicWriteFile } from '../../kun/src/adapters/file/atomic-write.js'
+import { PRODUCT_NAME_EN } from '../shared/product-identity'
 import {
   SETTINGS_FILE_NAME,
   settingsReadCandidates
@@ -230,7 +231,7 @@ export class JsonSettingsStore {
     const prepared = normalized
     if (this.rejectsPlaintextCredentials(prepared)) {
       throw new Error(
-        'Protected credential storage is unavailable while Kun Runtime data migration is blocked; settings containing plaintext credentials were not written'
+        `Protected credential storage is unavailable while ${PRODUCT_NAME_EN} Runtime data migration is blocked; settings containing plaintext credentials were not written`
       )
     }
     if (this.options.credentialMigration && hasLegacyProviderPlaintext(prepared)) {

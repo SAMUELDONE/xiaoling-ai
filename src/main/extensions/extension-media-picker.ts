@@ -21,6 +21,7 @@ import type {
   ExtensionViewSessionRecord,
   ExtensionViewSessionRegistry
 } from './extension-view-sessions'
+import { PRODUCT_NAME_EN } from '../../shared/product-identity'
 
 type RuntimeRequestResult = { ok: boolean; status: number; body: string }
 type RuntimeRequest = (
@@ -142,7 +143,7 @@ export async function pickExtensionMediaSaveTarget(
   if (!target) {
     throw new ExtensionMediaPickerError(
       'MEDIA_REGISTRATION_FAILED',
-      'Kun did not register the selected export destination.'
+      `${PRODUCT_NAME_EN} did not register the selected export destination.`
     )
   }
   return MediaPickSaveTargetResultSchema.parse({ outcome: 'selected', target })
@@ -306,7 +307,7 @@ async function registerSelections(
   } catch {
     throw new ExtensionMediaPickerError(
       'MEDIA_REGISTRATION_FAILED',
-      'Kun returned an invalid protected media registration response.'
+      `${PRODUCT_NAME_EN} returned an invalid protected media registration response.`
     )
   }
   return ExtensionMediaSelectionRegistrationResultSchema.parse(payload).selections
@@ -358,7 +359,7 @@ function cleanupFailure(
   context.onCleanupFailure?.({ selectionCount })
   return new ExtensionMediaPickerError(
     'MEDIA_REGISTRATION_FAILED',
-    'Kun could not confirm rollback of a protected media selection.'
+    `${PRODUCT_NAME_EN} could not confirm rollback of a protected media selection.`
   )
 }
 
@@ -366,10 +367,10 @@ function safeRuntimeFailure(result: RuntimeRequestResult): string {
   try {
     const payload = JSON.parse(result.body) as { code?: unknown }
     if (typeof payload.code === 'string' && /^[a-z0-9_-]{1,128}$/i.test(payload.code)) {
-      return `Kun rejected protected media registration (${payload.code}).`
+      return `${PRODUCT_NAME_EN} rejected protected media registration (${payload.code}).`
     }
   } catch {
     // Fall through to an intentionally path-free status message.
   }
-  return `Kun rejected protected media registration (HTTP ${result.status}).`
+  return `${PRODUCT_NAME_EN} rejected protected media registration (HTTP ${result.status}).`
 }

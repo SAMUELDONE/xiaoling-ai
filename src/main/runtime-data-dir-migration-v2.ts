@@ -26,6 +26,7 @@ import {
 import {
   updateJournal
 } from './runtime-data-dir-migration-journal-preservation'
+import { PRODUCT_NAME_EN } from '../shared/product-identity'
 import {
   readSettingsSelection,
   threadIds
@@ -377,7 +378,7 @@ export function maintainCompletedMigration(
       throw new Error('could not determine Runtime data authority from the active settings source')
     }
     if (pathState(journal.targetPath) !== 'dir') {
-      throw new Error('committed Kun Runtime target is missing')
+      throw new Error(`committed ${PRODUCT_NAME_EN} Runtime target is missing`)
     }
     const sourceState = pathState(journal.sourcePath)
     if (sourceState === 'dir') {

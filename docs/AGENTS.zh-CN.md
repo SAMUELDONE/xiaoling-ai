@@ -1,6 +1,6 @@
 # 代理运行时说明
 
-Kun 桌面应用当前只有一个可运行的本地 Agent 运行时：仓库自带的同名 **Kun** 运行时。
+小灵 AI 当前只有一个可运行的本地 Agent 运行时：仓库自带的 **Kun-compatible** 运行时。
 
 不要新增第二套运行时、运行时切换器、运行时诊断面板，或旧的 CodeWhale / Reasonix 进程路径。Code（含 Design 任务）、Work、连接手机都统一走同一个 Kun HTTP/SSE 边界。连接手机在代码内部仍沿用 `claw` 命名，Work 内部仍沿用 `write` 命名，作为兼容标识。
 
@@ -69,6 +69,6 @@ npm run build
   并在失败时保留现场；Graph 不注入该协议。
 - Work 可以打开工作区、发起 inline 补全、使用选中文本助手动作。
 - 连接手机可以保存设置，并通过 Kun 会话执行手工任务。
-- 设置 -> Agent 仅显示 Kun。
+- 设置 -> Agent 仅显示小灵 AI 配置。
 
 完整方案见 [`docs/kun-architecture.md`](./kun-architecture.md)。

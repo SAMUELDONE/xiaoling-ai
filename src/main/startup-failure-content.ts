@@ -2,6 +2,7 @@ import { join } from 'node:path'
 import { defaultKunControlDir } from '../../kun/src/manager/manager-discovery.js'
 import { ServiceManagerUnavailableError } from '../../kun/src/manager/manager-resolution-error.js'
 import { KunHandoffError } from './runtime/kun-installed-build-handoff'
+import { PRODUCT_NAME_EN } from '../shared/product-identity'
 
 const STARTUP_ACTION_PROTOCOL = 'kun-startup-action:'
 const MAX_FAILURE_MESSAGE_LENGTH = 1_200
@@ -46,14 +47,14 @@ export function startupFailurePresentation(error: unknown): StartupFailurePresen
     const parsed = parseStartupRuntimeError(error)
     if (parsed.code === 'runtime_auth_required' || parsed.code === 'unauthorized') {
       return {
-        message: 'The local Kun Runtime rejected the desktop access credential. Retry will stop only this desktop app\'s Runtime and start it again with the saved credential.',
+        message: `The local ${PRODUCT_NAME_EN} runtime rejected the desktop access credential. Retry will stop only this desktop app's runtime and start it again with the saved credential.`,
         handoff: false,
         retryable: true
       }
     }
     if (parsed.code === 'client_runtime_owner_busy') {
       return {
-        message: `${parsed.message || 'Another Kun client owns this Runtime.'}\nClose the other Kun GUI or TUI, then retry. Kun will not stop another client automatically because it may have active work.`,
+        message: `${parsed.message || `Another ${PRODUCT_NAME_EN} client owns this runtime.`}\nClose the other ${PRODUCT_NAME_EN} GUI or TUI, then retry. ${PRODUCT_NAME_EN} will not stop another client automatically because it may have active work.`,
         handoff: false,
         retryable: true
       }
@@ -69,7 +70,7 @@ export function startupFailurePresentation(error: unknown): StartupFailurePresen
   const detail = [
     error.message,
     ...(unverifiable
-      ? ['Kun failed closed and left the process, active work, and saved data untouched. Close the other Kun process or retry once the system process-inspection (WMI/CIM) is available.']
+      ? [`${PRODUCT_NAME_EN} failed closed and left the process, active work, and saved data untouched. Close the other ${PRODUCT_NAME_EN} process or retry once the system process-inspection (WMI/CIM) is available.`]
       : []),
     `Phase: ${error.phase}`,
     ...(owner?.kind ? [`Owner: ${owner.kind}${owner.flavor ? `/${owner.flavor}` : ''}`] : []),
@@ -117,16 +118,16 @@ export function startupFailureHtml(
   const handoff = options.handoff === true
   const busy = options.busy === true
   const retryable = options.retryable !== false
-  const heading = handoff ? 'Kun could not complete the update handoff' : 'Kun could not finish starting'
+  const heading = handoff ? `${PRODUCT_NAME_EN} could not complete the update handoff` : `${PRODUCT_NAME_EN} could not finish starting`
   const explanation = handoff
     ? retryable
-      ? 'Kun identified the previous local owner. It will pause and checkpoint active work before retrying the safe handoff, without deleting your saved conversations.'
-      : 'Kun could not safely verify the previous local owner, so it left the process, active work, and saved data untouched.'
+      ? `${PRODUCT_NAME_EN} identified the previous local owner. It will pause and checkpoint active work before retrying the safe handoff, without deleting your saved conversations.`
+      : `${PRODUCT_NAME_EN} could not safely verify the previous local owner, so it left the process, active work, and saved data untouched.`
     : 'The application is still running so you can inspect the failure or retry. The diagnostic detail is:'
   const primaryAction = busy
-    ? `<span class="working">${options.recheck ? 'Checking Service Manager ownership…' : handoff ? 'Safely stopping old Kun…' : 'Stopping this desktop Runtime safely…'}</span>`
+    ? `<span class="working">${options.recheck ? 'Checking Service Manager ownership…' : handoff ? `Safely stopping old ${PRODUCT_NAME_EN}…` : 'Stopping this desktop runtime safely…'}</span>`
     : retryable
-      ? `<a class="primary" href="${STARTUP_ACTION_PROTOCOL}retry">${options.recheck ? 'Recheck Kun' : handoff ? 'Safely stop old Kun and retry' : 'Retry Kun'}</a>`
+      ? `<a class="primary" href="${STARTUP_ACTION_PROTOCOL}retry">${options.recheck ? `Recheck ${PRODUCT_NAME_EN}` : handoff ? `Safely stop old ${PRODUCT_NAME_EN} and retry` : `Retry ${PRODUCT_NAME_EN}`}</a>`
       : ''
   return `<!doctype html>
 <html lang="en">
@@ -134,7 +135,7 @@ export function startupFailureHtml(
   <meta charset="utf-8">
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Kun startup recovery</title>
+  <title>${PRODUCT_NAME_EN} startup recovery</title>
   <style>
     :root { color-scheme: light dark; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
     body { margin: 0; background: #111318; color: #f3f4f6; }

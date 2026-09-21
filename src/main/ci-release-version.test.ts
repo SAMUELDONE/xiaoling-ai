@@ -26,7 +26,7 @@ const releaseVersion = require('../../scripts/compute-ci-release-version.cjs') a
 describe('CI release version computation', () => {
   it('builds an unpublished candidate at the package version without advancing or reusing a tag', () => {
     expect(releaseVersion.computeCandidateVersion('0.3.8')).toEqual({ version: '0.3.8', tag: 'v0.3.8',
-      releaseName: 'Kun 0.3.8', previousTag: '', existingTag: false })
+      releaseName: 'Xiaoling AI 0.3.8', previousTag: '', existingTag: false })
     expect(() => releaseVersion.computeCandidateVersion('invalid')).toThrow()
   })
   it('bumps package.json patch version when no release tags exist', () => {
@@ -39,7 +39,7 @@ describe('CI release version computation', () => {
     ).toEqual({
       version: '0.1.1',
       tag: 'v0.1.1',
-      releaseName: 'Kun 0.1.1',
+      releaseName: 'Xiaoling AI 0.1.1',
       previousTag: '',
       existingTag: false
     })

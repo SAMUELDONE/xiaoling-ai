@@ -1,3 +1,5 @@
+import { PRODUCT_NAME_EN } from '../../shared/product-identity'
+
 export class KunOwnerVerificationError extends Error {
   readonly name = 'KunOwnerVerificationError'
 
@@ -7,7 +9,7 @@ export class KunOwnerVerificationError extends Error {
     detail: string
   ) {
     super(
-      `Kun ${ownerKind === 'manager' ? 'Service Manager' : 'Runtime'} ${pid} ` +
+      `${PRODUCT_NAME_EN} ${ownerKind === 'manager' ? 'Service Manager' : 'Runtime'} ${pid} ` +
       `could not be safely replaced after graceful shutdown failed: ${detail}`
     )
   }

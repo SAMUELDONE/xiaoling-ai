@@ -30,7 +30,7 @@ describe('WorkbenchTopActions', () => {
     )
 
     expect(html).toContain(
-      'data-tooltip="Restart only the Runtime owned by this desktop app. Running tasks will be interrupted; TUI processes and Kun Service Manager are left untouched. You will be asked to confirm."'
+      'data-tooltip="Restart only the Runtime owned by this desktop app. Running tasks will be interrupted; TUI processes and Xiaoling AI Service Manager are left untouched. You will be asked to confirm."'
     )
     expect(html).toContain('data-tooltip-wrap="true"')
     expect(html).toContain(`aria-label="Restart desktop Runtime"`)
@@ -60,7 +60,7 @@ describe('WorkbenchTopActions', () => {
 
     expect(html).toContain('aria-label="重启桌面 Runtime"')
     expect(html).toContain(
-      'data-tooltip="只重启当前桌面应用拥有的 Runtime。运行中的任务会中断；不会影响 TUI 进程或 Kun Service Manager。点击后会再次确认。"'
+      'data-tooltip="只重启当前桌面应用拥有的 Runtime。运行中的任务会中断；不会影响 TUI 进程或小灵 AI Service Manager。点击后会再次确认。"'
     )
     expect(html).toContain('data-tooltip-wrap="true"')
   })

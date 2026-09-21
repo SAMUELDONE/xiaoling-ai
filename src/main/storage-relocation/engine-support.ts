@@ -58,6 +58,7 @@ import {
   type StorageRelocationVolumeInfo,
   type StorageTreeInventory
 } from './paths'
+import { PRODUCT_NAME_EN } from '../../shared/product-identity'
 import {
   StorageRelocationStore,
   type StorageRelocationLocationRecord
@@ -93,7 +94,7 @@ export async function assertEmptyOrMissing(path: string): Promise<void> {
       if (marker.kind === 'kun-storage-relocation-root') return
     }
     if (entries.length > 0) {
-      throw relocationError('destination_not_empty', 'Choose an empty folder reserved for Kun data.')
+      throw relocationError('destination_not_empty', `Choose an empty folder reserved for ${PRODUCT_NAME_EN} data.`)
     }
   } catch (error) {
     if (String((error as NodeJS.ErrnoException).code) === 'ENOENT') return

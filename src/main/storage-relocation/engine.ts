@@ -73,6 +73,7 @@ import {
   relocationError,
   relocationErrorValue
 } from './engine-support'
+import { PRODUCT_NAME_EN } from '../../shared/product-identity'
 export type { StorageRelocationEngineOptions } from './engine-core'
 
 export class StorageRelocationEngine extends StorageRelocationEngineCore {
@@ -132,7 +133,7 @@ export class StorageRelocationEngine extends StorageRelocationEngineCore {
       ...(this.progress ? { pending: this.progress } : {}),
       ...(recentReport ? { recentReport } : {}),
       ...(invalidMetadata
-        ? { disabledReason: 'Storage relocation metadata is invalid. Kun will not start normal services until it is repaired.' }
+        ? { disabledReason: `Storage relocation metadata is invalid. ${PRODUCT_NAME_EN} will not start normal services until it is repaired.` }
         : !supported
         ? { disabledReason: 'Storage relocation is currently available on Windows only.' }
         : !this.options.featureEnabled
@@ -157,7 +158,7 @@ export class StorageRelocationEngine extends StorageRelocationEngineCore {
   async preflightRestoreDefault(): Promise<StorageRelocationPreflightPlan> {
     this.assertNewOperationAllowed()
     const location = await this.store.readLocation()
-    if (!location) throw relocationError('invalid_destination', 'Kun data is already in the default location.')
+    if (!location) throw relocationError('invalid_destination', `${PRODUCT_NAME_EN} data is already in the default location.`)
     const destination = validateDestinationPath({
       destinationRoot: this.options.homeDir,
       homeDir: this.options.homeDir,
@@ -185,14 +186,14 @@ export class StorageRelocationEngine extends StorageRelocationEngineCore {
     if (plan.activeWork.length > 0 && !interruptActiveWork) {
       throw relocationError(
         'active_work_confirmation_required',
-        'Active Kun work must be confirmed for interruption before relocation.'
+        `Active ${PRODUCT_NAME_EN} work must be confirmed for interruption before relocation.`
       )
     }
     const uninterruptible = plan.activeWork.filter((item) => !item.interruptible)
     if (uninterruptible.length > 0) {
       throw relocationError(
         'active_writer',
-        `Kun cannot safely stop: ${uninterruptible.map((item) => item.label).join('; ')}`
+        `${PRODUCT_NAME_EN} cannot safely stop: ${uninterruptible.map((item) => item.label).join('; ')}`
       )
     }
     const now = this.now().toISOString()

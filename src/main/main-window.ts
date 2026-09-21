@@ -14,6 +14,7 @@ import {
 } from './main-window-renderer-recovery'
 import { logError, logInfo, logWarn } from './logger'
 import { appWindowTitleForFlavor } from '../shared/app-environment'
+import { PRODUCT_NAME_EN } from '../shared/product-identity'
 import { resolveDesktopTitleBarMode } from '../shared/desktop-title-bar'
 import {
   __dirname,
@@ -237,7 +238,7 @@ export function createStorageRelocationWindow(): BrowserWindow {
     height: 620,
     minWidth: 680,
     minHeight: 520,
-    title: 'Kun Storage Migration',
+    title: `${PRODUCT_NAME_EN} Storage Migration`,
     icon: appIcon.isEmpty() ? undefined : appIcon,
     autoHideMenuBar: true,
     show: false,
@@ -278,7 +279,7 @@ export function createRuntimeDataRecoveryWindow(): BrowserWindow {
     height: 700,
     minWidth: 700,
     minHeight: 560,
-    title: 'Kun Runtime Data Recovery',
+    title: `${PRODUCT_NAME_EN} Runtime Data Recovery`,
     icon: appIcon.isEmpty() ? undefined : appIcon,
     autoHideMenuBar: true,
     show: false,

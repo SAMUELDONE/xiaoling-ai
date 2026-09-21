@@ -3,6 +3,7 @@ import { join } from 'node:path'
 import type { SdkDownloadState } from '../shared/kun-gui-api'
 import { installOrImportClaudeBinary, type AgentSdkInstallResult } from './agent-sdk-installer-install'
 import { resolveActiveAgentSdkInstall } from './agent-sdk-installer-storage'
+import { PRODUCT_NAME_EN } from '../shared/product-identity'
 
 export type { SdkDownloadState } from '../shared/kun-gui-api'
 export type { AgentSdkInstallResult } from './agent-sdk-installer-install'
@@ -129,8 +130,8 @@ function hasDownloadedClaudeBinary(userDataDir: string): boolean {
 function restartFailureMessage(error: unknown): string {
   const detail = error instanceof Error ? error.message : String(error)
   return detail
-    ? `Claude runtime downloaded, but Kun could not restart: ${detail}`
-    : 'Claude runtime downloaded, but Kun could not restart. Try again.'
+    ? `Claude runtime downloaded, but ${PRODUCT_NAME_EN} could not restart: ${detail}`
+    : `Claude runtime downloaded, but ${PRODUCT_NAME_EN} could not restart. Try again.`
 }
 
 export function agentSdkDownloadState(): SdkDownloadState | null {

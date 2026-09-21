@@ -8,7 +8,7 @@ on:
         required: true
         type: string
       runtime_url:
-        description: Kun runtime URL reachable from the runner
+        description: Xiaoling AI runtime URL reachable from the runner
         required: false
         default: http://127.0.0.1:18899
         type: string

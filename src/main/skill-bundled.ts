@@ -1,5 +1,6 @@
 import { mkdir, stat, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
+import { PRODUCT_NAME_EN } from '../shared/product-identity'
 
 /**
  * Built-in "design system & craft" skill. Seeded once into ~/.kun/skills/ on
@@ -40,7 +41,7 @@ Hold this bar on any visual work — HTML mockups, prototypes, real UI.
 ## 1. Design system is the source of truth
 - Look for root \`DESIGN.md\` first. When it exists and validates, it is the canonical Google-compatible project theme shared by the canvas, HTML/SVG generation, and code implementation.
 - Patch its YAML front matter structurally, preserve its Markdown rationale and unknown extension keys, and use the exact current source hash for conflict-safe updates.
-- Never draw a separate HTML, SVG, or freeform "style guide" artifact. Kun renders \`DESIGN.md\` through its fixed built-in specimen board.
+- Never draw a separate HTML, SVG, or freeform "style guide" artifact. ${PRODUCT_NAME_EN} renders \`DESIGN.md\` through its fixed built-in specimen board.
 - \`.kun-design/HANDOFF.md\` is generated project handoff, not a theme. \`.kun-design/DESIGN.md\` and \`.kun-design/design-system.json\` are compatibility/migration inputs only.
 - Derive every visual decision from tokens (color, spacing scale, radius, type scale), not ad-hoc values. Keep them consistent across the whole artifact.
 

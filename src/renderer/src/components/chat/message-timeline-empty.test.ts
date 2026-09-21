@@ -41,7 +41,7 @@ describe('MessageTimelineEmptyHero — chat init welcome', () => {
     expect(html).toContain('data-home-hero-content')
     expect(html).toContain('min-h-[clamp(190px,23vh,240px)]')
     expect(html).not.toContain('translate-y-')
-    expect(html).toContain('What would you like to do with Kun today?')
+    expect(html).toContain('What would you like to do with Xiaoling AI today?')
     expect(html).toContain('Start with an idea, build it with code, or explore a design.')
     expect(html).not.toContain('ds-runtime-wake-stage')
     expect(html).not.toContain('ds-kun-state-')
@@ -67,7 +67,7 @@ describe('MessageTimelineEmptyHero — chat init welcome', () => {
     const html = renderEmptyHero({ focusModeEnabled: true })
 
     expect(html).toContain('ds-chat-empty-hero')
-    expect(html).toContain('What would you like to do with Kun today?')
+    expect(html).toContain('What would you like to do with Xiaoling AI today?')
     expect(html).toContain('Start with an idea, build it with code, or explore a design.')
     expect(html).not.toContain('ds-kun-state-')
     expect(html).not.toContain('ds-initial-usage-heatmap')
@@ -82,24 +82,24 @@ describe('MessageTimelineEmptyHero — runtime status on the chat home', () => {
   it('uses the waking title when no runtime error is available', () => {
     const html = renderOfflineHero(null)
     expect(html).toContain('ds-chat-empty-hero')
-    expect(html).toContain('What would you like to do with Kun today?')
+    expect(html).toContain('What would you like to do with Xiaoling AI today?')
     expect(html).not.toContain('data-task-surface-selector')
     expect(html).toContain('data-runtime-home-status')
     expect(html).not.toContain('ds-runtime-wake-hero')
-    expect(html).toContain('Kun is waking the local agent')
+    expect(html).toContain('Xiaoling AI is waking the local agent')
     expect(html).not.toContain('Cannot connect to the local runtime')
   })
 
   it('switches to the error title and surfaces the localized error when a runtime error is provided', () => {
     const portConflict = i18n.t('common:runtimePortConflict')
     const html = renderOfflineHero(portConflict)
-    expect(html).toContain('What would you like to do with Kun today?')
+    expect(html).toContain('What would you like to do with Xiaoling AI today?')
     expect(html).toContain('data-runtime-home-status')
     expect(html).not.toContain('ds-runtime-wake-hero')
     // New error title should appear (so users see the failure immediately)
     expect(html).toContain('Cannot connect to the local runtime')
     // The old "waking" title must NOT appear — that's the bug we're fixing
-    expect(html).not.toContain('Kun is waking the local agent')
+    expect(html).not.toContain('Xiaoling AI is waking the local agent')
     // The specific localized port-conflict message should appear in the body
     expect(html).toContain(portConflict)
   })
@@ -107,7 +107,7 @@ describe('MessageTimelineEmptyHero — runtime status on the chat home', () => {
   it('treats whitespace-only runtimeError as no error', () => {
     const html = renderOfflineHero('   \n  ')
     // Falls back to the generic waking hero
-    expect(html).toContain('Kun is waking the local agent')
+    expect(html).toContain('Xiaoling AI is waking the local agent')
     expect(html).not.toContain('Cannot connect to the local runtime')
   })
 
@@ -151,7 +151,7 @@ describe('MessageTimelineEmptyHero — runtime status on the chat home (zh-CN)',
 
   it('uses 正在唤醒 title when no runtime error is available', () => {
     const html = renderOfflineHero(null)
-    expect(html).toContain('今天想和 Kun 一起做什么？')
+    expect(html).toContain('今天想和 小灵 AI 一起做什么？')
     expect(html).not.toContain('data-task-surface-selector')
     expect(html).toContain('data-runtime-home-status')
     expect(html).not.toContain('ds-runtime-wake-hero')
@@ -170,7 +170,7 @@ describe('MessageTimelineEmptyHero — runtime status on the chat home (zh-CN)',
   it('uses the approved text-only init copy when the runtime is ready', () => {
     const html = renderEmptyHero()
 
-    expect(html).toContain('今天想和 Kun 一起做什么？')
+    expect(html).toContain('今天想和 小灵 AI 一起做什么？')
     expect(html).toContain('从一个想法开始，编码实现，或探索设计。')
     expect(html).not.toContain('ds-kun-state-')
     expect(html).not.toContain('ds-initial-usage-heatmap')

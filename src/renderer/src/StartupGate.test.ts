@@ -113,7 +113,7 @@ describe('StartupGate', () => {
     renderGate({})
     await flushAsync()
 
-    expect(container.textContent).toContain('Failed to read Kun startup state')
+    expect(container.textContent).toContain('Failed to read Xiaoling AI startup state')
     expect(container.textContent).toContain('desktop startup API is unavailable')
     expect(container.querySelector('[data-testid="workbench-app"]')).toBeNull()
   })
@@ -193,7 +193,7 @@ describe('StartupGate', () => {
 
     await act(async () => pending.resolve(phasePayload('ready')))
     await flushAsync()
-    expect(container.textContent).toContain('Failed to read Kun startup state')
+    expect(container.textContent).toContain('Failed to read Xiaoling AI startup state')
     expect(container.querySelector('[data-testid="workbench-app"]')).toBeNull()
   })
 
@@ -210,7 +210,7 @@ describe('StartupGate', () => {
     const api = installStartupApi('bootstrapping')
     renderGate({})
     await act(async () => undefined)
-    expect(container.textContent).toContain('Preparing Kun desktop...')
+    expect(container.textContent).toContain('Preparing Xiaoling AI desktop...')
     expect(container.textContent).not.toContain('Chick')
     const status = container.querySelector('[role="status"]')
     expect(status?.getAttribute('aria-live')).toBe('polite')
@@ -228,14 +228,14 @@ describe('StartupGate', () => {
     const api = installStartupApi('bootstrapping')
     renderGate({})
     await act(async () => undefined)
-    expect(container.textContent).toContain('Preparing Kun desktop...')
+    expect(container.textContent).toContain('Preparing Xiaoling AI desktop...')
     expect(container.querySelector('[data-testid="kun-startup-logo"]')?.getAttribute('data-motion'))
       .toBe('running')
 
     await act(async () => {
       api.listeners.forEach((listener) => listener(phasePayload('runtime_starting')))
     })
-    expect(container.textContent).toContain('Starting Kun runtime...')
+    expect(container.textContent).toContain('Starting Xiaoling AI runtime...')
     expect(container.querySelector('[data-testid="workbench-app"]')).toBeNull()
 
     await act(async () => {
@@ -260,7 +260,7 @@ describe('StartupGate', () => {
     renderGate({})
     await flushAsync()
     expect(container.querySelector('[data-testid="workbench-app"]')).toBeNull()
-    expect(container.textContent).toContain('Failed to start Kun workbench')
+    expect(container.textContent).toContain('Failed to start Xiaoling AI workbench')
     expect(container.textContent).toContain('shared storage unavailable')
     expect(container.querySelector('button')?.textContent).toBe('Retry')
   })
@@ -279,7 +279,7 @@ describe('StartupGate', () => {
     })
     await flushAsync()
     expect(installSharedBusinessStorage).toHaveBeenCalledTimes(1)
-    expect(container.textContent).toContain('Failed to start Kun workbench')
+    expect(container.textContent).toContain('Failed to start Xiaoling AI workbench')
     expect(container.textContent).toContain('App chunk load failed')
   })
 
@@ -289,7 +289,7 @@ describe('StartupGate', () => {
     installStartupApi('ready')
     renderGate({})
     await flushAsync()
-    expect(container.textContent).toContain('Failed to start Kun workbench')
+    expect(container.textContent).toContain('Failed to start Xiaoling AI workbench')
 
     const retry = container.querySelector('button')
     expect(retry?.textContent).toBe('Retry')
@@ -307,14 +307,14 @@ describe('StartupGate', () => {
     const api = installStartupApi('ready')
     renderGate({})
     await flushAsync()
-    expect(container.textContent).toContain('Failed to start Kun workbench')
+    expect(container.textContent).toContain('Failed to start Xiaoling AI workbench')
 
     await act(async () => {
       api.listeners.forEach((listener) => listener(phasePayload('ready')))
     })
     await flushAsync()
     expect(installSharedBusinessStorage).toHaveBeenCalledTimes(1)
-    expect(container.textContent).toContain('Failed to start Kun workbench')
+    expect(container.textContent).toContain('Failed to start Xiaoling AI workbench')
   })
 
   it('keeps the branded shell visible until initial workbench preparation completes', async () => {
@@ -334,7 +334,7 @@ describe('StartupGate', () => {
     await act(async () => preparation.resolve())
     await flushAsync()
     expect(container.querySelector('[data-testid="workbench-app"]')).not.toBeNull()
-    expect(container.textContent).not.toContain('Loading Kun...')
+    expect(container.textContent).not.toContain('Loading Xiaoling AI...')
   })
 
   it('renders only the storage relocation view and never subscribes to startup state', async () => {
@@ -363,7 +363,7 @@ describe('StartupGate', () => {
     await act(async () => {
       api.listeners.forEach((listener) => listener(phasePayload('recovery_required')))
     })
-    expect(container.textContent).toContain('Kun startup requires recovery.')
+    expect(container.textContent).toContain('Xiaoling AI startup requires recovery.')
     expect(container.querySelector('.kun-startup')?.getAttribute('data-recovery')).toBe('true')
     const alert = container.querySelector('[role="alert"]')
     expect(alert).not.toBeNull()
@@ -372,6 +372,6 @@ describe('StartupGate', () => {
     expect(logo?.getAttribute('data-motion')).toBe('paused')
     expect(container.querySelector('[role="progressbar"]')).toBeNull()
     expect([...container.querySelectorAll('button')]
-      .some((button) => button.textContent === 'Reload Kun')).toBe(true)
+      .some((button) => button.textContent === 'Reload Xiaoling AI')).toBe(true)
   })
 })

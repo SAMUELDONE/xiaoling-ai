@@ -562,7 +562,7 @@ describe('startKunChild', () => {
     )
     const module = await import('./kun-process')
     await expect(module.startKunChild(createSettings(script))).rejects.toThrow(
-      /Kun exited during startup with code 23[\s\S]*bind failed on port 18899/
+      /Xiaoling AI exited during startup with code 23[\s\S]*bind failed on port 18899/
     )
     expect(module.isKunChildRunning()).toBe(false)
     await module.stopKunChildAndWait()
@@ -598,7 +598,7 @@ describe('startKunSharedRuntime', () => {
       settings.agents.kun.dataDir = tempRoot
 
       await expect(module.startKunSharedRuntime(settings)).rejects.toThrow(
-        'older GUI-private Kun runtime'
+        'older GUI-private Xiaoling AI runtime'
       )
     } finally {
       await new Promise<void>((resolve) => server.close(() => resolve()))

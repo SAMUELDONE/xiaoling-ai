@@ -1,3 +1,5 @@
+import { PRODUCT_NAME_EN } from '@shared/product-identity'
+
 const GUI_PLAN_OPEN = '<gui_plan>'
 const GUI_PLAN_CLOSE = '</gui_plan>'
 /**
@@ -6,8 +8,8 @@ const GUI_PLAN_CLOSE = '</gui_plan>'
  * brief tag-based fallback section for legacy providers.
  */
 export const GUI_PLAN_CREATE_TOOL_NAME = 'create_plan'
-const DRAFT_PLAN_INTRO = 'Kun is asking you to draft a GUI-owned implementation plan.'
-const REFINE_PLAN_INTRO = 'Kun is asking you to revise an existing GUI-owned implementation plan.'
+const DRAFT_PLAN_INTRO = `${PRODUCT_NAME_EN} is asking you to draft a GUI-owned implementation plan.`
+const REFINE_PLAN_INTRO = `${PRODUCT_NAME_EN} is asking you to revise an existing GUI-owned implementation plan.`
 const LEGACY_DRAFT_PLAN_INTRO = 'DeepSeek GUI is asking you to draft a GUI-owned implementation plan.'
 const LEGACY_REFINE_PLAN_INTRO = 'DeepSeek GUI is asking you to revise an existing GUI-owned implementation plan.'
 const BUILD_PLAN_INTRO = 'Please execute the GUI plan described in the structured context below.'

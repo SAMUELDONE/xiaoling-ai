@@ -46,6 +46,7 @@ import {
   resolveInstallIdentity
 } from './extension-ipc-install-review'
 import { localContributionId } from './extension-ipc-view-utils'
+import { PRODUCT_NAME_EN } from '../../shared/product-identity'
 
 export function registerExtensionManagementIpcHandlers(
   options: RegisterExtensionIpcHandlersOptions,
@@ -79,14 +80,14 @@ export function registerExtensionManagementIpcHandlers(
     const parent = options.getMainWindow()
     const result = parent
       ? await dialog.showOpenDialog(parent, {
-          title: 'Install Kun extension package',
+          title: `Install ${PRODUCT_NAME_EN} extension package`,
           properties: ['openFile'],
-          filters: [{ name: 'Kun Extension', extensions: ['kunx'] }]
+          filters: [{ name: `${PRODUCT_NAME_EN} Extension`, extensions: ['kunx'] }]
         })
       : await dialog.showOpenDialog({
-          title: 'Install Kun extension package',
+          title: `Install ${PRODUCT_NAME_EN} extension package`,
           properties: ['openFile'],
-          filters: [{ name: 'Kun Extension', extensions: ['kunx'] }]
+          filters: [{ name: `${PRODUCT_NAME_EN} Extension`, extensions: ['kunx'] }]
         })
     return { canceled: result.canceled, path: result.canceled ? null : result.filePaths[0] ?? null }
   })
@@ -96,11 +97,11 @@ export function registerExtensionManagementIpcHandlers(
     const parent = options.getMainWindow()
     const result = parent
       ? await dialog.showOpenDialog(parent, {
-          title: 'Load Kun extension development directory',
+          title: `Load ${PRODUCT_NAME_EN} extension development directory`,
           properties: ['openDirectory']
         })
       : await dialog.showOpenDialog({
-          title: 'Load Kun extension development directory',
+          title: `Load ${PRODUCT_NAME_EN} extension development directory`,
           properties: ['openDirectory']
         })
     return { canceled: result.canceled, path: result.canceled ? null : result.filePaths[0] ?? null }
@@ -568,7 +569,7 @@ export function registerExtensionManagementIpcHandlers(
     if (!result.ok) throw runtimeResultError(result)
     const response = safeJsonParse(result.body)
     if (!isRecord(response) || response.responded !== true) {
-      throw new Error('Kun returned an invalid extension notification response.')
+      throw new Error(`${PRODUCT_NAME_EN} returned an invalid extension notification response.`)
     }
     return true
   })

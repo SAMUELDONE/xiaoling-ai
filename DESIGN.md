@@ -5,7 +5,7 @@
 # invented. Anything not in this block is editorial, not authoritative.
 
 schema_version: 1
-project: Kun
+project: Xiaoling AI
 single_runtime: kun
 themes: [light, dark, system]
 
@@ -286,8 +286,8 @@ i18n:
 
 # ---------- 13. Brand & voice ----------
 brand:
-  product_name: "Kun"
-  tagline: "把 Kun 的本地智能体能力带进桌面窗口"
+  product_name: "Xiaoling AI"
+  tagline: "把本地优先的智能体能力带进桌面窗口"
   hero_kw: [Code, Design, Write, Connect phone]
   pillars:
     - "本地优先 (Local-first): settings, sessions, logs all on disk; model calls use your own DeepSeek API key."
@@ -311,7 +311,7 @@ a11y:
 
 # ---------- 15. Don't (anti-patterns enforced by the codebase) ----------
 dont:
-  - "Use a second live agent runtime — Kun is the only one."
+  - "Use a second live agent runtime — the Kun-compatible runtime is the only one."
   - "Add AgentSwitcher / ConnectionStatusBar / RuntimeDiagnosticsDialog."
   - "Add CodeWhale/Reasonix adapters, process managers, RPC bridges, updaters, importers."
   - "Add a design/drawing starter card in the core workbench."
@@ -324,13 +324,13 @@ dont:
 ---
 
 
-# Kun — DESIGN.md
+# Xiaoling AI — DESIGN.md
 
 The machine-readable design-token frontmatter remains in this stable entry file. The editorial guide is split into focused chapters; the original section anchors below remain as navigation stubs.
 
 ## Focused chapters
 
-- [Foundations, visual language, architecture, and Kun runtime](docs/design/foundations-and-runtime.md)
+- [Foundations, visual language, architecture, and runtime](docs/design/foundations-and-runtime.md)
 - [Desktop shell, renderer, persistence, operations, and references](docs/design/desktop-renderer-and-operations.md)
 
 ## Stable section navigation
@@ -386,7 +386,7 @@ Full content: [docs/design/foundations-and-runtime.md](docs/design/foundations-a
 ## 4. Top-level architecture
 Full content: [docs/design/foundations-and-runtime.md](docs/design/foundations-and-runtime.md)
 
-## 5. Core runtime: Kun
+## 5. Core runtime: Kun-compatible runtime
 Full content: [docs/design/foundations-and-runtime.md](docs/design/foundations-and-runtime.md)
 
 ### 5.1 Module layout

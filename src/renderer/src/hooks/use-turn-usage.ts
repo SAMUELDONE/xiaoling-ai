@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { requestUsage } from './usage-request-cache'
 import { parseUsageResponse } from './usage-response'
+import { PRODUCT_NAME_EN } from '@shared/product-identity'
 
 const TURN_USAGE_RETRY_DELAYS_MS = [250, 750] as const
 const TURN_USAGE_REFRESH_DEBOUNCE_MS = 150
@@ -88,7 +89,7 @@ export function parseTurnUsageResponse(
     buckets?: unknown
   }>(body, 'turn usage')
   if (payload.group_by !== 'turn' || payload.thread_id !== threadId || !Array.isArray(payload.buckets)) {
-    throw new Error('Kun returned invalid turn usage data.')
+    throw new Error(`${PRODUCT_NAME_EN} returned invalid turn usage data.`)
   }
   const byTurnId = new Map<string, TurnUsageSummary>()
   for (const value of payload.buckets) {

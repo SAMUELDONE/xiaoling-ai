@@ -11,6 +11,7 @@ import { classifyCanonicalKunDataDir } from '../kun-data-dir-paths'
 import { StorageRelocationEngine } from './engine'
 import { trustedRendererSenderIsCurrent } from '../renderer-trust-policy'
 import { trustedWorkbenchRendererUrl } from '../main-window'
+import { PRODUCT_NAME_EN } from '../../shared/product-identity'
 
 const operationIdSchema = z.string().uuid()
 
@@ -43,7 +44,7 @@ export class StorageRelocationController {
       this.assertNormalMode()
       const value = z.object({ defaultPath: z.string().max(32_767).optional() }).strict().parse(raw)
       const result = await dialog.showOpenDialog(this.windowOptions(), {
-        title: 'Choose an empty folder for Kun data',
+        title: `Choose an empty folder for ${PRODUCT_NAME_EN} data`,
         defaultPath: value.defaultPath,
         properties: ['openDirectory', 'createDirectory']
       })

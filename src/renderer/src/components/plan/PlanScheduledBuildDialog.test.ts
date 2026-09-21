@@ -154,7 +154,7 @@ describe('PlanScheduledBuildDialog i18n', () => {
     expect(text).toContain('Reasoning effort')
     expect(text).toContain('Confirm schedule')
     expect(text).toContain('Cancel')
-    expect(text).toContain('Kun must remain running.')
+    expect(text).toContain('Xiaoling AI must remain running.')
     await act(async () => {
       renderer.unmount()
     })
@@ -174,7 +174,7 @@ describe('PlanScheduledBuildDialog i18n', () => {
     expect(text).toContain('推理强度')
     expect(text).toContain('确认定时')
     expect(text).toContain('取消')
-    expect(text).toContain('需要保持 Kun 运行。')
+    expect(text).toContain('需要保持小灵 AI 运行。')
     expect(text).toContain('26小时后')
     expect(text).toContain('空闲时段价格减半')
     expect(text).toContain('高峰期：周一至周五 09:00–12:00、14:00–18:00（北京时间）')

@@ -2,7 +2,7 @@
 
 状态：草案基线
 
-适用分支：`codex/foundation-boundaries`
+适用分支：`develop` 及其 `codex/*` 产品分支
 
 Kun 基线：`xiaoling-base-kun-v0.3.10`
 

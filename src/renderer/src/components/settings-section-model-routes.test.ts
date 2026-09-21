@@ -218,7 +218,7 @@ describe('ModelRoutesSettings', () => {
     expect(dialogTree).toContain('Chat Completions')
     expect(dialogTree).toContain('http://127.0.0.1:19999/v1')
     expect(dialogTree).toContain('/chat/completions')
-    expect(dialogTree).toContain('Hello, Kun!')
+    expect(dialogTree).toContain('Hello, Xiaoling AI!')
     expect(dialogTree).not.toMatch(/[\p{Script=Han}]/u)
 
     await act(async () => { renderer!.unmount() })
@@ -296,7 +296,7 @@ describe('ModelRoutesSettings', () => {
 
     const content = textContent(renderer!.root)
     expect(content).toContain('Local save failed')
-    expect(content).toContain('Kun Runtime not connected')
+    expect(content).toContain('Xiaoling AI Runtime not connected')
     expect(content).toContain('disk write failed')
     const retry = renderer!.root.findAllByType('button').find((button) => textContent(button).includes('Retry save'))
     await act(async () => { retry!.props.onClick() })
@@ -401,9 +401,9 @@ describe('ModelRoutesSettings', () => {
 
     const testButton = renderer!.root.findAllByType('button').find((button) => textContent(button).includes('Waiting for configuration sync'))
     expect(testButton?.props.disabled).toBe(true)
-    expect(textContent(renderer!.root)).toContain('Local configuration was saved and is waiting for Kun Runtime')
-    expect(textContent(renderer!.root)).toContain('Waiting for Kun Runtime sync')
-    expect(textContent(renderer!.root)).not.toContain('Kun Runtime sync failed')
+    expect(textContent(renderer!.root)).toContain('Local configuration was saved and is waiting for Xiaoling AI Runtime')
+    expect(textContent(renderer!.root)).toContain('Waiting for Xiaoling AI Runtime sync')
+    expect(textContent(renderer!.root)).not.toContain('Xiaoling AI Runtime sync failed')
     expect(runtimeRequest.mock.calls.some((call) => call[1] === 'POST')).toBe(false)
 
     await act(async () => { renderer!.unmount() })
@@ -426,8 +426,8 @@ describe('ModelRoutesSettings', () => {
       renderer = createRenderer(createElement(ModelRoutesSettings, { settings: draft, onChange: () => undefined }))
     })
 
-    expect(textContent(renderer.root)).toContain('Kun Runtime synced')
-    expect(textContent(renderer.root)).not.toContain('Waiting for Kun Runtime sync')
+    expect(textContent(renderer.root)).toContain('Xiaoling AI Runtime synced')
+    expect(textContent(renderer.root)).not.toContain('Waiting for Xiaoling AI Runtime sync')
     await act(async () => { renderer.unmount() })
   })
 
@@ -492,9 +492,9 @@ describe('ModelRoutesSettings', () => {
     })
 
     const content = textContent(renderer!.root)
-    expect(content).toContain('Kun Runtime sync failed')
+    expect(content).toContain('Xiaoling AI Runtime sync failed')
     expect(content).toContain('hot apply rejected the route config')
-    expect(content).toContain('Local configuration was saved, but Kun Runtime sync failed')
+    expect(content).toContain('Local configuration was saved, but Xiaoling AI Runtime sync failed')
 
     await act(async () => { renderer!.unmount() })
   })
@@ -552,7 +552,7 @@ describe('ModelRoutesSettings', () => {
       await Promise.resolve()
     })
 
-    expect(textContent(renderer!.root)).toContain('Kun Runtime sync failed')
+    expect(textContent(renderer!.root)).toContain('Xiaoling AI Runtime sync failed')
     expect(textContent(renderer!.root)).toContain('latest apply failed')
 
     await act(async () => { renderer!.unmount() })

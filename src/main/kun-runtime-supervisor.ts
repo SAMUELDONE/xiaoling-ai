@@ -6,6 +6,7 @@
  */
 
 import type { KunRuntimeStatusPayload } from '../shared/kun-gui-api'
+import { PRODUCT_NAME_EN } from '../shared/product-identity'
 import { ManagedRuntimeOperationCoordinator } from './runtime/managed-runtime-operation-coordinator'
 
 /** Shared with preload/renderer; the payload travels over `runtime:status`. */
@@ -340,7 +341,7 @@ export class KunRuntimeSupervisor<Settings> {
         source: 'watchdog',
         attempt: preview.attempt,
         maxAttempts: this.restartBudget.limit,
-        message: 'Kun recovery exceeded its restart budget; automatic restarts are paused.'
+        message: `${PRODUCT_NAME_EN} recovery exceeded its restart budget; automatic restarts are paused.`
       })
       return
     }
@@ -372,7 +373,7 @@ export class KunRuntimeSupervisor<Settings> {
           source: 'watchdog',
           attempt: verdict.attempt,
           maxAttempts: this.restartBudget.limit,
-          message: 'Kun recovery exceeded its restart budget; automatic restarts are paused.'
+        message: `${PRODUCT_NAME_EN} recovery exceeded its restart budget; automatic restarts are paused.`
         })
         return
       }
@@ -383,8 +384,8 @@ export class KunRuntimeSupervisor<Settings> {
         attempt: verdict.attempt,
         maxAttempts: this.restartBudget.limit,
         message: reason === 'missing'
-          ? 'Kun is expected to be running but its process or discovery record is missing; recovering it.'
-          : 'Kun stopped responding to health checks; restarting it.'
+          ? `${PRODUCT_NAME_EN} is expected to be running but its process or discovery record is missing; recovering it.`
+          : `${PRODUCT_NAME_EN} stopped responding to health checks; restarting it.`
       })
 
       if (childRunning) {
@@ -405,7 +406,7 @@ export class KunRuntimeSupervisor<Settings> {
         source: 'watchdog',
         attempt: recoveryAttempt,
         maxAttempts: this.restartBudget.limit,
-        message: `Kun automatic recovery failed: ${
+        message: `${PRODUCT_NAME_EN} automatic recovery failed: ${
           error instanceof Error ? error.message : String(error)
         }`
       })
@@ -424,7 +425,7 @@ export class KunRuntimeSupervisor<Settings> {
     this.publish({
       state: 'crashed',
       source: 'supervisor',
-      message: `Kun exited unexpectedly (${exitLabel}).`,
+      message: `${PRODUCT_NAME_EN} exited unexpectedly (${exitLabel}).`,
       stderrTail: info.stderrTail
     })
     if (this.recoveryInFlight) return
@@ -436,7 +437,7 @@ export class KunRuntimeSupervisor<Settings> {
         this.publish({
           state: 'stopped',
           source: 'supervisor',
-          message: 'Kun exited and automatic restart is unavailable (missing API key or auto-start disabled).'
+          message: `${PRODUCT_NAME_EN} exited and automatic restart is unavailable (missing API key or auto-start disabled).`
         })
         return
       }
@@ -452,8 +453,8 @@ export class KunRuntimeSupervisor<Settings> {
             attempt: preview.attempt,
             maxAttempts: this.restartBudget.limit,
             message: lastError
-              ? `Kun keeps crashing; automatic restarts are paused. Last error: ${lastError}`
-              : 'Kun keeps crashing; automatic restarts are paused. Check the runtime logs, then retry.',
+              ? `${PRODUCT_NAME_EN} keeps crashing; automatic restarts are paused. Last error: ${lastError}`
+              : `${PRODUCT_NAME_EN} keeps crashing; automatic restarts are paused. Check the runtime logs, then retry.`,
             stderrTail: info.stderrTail
           })
           return
@@ -475,7 +476,7 @@ export class KunRuntimeSupervisor<Settings> {
             source: 'supervisor',
             attempt: verdict.attempt,
             maxAttempts: this.restartBudget.limit,
-            message: `Restarting Kun automatically (attempt ${verdict.attempt}/${this.restartBudget.limit}).`
+            message: `Restarting ${PRODUCT_NAME_EN} automatically (attempt ${verdict.attempt}/${this.restartBudget.limit}).`
           })
           await this.deps.ensureRuntime(currentSettings)
           if (this.deps.isStopped() || !this.managedRuntimeExpected ||

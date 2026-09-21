@@ -11,6 +11,7 @@ import type {
   RuntimeDataRecoveryCandidate,
   RuntimeDataRecoveryStatus
 } from '@shared/runtime-data-recovery'
+import { PRODUCT_NAME, PRODUCT_NAME_EN } from '@shared/product-identity'
 
 export function RuntimeMigrationRecoveryView(): React.JSX.Element {
   const [status, setStatus] = useState<RuntimeDataRecoveryStatus | null>(null)
@@ -98,9 +99,9 @@ export function RuntimeMigrationRecoveryPanel(props: {
             <DatabaseBackup className="h-7 w-7" aria-hidden="true" />
           </div>
           <div>
-            <h1 className="text-xl font-semibold">Kun Runtime data recovery</h1>
+            <h1 className="text-xl font-semibold">{PRODUCT_NAME_EN} Runtime data recovery</h1>
             <p className="mt-1 text-sm leading-6 text-ds-muted">
-              Kun 在启动普通工作区前发现迁移未完成。原始目录、journal 和备份会继续保留。
+              {PRODUCT_NAME} 在启动普通工作区前发现迁移未完成。原始目录、journal 和备份会继续保留。
               No preserved evidence is deleted by this recovery flow.
             </p>
           </div>
@@ -118,7 +119,7 @@ export function RuntimeMigrationRecoveryPanel(props: {
             <CheckCircle2 className="mt-0.5 h-5 w-5 text-emerald-600" aria-hidden="true" />
             <div>
               <p className="font-medium">Recovery completed / 恢复完成</p>
-              <p className="mt-1 text-sm text-ds-muted">Kun will restart using the recovered canonical data directory.</p>
+              <p className="mt-1 text-sm text-ds-muted">{PRODUCT_NAME_EN} will restart using the recovered canonical data directory.</p>
             </div>
           </div>
         ) : null}
@@ -148,11 +149,11 @@ export function RuntimeMigrationRecoveryPanel(props: {
           <div className="mt-8 rounded-2xl border border-ds-border p-5">
             <h2 className="font-medium">No historical data found / 未发现历史数据</h2>
             <p className="mt-2 text-sm leading-6 text-ds-muted">
-              This is treated as a new installation. Kun can initialize an empty canonical Runtime directory.
+              This is treated as a new installation. {PRODUCT_NAME_EN} can initialize an empty canonical Runtime directory.
             </p>
             <div className="mt-5 flex justify-end">
               <button className="primary-button" disabled={busy} onClick={props.onInitialize}>
-                Initialize Kun / 初始化 Kun
+                Initialize {PRODUCT_NAME_EN} / 初始化 {PRODUCT_NAME}
               </button>
             </div>
           </div>
@@ -165,7 +166,7 @@ export function RuntimeMigrationRecoveryPanel(props: {
               <div>
                 <h2 className="font-medium">Historical evidence needs attention / 历史数据需要处理</h2>
                 <p className="mt-2 text-sm leading-6 text-ds-muted">
-                  Kun found migration evidence but no candidate passed validation. Starting over creates a new empty Runtime directory while retaining every existing backup, journal, and unrecognized item.
+                  {PRODUCT_NAME_EN} found migration evidence but no candidate passed validation. Starting over creates a new empty Runtime directory while retaining every existing backup, journal, and unrecognized item.
                 </p>
               </div>
             </div>
@@ -176,7 +177,7 @@ export function RuntimeMigrationRecoveryPanel(props: {
                 checked={startOverConfirmed}
                 onChange={(event) => setStartOverConfirmed(event.currentTarget.checked)}
               />
-              <span>I understand that Kun will preserve the evidence and start with empty active data. / 我确认保留全部证据并使用空数据重新开始。</span>
+              <span>I understand that {PRODUCT_NAME_EN} will preserve the evidence and start with empty active data. / 我确认 {PRODUCT_NAME} 会保留全部证据并使用空数据重新开始。</span>
             </label>
             <div className="mt-5 flex justify-end">
               <button

@@ -5,6 +5,7 @@ import { readFileSync } from 'node:fs'
 import { mkdir, readFile, writeFile, unlink, rename } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { DEFAULT_WEIXIN_BRIDGE_RPC_URL } from '../shared/app-settings'
+import { PRODUCT_NAME_EN } from '../shared/product-identity'
 import {
   DEFAULT_API_TIMEOUT_MS,
   runtimeAbortController,
@@ -85,7 +86,7 @@ export function readWeixinPackageInfo(): WeixinPackageInfo {
   const packageJson = resolvePackagePath('@tencent-weixin/openclaw-weixin', 'package.json')
   if (!packageJson) {
     throw new Error(
-      'Built-in WeChat login component is missing. Reinstall Kun or rebuild with @tencent-weixin/openclaw-weixin bundled.'
+      `Built-in WeChat login component is missing. Reinstall ${PRODUCT_NAME_EN} or rebuild with @tencent-weixin/openclaw-weixin bundled.`
     )
   }
   const parsed = JSON.parse(readFileSync(packageJson, 'utf8')) as JsonRecord
@@ -108,7 +109,7 @@ export function buildBaseInfo(): JsonRecord {
   const info = readWeixinPackageInfo()
   return {
     channel_version: info.version,
-    bot_agent: `Kun/${app.getVersion() || '0.0.0'}`
+    bot_agent: `${PRODUCT_NAME_EN}/${app.getVersion() || '0.0.0'}`
   }
 }
 
@@ -434,7 +435,7 @@ export async function readBridgeConfig(): Promise<JsonRecord> {
 export async function prepareBridgeState(port: number): Promise<void> {
   if (!resolveWeixinPluginRoot()) {
     throw new Error(
-      'Built-in WeChat login component is missing. Reinstall Kun or rebuild with @tencent-weixin/openclaw-weixin bundled.'
+      `Built-in WeChat login component is missing. Reinstall ${PRODUCT_NAME_EN} or rebuild with @tencent-weixin/openclaw-weixin bundled.`
     )
   }
   await ensureStateDirs()

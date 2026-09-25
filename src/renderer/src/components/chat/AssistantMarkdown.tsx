@@ -2,6 +2,7 @@ import type { ReactElement } from 'react'
 import { lazy, Suspense } from 'react'
 import { useLiveAssistantStreaming } from './live-assistant-streaming'
 import { loadAssistantMarkdownRenderer } from '../../lib/assistant-markdown-loader'
+import { stripReasoningText } from '../../lib/reasoning-text'
 
 const LazyStreamdownAssistant = lazy(() =>
   loadAssistantMarkdownRenderer().then((module) => ({ default: module.StreamdownAssistant }))
@@ -22,9 +23,10 @@ export function AssistantMarkdown({
   // typewriter. The context also covers nested Markdown rendered by it.
   const liveStreaming = useLiveAssistantStreaming()
   const effectiveStreaming = streaming && liveStreaming
+  const displayText = stripReasoningText(text)
   const fallbackText = hideHtmlComments
-    ? text.replace(/<!--[\s\S]*?(?:-->|$)/g, '')
-    : text
+    ? displayText.replace(/<!--[\s\S]*?(?:-->|$)/g, '')
+    : displayText
 
   return (
     <Suspense
@@ -39,7 +41,7 @@ export function AssistantMarkdown({
         // typewriter baseline at the already-rendered text length. Otherwise
         // the hook retains its pre-catch-up cursor and re-types the backlog.
         key={effectiveStreaming ? 'streaming' : 'settled'}
-        text={text}
+        text={displayText}
         streaming={effectiveStreaming}
         className={className}
         hideHtmlComments={hideHtmlComments}

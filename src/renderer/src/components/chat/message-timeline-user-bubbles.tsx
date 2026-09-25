@@ -13,6 +13,7 @@ import { ModelMetaTag, WritePromptMetaDisclosure, WritePromptQuoteCard } from '.
 import { UserAttachmentPreviews } from './message-timeline-media-views'
 import { CopyFeedbackButton, RuntimeMetaChips } from './message-timeline-bubble-support'
 import { metaUserFileReferences } from './message-timeline-bubble-meta'
+import { stripReasoningText } from '../../lib/reasoning-text'
 
 export function BackgroundShellNoticeBubble({
   block,
@@ -134,7 +135,7 @@ export function BackgroundSubagentNoticeBubble({
   const statusLabel = isFailed
     ? t('backgroundSubagentNotice.failed', { defaultValue: 'Failed' })
     : t('backgroundSubagentNotice.completed', { defaultValue: 'Completed' })
-  const summary = parsed?.summary ?? ''
+  const summary = stripReasoningText(parsed?.summary ?? '')
   const canExpandSummary = summary.length > 900 || summary.split('\n').length > 14
   const statusTone = isFailed
     ? 'border-orange-400/35 bg-orange-500/8 text-orange-800 dark:text-orange-200'

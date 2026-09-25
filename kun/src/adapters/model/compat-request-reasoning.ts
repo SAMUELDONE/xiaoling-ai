@@ -30,7 +30,7 @@ export function responsesReasoningForEffort(
     case 'high':
       return payload('high')
     case 'max':
-      return payload(options.maxEffort ?? 'high')
+      return payload(options.maxEffort ?? reasoning?.responsesMaxEffort ?? 'high')
     default:
       return null
   }

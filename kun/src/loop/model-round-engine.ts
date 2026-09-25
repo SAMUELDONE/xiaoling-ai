@@ -134,6 +134,7 @@ export class ModelRoundEngine {
     let contextOverflow: ModelContextOverflowError | undefined
     let sawModelError = false
     const persistAccumulatedResponse = async (): Promise<void> => {
+      collector.flushPendingText()
       if (collector.reasoning && collector.reasoning !== persistedReasoningText) {
         const nextReasoning = collector.reasoning
         const itemId = reasoningItemId || this.deps.ids.next('item_reasoning')

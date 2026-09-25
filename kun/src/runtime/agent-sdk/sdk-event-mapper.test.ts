@@ -61,6 +61,132 @@ describe('SdkEventMapper', () => {
     })
   })
 
+  test('normalizes tagged reasoning across split text deltas', () => {
+    const m = makeMapper()
+    expect(m.map({
+      type: 'stream_event',
+      event: { type: 'content_block_delta', delta: { type: 'text_delta', text: '<thi' } }
+    } as SdkMessage)).toEqual([])
+
+    const reasoning = m.map({
+      type: 'stream_event',
+      event: { type: 'content_block_delta', delta: { type: 'text_delta', text: 'nking>private' } }
+    } as SdkMessage)
+    const text = m.map({
+      type: 'stream_event',
+      event: { type: 'content_block_delta', delta: { type: 'text_delta', text: '</thinking>visible' } }
+    } as SdkMessage)
+
+    expect(reasoning).toMatchObject([{
+      kind: 'assistant_reasoning_delta',
+      item: { kind: 'assistant_reasoning', text: 'private' }
+    }])
+    expect(text).toMatchObject([{
+      kind: 'assistant_text_delta',
+      item: { kind: 'assistant_text', text: 'visible' }
+    }])
+    expect(JSON.stringify([...reasoning, ...text])).not.toContain('<thinking>')
+
+    const finalized = m.map({
+      type: 'assistant',
+      parent_tool_use_id: null,
+      message: {
+        role: 'assistant',
+        content: [{ type: 'text', text: '<thinking>private</thinking>visible' }]
+      }
+    } as SdkMessage)
+    expect(finalized).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        kind: 'item_created',
+        item: expect.objectContaining({ kind: 'assistant_text', text: 'visible', status: 'completed' })
+      }),
+      expect.objectContaining({
+        kind: 'item_created',
+        item: expect.objectContaining({ kind: 'assistant_reasoning', text: 'private', status: 'completed' })
+      })
+    ]))
+    expect(JSON.stringify(finalized)).not.toContain('<thinking>')
+  })
+
+  test('flushes tagged text before a structured thinking delta', () => {
+    const m = makeMapper()
+    m.map({
+      type: 'stream_event',
+      event: { type: 'content_block_delta', delta: { type: 'text_delta', text: '<thi' } }
+    } as SdkMessage)
+    const events = m.map({
+      type: 'stream_event',
+      event: { type: 'content_block_delta', delta: { type: 'thinking_delta', thinking: 'native' } }
+    } as SdkMessage)
+
+    expect(events).toEqual([expect.objectContaining({
+      kind: 'assistant_reasoning_delta',
+      item: expect.objectContaining({ kind: 'assistant_reasoning', text: 'native' })
+    })])
+    expect(m.map({
+      type: 'stream_event',
+      event: { type: 'content_block_delta', delta: { type: 'text_delta', text: 'answer' } }
+    } as SdkMessage)).toEqual([expect.objectContaining({
+      kind: 'assistant_text_delta',
+      item: expect.objectContaining({ kind: 'assistant_text', text: 'answer' })
+    })])
+  })
+
+  test('resets split-tag state between recovery queries', () => {
+    const m = makeMapper()
+    m.map({
+      type: 'stream_event',
+      event: { type: 'content_block_delta', delta: { type: 'text_delta', text: '<think' } }
+    } as SdkMessage)
+    m.beginQuery()
+
+    const events = m.map({
+      type: 'stream_event',
+      event: { type: 'content_block_delta', delta: { type: 'text_delta', text: 'plain answer' } }
+    } as SdkMessage)
+    expect(events).toEqual([expect.objectContaining({
+      kind: 'assistant_text_delta',
+      item: expect.objectContaining({ kind: 'assistant_text', text: 'plain answer' })
+    })])
+  })
+
+  test('keeps reasoning-looking tags inside code fences as assistant text', () => {
+    const m = makeMapper()
+    const events = m.map({
+      type: 'assistant',
+      parent_tool_use_id: null,
+      message: {
+        role: 'assistant',
+        content: [{ type: 'text', text: '```xml\n<think>example</think>\n```\nDone' }]
+      }
+    } as SdkMessage)
+
+    expect(events).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        kind: 'item_created',
+        item: expect.objectContaining({ kind: 'assistant_text', text: '```xml\n<think>example</think>\n```\nDone' })
+      })
+    ]))
+    expect(events.some((event) => event.kind === 'assistant_reasoning_delta')).toBe(false)
+    expect(events.some((event) => (
+      event.kind === 'item_created' && 'item' in event && event.item.kind === 'assistant_reasoning'
+    ))).toBe(false)
+  })
+
+  test('normalizes tagged result text before exposing the final answer', () => {
+    const m = makeMapper()
+    const events = m.map({
+      type: 'result',
+      subtype: 'success',
+      is_error: false,
+      result: '<thinking>private</thinking>done'
+    } as SdkMessage)
+
+    expect(m.getFinal()).toMatchObject({ status: 'completed', text: 'done' })
+    expect(JSON.stringify(events)).not.toContain('<thinking>')
+    expect(JSON.stringify(m.getFinal())).not.toContain('<thinking>')
+  })
+
   test('finalizes text on the complete assistant message as item_created (not a delta)', () => {
     const m = makeMapper()
     const deltaEvents = m.map({

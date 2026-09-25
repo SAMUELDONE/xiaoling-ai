@@ -11,9 +11,10 @@ import {
   DEFAULT_SPEECH_TO_TEXT_PROTOCOL,
   DEFAULT_TEXT_TO_SPEECH_PROTOCOL,
   DEFAULT_VIDEO_GENERATION_PROTOCOL,
-  MODEL_REASONING_EFFORTS,
   MODEL_REASONING_REQUEST_PROTOCOLS,
+  normalizeModelResponsesMaxEffort,
   MODEL_ROUTE_STRATEGIES,
+  normalizeModelReasoningEffort,
   CUSTOM_IMAGE_GENERATION_PROVIDER_ID,
   CUSTOM_SPEECH_TO_TEXT_PROVIDER_ID,
   CUSTOM_TEXT_TO_SPEECH_PROVIDER_ID,
@@ -220,10 +221,12 @@ export function normalizeModelReasoningCapability(
     : supportedEfforts[0]
   const requestProtocol = normalizeReasoningRequestProtocol(input.requestProtocol)
   if (!requestProtocol) return undefined
+  const responsesMaxEffort = normalizeModelResponsesMaxEffort(input.responsesMaxEffort)
   return {
     supportedEfforts,
     defaultEffort: resolvedDefault,
-    requestProtocol
+    requestProtocol,
+    ...(responsesMaxEffort ? { responsesMaxEffort } : {})
   }
 }
 
@@ -238,11 +241,7 @@ export function normalizeReasoningEfforts(value: unknown): ModelProviderReasonin
 }
 
 export function normalizeReasoningEffort(value: unknown): ModelProviderReasoningCapabilityV1['defaultEffort'] | undefined {
-  if (typeof value !== 'string') return undefined
-  const normalized = value.trim().toLowerCase()
-  return MODEL_REASONING_EFFORTS.includes(normalized as ModelProviderReasoningCapabilityV1['defaultEffort'])
-    ? normalized as ModelProviderReasoningCapabilityV1['defaultEffort']
-    : undefined
+  return normalizeModelReasoningEffort(value)
 }
 
 export function normalizeReasoningRequestProtocol(

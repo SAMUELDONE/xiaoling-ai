@@ -314,6 +314,64 @@ describe('app-ipc-schemas settings', () => {
     })).toThrow()
   })
 
+  it('accepts only the supported Responses max wire mappings', () => {
+    const payload = settingsPatchSchema.parse({
+      provider: {
+        providers: [{
+          id: 'relay',
+          modelProfiles: {
+            'gpt-5.6-sol': {
+              reasoning: {
+                supportedEfforts: ['low', 'medium', 'high', 'max'],
+                defaultEffort: 'high',
+                requestProtocol: 'openai-responses',
+                responsesMaxEffort: 'xhigh'
+              }
+            }
+          }
+        }]
+      },
+      agents: {
+        kun: {
+          modelProfiles: {
+            'relay-model': {
+              reasoning: {
+                supportedEfforts: ['low', 'medium', 'high', 'max'],
+                defaultEffort: 'high',
+                requestProtocol: 'openai-responses',
+                responsesMaxEffort: 'high'
+              }
+            }
+          }
+        }
+      }
+    })
+
+    expect(
+      payload.provider?.providers?.[0]?.modelProfiles?.['gpt-5.6-sol']?.reasoning?.responsesMaxEffort
+    ).toBe('xhigh')
+    expect(
+      payload.agents?.kun?.modelProfiles?.['relay-model']?.reasoning?.responsesMaxEffort
+    ).toBe('high')
+    expect(() => settingsPatchSchema.parse({
+      provider: {
+        providers: [{
+          id: 'relay',
+          modelProfiles: {
+            'gpt-5.6-sol': {
+              reasoning: {
+                supportedEfforts: ['low', 'medium', 'high', 'max'],
+                defaultEffort: 'high',
+                requestProtocol: 'openai-responses',
+                responsesMaxEffort: 'ultra'
+              }
+            }
+          }
+        }]
+      }
+    })).toThrow()
+  })
+
   it('accepts long provider model ids imported from upstream catalogs', () => {
     const longModelId = `openrouter/${'provider-routed-model-id-'.repeat(6)}preview`
     expect(longModelId.length).toBeGreaterThan(128)

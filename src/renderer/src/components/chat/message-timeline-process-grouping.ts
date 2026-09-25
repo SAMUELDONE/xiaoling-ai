@@ -2,6 +2,7 @@ import type { ChatBlock, ToolBlock } from '../../agent/types'
 import { blockHasPendingRuntimeWork } from './message-timeline-turns'
 import { isFastContextToolBlock } from './fast-context-card-copy'
 import { describeProcessBlock, getProcessDetail } from './message-timeline-process-detail'
+import { displayReasoningText } from '../../lib/reasoning-text'
 
 export type ProcessSection = {
   id: string
@@ -144,7 +145,7 @@ export function getReasoningSectionText(section: ProcessSection): string {
     .filter(
       (block): block is Extract<ChatBlock, { kind: 'reasoning' }> => block.kind === 'reasoning'
     )
-    .map((block) => block.text.trim())
+    .map((block) => displayReasoningText(block.text))
     .filter(Boolean)
     .join('\n\n')
 }

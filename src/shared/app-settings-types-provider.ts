@@ -337,6 +337,90 @@ export const MODEL_REASONING_EFFORTS = ['auto', 'off', 'low', 'medium', 'high', 
 
 export type ModelReasoningEffort = (typeof MODEL_REASONING_EFFORTS)[number]
 
+/** Wire-level Responses ceiling used when an internal `max` tier is selected. */
+export const MODEL_RESPONSES_MAX_EFFORTS = ['high', 'xhigh'] as const
+
+export type ModelResponsesMaxEffort = (typeof MODEL_RESPONSES_MAX_EFFORTS)[number]
+
+export function normalizeModelResponsesMaxEffort(value: unknown): ModelResponsesMaxEffort | undefined {
+  if (typeof value !== 'string') return undefined
+  switch (value.trim().toLowerCase()) {
+    case 'high':
+      return 'high'
+    case 'xhigh':
+    case 'ultra':
+      return 'xhigh'
+    default:
+      return undefined
+  }
+}
+
+/**
+ * Codex-native reasoning tiers. These are a presentation/catalog contract,
+ * not a replacement for the persisted ModelReasoningEffort values above:
+ * `auto` and `off` are control states, while these five values are actual
+ * reasoning-depth levels. Provider adapters may collapse or translate a tier
+ * when the selected model does not expose the same wire value.
+ */
+export const MODEL_REASONING_TIERS = ['minimal', 'low', 'medium', 'high', 'xhigh'] as const
+
+export type ModelReasoningTier = (typeof MODEL_REASONING_TIERS)[number]
+
+/**
+ * Accept native Codex names and the legacy `max`/`ultra` aliases while keeping
+ * one stable five-tier vocabulary for catalogs and UI projections.
+ */
+export function normalizeModelReasoningTier(value: unknown): ModelReasoningTier | undefined {
+  if (typeof value !== 'string') return undefined
+  switch (value.trim().toLowerCase()) {
+    case 'minimal':
+      return 'minimal'
+    case 'low':
+      return 'low'
+    case 'medium':
+    case 'mid':
+      return 'medium'
+    case 'high':
+      return 'high'
+    case 'xhigh':
+    case 'max':
+    case 'maximum':
+    case 'ultra':
+      return 'xhigh'
+    default:
+      return undefined
+  }
+}
+
+/** Normalize a native/provider tier into the stable persisted effort value. */
+export function normalizeModelReasoningEffort(value: unknown): ModelReasoningEffort | undefined {
+  if (typeof value !== 'string') return undefined
+  switch (value.trim().toLowerCase()) {
+    case 'auto':
+    case 'adaptive':
+      return 'auto'
+    case 'off':
+    case 'disabled':
+    case 'none':
+    case 'false':
+      return 'off'
+    default:
+      switch (normalizeModelReasoningTier(value)) {
+        case 'minimal':
+        case 'low':
+          return 'low'
+        case 'medium':
+          return 'medium'
+        case 'high':
+          return 'high'
+        case 'xhigh':
+          return 'max'
+        default:
+          return undefined
+      }
+  }
+}
+
 export const MODEL_SERVICE_TIERS = ['priority', 'flex'] as const
 
 export type ModelServiceTier = (typeof MODEL_SERVICE_TIERS)[number]
@@ -359,6 +443,8 @@ export type ModelProviderReasoningCapabilityV1 = {
   supportedEfforts: ModelReasoningEffort[]
   defaultEffort: ModelReasoningEffort
   requestProtocol: ModelReasoningRequestProtocol
+  /** Responses wire value used for the internal `max` tier, when declared. */
+  responsesMaxEffort?: ModelResponsesMaxEffort
 }
 
 export type ModelProviderModelPricingV1 = {

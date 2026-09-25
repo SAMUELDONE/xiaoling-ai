@@ -5,7 +5,7 @@ import type { ChatBlock, ToolBlock } from '../../agent/types'
 import { extractUnifiedDiffText } from '../../lib/diff-stats'
 import { useChatStore } from '../../store/chat-store'
 import { runTrustedUserActivation } from '../../extensions/protected-user-activation'
-import { isBackgroundShellNoticeBlock, isBackgroundSubagentNoticeBlock } from './message-timeline-turns'
+import { isBackgroundShellNoticeBlock, isBackgroundSubagentNoticeBlock, splitThink } from './message-timeline-turns'
 import { DiffView } from '../DiffView'
 import { AssistantMarkdown } from './AssistantMarkdown'
 import { readNumber, formatDuration, summarizeBackgroundShellToolBlock } from './message-timeline-tools'
@@ -28,6 +28,7 @@ import { useSpeakStore } from '../../stores/speak-store'
 import { ToolAttachmentPreviews } from './message-timeline-media-views'
 import { LiveAssistantStreamingProvider } from './live-assistant-streaming'
 import { metaString } from './message-timeline-bubble-meta'
+import { displayReasoningText } from '../../lib/reasoning-text'
 
 export { GeneratedFilesPanel } from './message-timeline-media-views'
 export { generatedMediaScrollAvailability } from './message-timeline-media-logic'
@@ -115,6 +116,7 @@ function MessageBubbleImpl({
     return <UserMessageBubble block={block} allowThreadActions={allowThreadActions} />
   }
   if (block.kind === 'assistant') {
+    const assistantText = splitThink(block.text).content
     const streaming = block.id === 'live-assistant'
     // Replayed events are folded into the hidden timeline at full speed.
     // Typewriter pacing resumes only after the selected thread has caught up.
@@ -134,7 +136,7 @@ function MessageBubbleImpl({
       <LiveAssistantStreamingProvider streaming={effectiveStreaming}>
         <div className="group/message flex min-w-0 max-w-full flex-col">
           <div className="ds-markdown ds-chat-answer min-w-0 max-w-full text-ds-ink">
-            <AssistantMarkdown text={block.text} streaming={effectiveStreaming} />
+            <AssistantMarkdown text={assistantText} streaming={effectiveStreaming} />
           </div>
         {!streaming ? (
           <div className={assistantActionRowClass(speakingBlockId === block.id)}>
@@ -176,10 +178,10 @@ function MessageBubbleImpl({
                   <span>{forkAction.busy ? t('forkingThread') : t('forkResponse')}</span>
                 </button>
               ) : null}
-              <AssistantSpeakButton blockId={block.id} text={block.text} />
-              <AssistantSpeakTrackButton text={block.text} createdAt={block.createdAt} />
-              <AssistantExportButton text={block.text} createdAt={block.createdAt} />
-              <CopyFeedbackButton text={block.text} />
+              <AssistantSpeakButton blockId={block.id} text={assistantText} />
+              <AssistantSpeakTrackButton text={assistantText} createdAt={block.createdAt} />
+              <AssistantExportButton text={assistantText} createdAt={block.createdAt} />
+              <CopyFeedbackButton text={assistantText} />
             </div>
           </div>
         ) : null}
@@ -188,10 +190,11 @@ function MessageBubbleImpl({
     )
   }
   if (block.kind === 'reasoning') {
+    const reasoningText = displayReasoningText(block.text)
     return (
       <div className="ds-card-soft rounded-[20px] px-4 py-3 text-[13.5px] leading-6 text-ds-muted">
         <div className="ds-markdown">
-          <AssistantMarkdown text={block.text} streaming={false} />
+          <AssistantMarkdown text={reasoningText} streaming={false} />
         </div>
       </div>
     )

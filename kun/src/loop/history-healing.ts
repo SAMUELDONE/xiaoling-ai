@@ -1,5 +1,9 @@
 import type { TurnItem } from '../contracts/items.js'
 import { repairModelHistoryItems } from '../domain/model-history-repair.js'
+import {
+  normalizeTaggedReasoningFragment,
+  normalizeTaggedReasoningText
+} from '../shared/tagged-reasoning-normalizer.js'
 
 export type HistoryHealingResult = {
   items: TurnItem[]
@@ -55,8 +59,28 @@ function normalizeLoadedItem(item: TurnItem, index: number): TurnItem | null {
     default:
       return null
   }
-  // Preserve the original reference when the id is already valid so callers can
-  // detect "unchanged" by identity; only allocate when synthesizing an id.
-  if (typeof candidate.id === 'string' && candidate.id.trim()) return item
-  return { ...candidate, id: `item_healed_${index}_${kind}` } as TurnItem
+  const id = typeof candidate.id === 'string' && candidate.id.trim()
+    ? candidate.id
+    : `item_healed_${index}_${kind}`
+  const normalized = normalizePersistedText(item)
+  // Preserve the original reference when both the id and text are already
+  // valid. This keeps the history rewrite cheap on large threads.
+  if (id === candidate.id && normalized === item) return item
+  return {
+    ...candidate,
+    id,
+    ...(normalized !== item && 'text' in normalized ? { text: normalized.text } : {})
+  } as TurnItem
+}
+
+function normalizePersistedText(item: TurnItem): TurnItem {
+  if (item.kind === 'assistant_text') {
+    const normalized = normalizeTaggedReasoningText(item.text).text
+    return normalized === item.text ? item : { ...item, text: normalized }
+  }
+  if (item.kind === 'assistant_reasoning') {
+    const normalized = normalizeTaggedReasoningFragment(item.text)
+    return normalized === item.text ? item : { ...item, text: normalized }
+  }
+  return item
 }

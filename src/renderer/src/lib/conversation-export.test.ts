@@ -146,4 +146,27 @@ describe('buildConversationExportDocument', () => {
     expect(result.markdown).toContain('Finished')
     expect(result.markdown).not.toContain('Still running')
   })
+
+  it('removes tagged reasoning from assistant transcript output', () => {
+    const result = buildConversationExportDocument({
+      title: 'Tagged answer',
+      blocks: [
+        { kind: 'user', id: 'user-1', turnId: 'turn-1', text: 'Question' },
+        {
+          kind: 'assistant',
+          id: 'assistant-1',
+          turnId: 'turn-1',
+          text: '<thinking>private plan</thinking>Visible answer'
+        }
+      ],
+      locale: 'en',
+      exportedAt: new Date('2026-07-19T02:00:00.000Z'),
+      labels,
+      busy: false
+    })
+
+    expect(result.markdown).toContain('Visible answer')
+    expect(result.markdown).not.toContain('private plan')
+    expect(result.markdown).not.toContain('<thinking>')
+  })
 })

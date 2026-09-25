@@ -122,7 +122,10 @@ function modelCapabilitiesForProviderConfig(
             reasoning: {
               supportedEfforts: [...profile.reasoning.supportedEfforts],
               defaultEffort: profile.reasoning.defaultEffort,
-              requestProtocol: profile.reasoning.requestProtocol
+              requestProtocol: profile.reasoning.requestProtocol,
+              ...(profile.reasoning.responsesMaxEffort
+                ? { responsesMaxEffort: profile.reasoning.responsesMaxEffort }
+                : {})
             }
           }
         : {}),

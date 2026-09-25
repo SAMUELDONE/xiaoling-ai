@@ -1,5 +1,11 @@
 # Model Provider Presets
 
+> 当前状态说明（2026-09-24）：本文保留 Provider catalog 的设计和部分字段参考，
+> 不再是首次配置界面的完整清单。小灵 AI 当前首次配置画廊包含 DeepSeek、25 个
+> `MODEL_PROVIDER_PRESETS` 预置、以及自定义中转，共 27 个入口；权威列表和实际状态
+> 见 [`XIAOLING_AI_DEVELOPMENT_SPEC.zh-CN.md`](./XIAOLING_AI_DEVELOPMENT_SPEC.zh-CN.md)
+> 与 `src/shared/model-provider-preset-catalog*.ts`。
+
 ## Context
 
 DeepChat handles model suppliers in two layers:
@@ -128,8 +134,9 @@ The defaults are not locked. Users can edit base URLs, protocols, and model IDs
 if provider endpoints change, and they can add custom compatible providers at
 any time.
 
-First-run setup intentionally remains focused on the default stack. It only
-shows DeepSeek plus the Xiaomi and MiniMax presets; Vercel AI Gateway, LiteLLM,
-Zhipu, Z.ai, additional coding subscriptions, and Moonshot presets are opt-in
-from Settings > Providers. These catalog entries stay out of the default
-first-run screen so setup remains focused.
+First-run setup is now a Xiaoling AI provider gallery. It shows DeepSeek, the
+current shared `MODEL_PROVIDER_PRESETS` catalog, and a custom relay entry. A
+provider card only describes a connection path; it does not prove that a
+subscription login, quota, region, or production endpoint is available. The
+catalog source and the development specification must be updated together when
+an entry is added, removed, or changes authentication behavior.

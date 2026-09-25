@@ -28,6 +28,14 @@ export type ModelMessagePartSupport = z.infer<typeof ModelMessagePartSupport>
 export const ModelReasoningEffort = z.enum(['auto', 'off', 'low', 'medium', 'high', 'max'])
 export type ModelReasoningEffort = z.infer<typeof ModelReasoningEffort>
 
+/**
+ * Highest wire-level Responses effort a provider accepts for the stable
+ * internal `max` tier. This is deliberately separate from the user-facing
+ * effort enum because providers may expose different spellings or ceilings.
+ */
+export const ModelResponsesMaxEffort = z.enum(['high', 'xhigh'])
+export type ModelResponsesMaxEffort = z.infer<typeof ModelResponsesMaxEffort>
+
 export const ModelServiceTier = z.enum(['priority', 'flex'])
 export type ModelServiceTier = z.infer<typeof ModelServiceTier>
 
@@ -48,7 +56,9 @@ export const ModelReasoningCapabilityMetadata = z
   .object({
     supportedEfforts: z.array(ModelReasoningEffort).min(1),
     defaultEffort: ModelReasoningEffort,
-    requestProtocol: ModelReasoningRequestProtocol
+    requestProtocol: ModelReasoningRequestProtocol,
+    /** Wire mapping for the internal `max` tier on OpenAI Responses. */
+    responsesMaxEffort: ModelResponsesMaxEffort.optional()
   })
   .strict()
 export type ModelReasoningCapabilityMetadata = z.infer<typeof ModelReasoningCapabilityMetadata>

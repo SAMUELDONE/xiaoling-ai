@@ -7,6 +7,7 @@ import {
   MAX_MODEL_CONTEXT_WINDOW_TOKENS,
   MAX_MODEL_OUTPUT_TOKENS,
   MODEL_REASONING_EFFORTS,
+  type ModelResponsesMaxEffort,
   type ModelEndpointFormat,
   type ModelProviderModelProfileV1,
   type ModelProviderProfileV1,
@@ -59,6 +60,8 @@ export type ProviderModelForm = {
   reasoningEfforts: ModelReasoningEffort[]
   reasoningDefaultEffort: ModelReasoningEffort
   reasoningProtocol: ModelReasoningRequestProtocol
+  /** Explicit Responses wire ceiling for the internal max tier. */
+  responsesMaxEffort: ModelResponsesMaxEffort | null
   /** Per-model wire-format override; null means "inherit the provider's format". */
   endpointFormat: ModelEndpointFormat | null
   /** Internal preset transport metadata; intentionally not exposed in the form UI. */
@@ -117,6 +120,7 @@ export function newProviderModelForm(
     reasoningEfforts: [...PROVIDER_MODEL_REASONING_EFFORT_CHOICES],
     reasoningDefaultEffort: 'medium',
     reasoningProtocol: defaultReasoningProtocolForProvider(provider),
+    responsesMaxEffort: null,
     endpointFormat: null,
     responsesMode: null,
     aliases: []
@@ -148,6 +152,7 @@ export function providerModelFormForExisting(
       : base.reasoningEfforts,
     reasoningDefaultEffort: profile.reasoning?.defaultEffort ?? base.reasoningDefaultEffort,
     reasoningProtocol: profile.reasoning?.requestProtocol ?? base.reasoningProtocol,
+    responsesMaxEffort: profile.reasoning?.responsesMaxEffort ?? null,
     endpointFormat: profile.endpointFormat ?? null,
     responsesMode: profile.responsesMode ?? null,
     aliases: [...(profile.aliases ?? [])]
@@ -462,7 +467,10 @@ function reasoningCapabilityFromForm(form: ProviderModelForm): ModelProviderReas
     defaultEffort: supportedEfforts.includes(form.reasoningDefaultEffort)
       ? form.reasoningDefaultEffort
       : supportedEfforts[supportedEfforts.length - 1],
-    requestProtocol: form.reasoningProtocol
+    requestProtocol: form.reasoningProtocol,
+    ...(form.reasoningProtocol === 'openai-responses' && form.responsesMaxEffort
+      ? { responsesMaxEffort: form.responsesMaxEffort }
+      : {})
   }
 }
 

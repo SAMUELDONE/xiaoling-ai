@@ -14,6 +14,8 @@ import type { RuntimeConnectionStatus } from '../agent/types'
 import type { InitialSetupMode } from '../store/chat-store-types'
 import {
   INITIAL_SETUP_PROVIDER_PRESETS,
+  INITIAL_SETUP_CUSTOM_PROVIDER_ID,
+  initialSetupProviderRequiresApiKey,
   type InitialSetupDrafts,
   type InitialSetupSelection
 } from './initial-setup-save'
@@ -80,6 +82,7 @@ export type SetupProviderCard = {
   descKey: string
   capability: 'speech' | 'image' | null
   preset: ModelProviderPreset | null
+  isCustom?: boolean
 }
 
 export const PROVIDER_CARDS: SetupProviderCard[] = [
@@ -93,19 +96,44 @@ export const PROVIDER_CARDS: SetupProviderCard[] = [
   ...INITIAL_SETUP_PROVIDER_PRESETS.map((preset) => ({
     presetId: preset.id,
     name: preset.name,
-    descKey: preset.id === 'xiaomi' ? 'firstRunProviderXiaomiDesc' : 'firstRunProviderMinimaxDesc',
+    descKey: preset.id === 'xiaomi'
+      ? 'firstRunProviderXiaomiDesc'
+      : preset.id === 'minimax'
+        ? 'firstRunProviderMinimaxDesc'
+        : preset.category === 'free'
+          ? 'firstRunProviderFreeDesc'
+          : preset.category === 'subscription'
+            ? 'firstRunProviderSubscriptionDesc'
+            : preset.models.length > 0
+              ? 'firstRunProviderModelsDesc'
+              : 'firstRunProviderCompatibleDesc',
     capability: preset.speech ? ('speech' as const) : preset.image ? ('image' as const) : null,
     preset
-  }))
+  })),
+  {
+    presetId: INITIAL_SETUP_CUSTOM_PROVIDER_ID,
+    name: '自定义中转',
+    descKey: 'firstRunProviderCustomDesc',
+    capability: null,
+    preset: null,
+    isCustom: true
+  }
 ]
 
 export function keyHintKey(card: SetupProviderCard, mode: InitialSetupSelection['mode']): string {
   if (card.presetId === DEFAULT_MODEL_PROVIDER_ID) return 'firstRunBuyApiHint'
+  if (card.isCustom) return 'firstRunCustomProviderHint'
+  if (!initialSetupProviderRequiresApiKey(card.preset, mode)) return 'firstRunKeylessProviderHint'
   const suffix = mode === 'token-plan' ? 'TokenPlan' : 'Api'
-  return card.presetId === 'xiaomi' ? `firstRunKeyHintXiaomi${suffix}` : `firstRunKeyHintMinimax${suffix}`
+  if (card.presetId === 'xiaomi') return `firstRunKeyHintXiaomi${suffix}`
+  if (card.presetId === 'minimax') return `firstRunKeyHintMinimax${suffix}`
+  return card.preset?.category === 'subscription'
+    ? 'firstRunSubscriptionCredentialHint'
+    : 'firstRunProviderCredentialHint'
 }
 
 export function keyPageUrl(card: SetupProviderCard, mode: InitialSetupSelection['mode']): string {
+  if (card.isCustom) return ''
   if (!card.preset) return DEEPSEEK_USAGE_URL
   if (mode === 'token-plan' && card.preset.tokenPlan) return card.preset.tokenPlan.apiKeyUrl
   return card.preset.apiKeyUrl
@@ -116,7 +144,7 @@ export function keyPlaceholder(card: SetupProviderCard, mode: InitialSetupSelect
     const prefix = card.preset?.tokenPlan?.keyPrefix
     return prefix ? `${prefix}...` : 'API Key'
   }
-  return card.presetId === 'minimax' ? 'API Key' : 'sk-...'
+  return card.presetId === 'minimax' || card.isCustom ? 'API Key' : 'sk-...'
 }
 
 type InitialSetupModelConnectionsSnapshot = {
@@ -176,7 +204,6 @@ export async function commitInitialSetupRegistryCredentials(
     const credential = draft.apiKey.trim()
     return credential ? [{ providerId, credential }] : []
   })
-  if (replacements.length === 0) return
   const staged = replacements.map(({ providerId, credential }) => ({
     providerId,
     profile: options.profiles.find((profile) => profile.id === providerId),

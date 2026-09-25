@@ -188,4 +188,45 @@ describe('MultiProviderModelClient', () => {
 
     expect(calls).toEqual(['old:u1', 'old:u1', 'new:u2'])
   })
+
+  it('normalizes tagged output from native and extension providers at the shared boundary', async () => {
+    const raw: ModelClient = {
+      provider: 'native-test',
+      model: 'native-model',
+      async *stream() {
+        yield { kind: 'assistant_text_delta', text: 'before <thi' }
+        yield { kind: 'assistant_text_delta', text: 'nking>private</thinking>after' }
+        yield { kind: 'completed', stopReason: 'stop' }
+      }
+    }
+    const router = new MultiProviderModelClient({ default: raw })
+
+    expect(await drain(router.stream(request('native-model')))).toEqual([
+      { kind: 'assistant_text_delta', text: 'before ' },
+      { kind: 'assistant_reasoning_delta', text: 'private' },
+      { kind: 'assistant_text_delta', text: 'after' },
+      { kind: 'completed', stopReason: 'stop' }
+    ])
+  })
+
+  it('normalizes wrappers carried by a structured reasoning channel', async () => {
+    const raw: ModelClient = {
+      provider: 'native-test',
+      model: 'native-model',
+      async *stream() {
+        yield { kind: 'assistant_reasoning_delta' as const, text: '<thinking>private' }
+        yield { kind: 'assistant_reasoning_delta' as const, text: '</thinking> plan' }
+        yield { kind: 'completed' as const, stopReason: 'stop' as const }
+      }
+    }
+    const router = new MultiProviderModelClient({ default: raw })
+
+    const chunks = await drain(router.stream(request('native-model')))
+    expect(chunks.filter((chunk) => chunk.kind === 'assistant_reasoning_delta'))
+      .toEqual([
+        { kind: 'assistant_reasoning_delta', text: 'private' },
+        { kind: 'assistant_reasoning_delta', text: ' plan' }
+      ])
+    expect(JSON.stringify(chunks)).not.toContain('<thinking>')
+  })
 })

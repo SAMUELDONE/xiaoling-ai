@@ -492,6 +492,12 @@ describe('Kun runtime config service', () => {
               outputModalities: ['text'],
               supportsToolCalling: true,
               messageParts: ['text'],
+              reasoning: {
+                supportedEfforts: ['low', 'medium', 'high', 'max'],
+                defaultEffort: 'high',
+                requestProtocol: 'openai-responses',
+                responsesMaxEffort: 'xhigh'
+              },
               pricing
             }
           }
@@ -504,6 +510,10 @@ describe('Kun runtime config service', () => {
       expect(config.serve.providers.deepseek.modelCapabilities['openai-model'].pricing)
         .toEqual(pricing)
       expect(config.models.profiles['openai-model'].pricing).toEqual(pricing)
+      expect(config.serve.providers.deepseek.modelCapabilities['openai-model'].reasoning)
+        .toMatchObject({ responsesMaxEffort: 'xhigh' })
+      expect(config.models.profiles['openai-model'].reasoning)
+        .toMatchObject({ responsesMaxEffort: 'xhigh' })
     } finally {
       await rm(dataDir, { recursive: true, force: true })
     }

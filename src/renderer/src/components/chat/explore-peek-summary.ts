@@ -1,4 +1,5 @@
 import type { ChatBlock, RuntimeChildActivity, ToolBlock } from '../../agent/types'
+import { displayReasoningText, stripReasoningText } from '../../lib/reasoning-text'
 
 export type ExplorePeekStep = {
   id: string
@@ -84,7 +85,7 @@ export function summarizeExplorePeekBlocks(blocks: ChatBlock[]): {
       continue
     }
     if (block.kind === 'reasoning') {
-      const text = block.text.trim()
+      const text = displayReasoningText(block.text)
       if (!text) continue
       if (!reasoningPreview) reasoningPreview = truncatePeekText(text, MAX_REASONING_CHARS)
       steps.push({
@@ -95,7 +96,7 @@ export function summarizeExplorePeekBlocks(blocks: ChatBlock[]): {
       continue
     }
     if (block.kind === 'assistant') {
-      const text = stripThinkTags(block.text).trim()
+      const text = stripReasoningText(block.text).trim()
       if (!text) continue
       if (!assistantPreview) assistantPreview = truncatePeekText(text, MAX_REASONING_CHARS)
       steps.push({
@@ -111,10 +112,6 @@ export function summarizeExplorePeekBlocks(blocks: ChatBlock[]): {
     ...(reasoningPreview ? { reasoningPreview } : {}),
     ...(assistantPreview ? { assistantPreview } : {})
   }
-}
-
-function stripThinkTags(text: string): string {
-  return text.replace(/<think>[\s\S]*?(?:<\/think>|$)/g, '').trim()
 }
 
 function truncatePeekText(text: string, max: number): string {

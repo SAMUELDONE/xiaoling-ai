@@ -2,6 +2,7 @@ import type { ChatBlock } from '../../agent/types'
 import { isBackgroundShellNoticeUserMessage } from '@shared/background-shell-notice'
 import { isBackgroundSubagentNoticeUserMessage } from '@shared/background-subagent-notice'
 import { hasPendingRuntimeWork } from '../../store/chat-store-runtime-helpers'
+import { splitReasoningText } from '../../lib/reasoning-text'
 
 export type Turn = {
   turnId?: string
@@ -144,12 +145,8 @@ export function sameTurnContent(left: Turn, right: Turn): boolean {
 }
 
 export function splitThink(text: string): { think: string; content: string } {
-  const match = text.match(/<think>([\s\S]*?)(?:<\/think>|$)/)
-  if (!match) return { think: '', content: text }
-  return {
-    think: match[1].trim(),
-    content: text.replace(/<think>[\s\S]*?(?:<\/think>|$)/, '').trim()
-  }
+  const split = splitReasoningText(text)
+  return { think: split.reasoning, content: split.content }
 }
 
 export function blockHasPendingRuntimeWork(block: ChatBlock): boolean {

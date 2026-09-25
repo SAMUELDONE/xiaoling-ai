@@ -110,6 +110,76 @@ it('uses Gemini-compatible reasoning controls on the Google OpenAI endpoint', ()
     }
   })
 
+it('keeps an ordinary Responses relay max tier at high without an explicit wire mapping', () => {
+    const codecs = createCompatRequestCodecs()
+    const body = codecs.build({
+      request: { ...request('gpt-5.6-sol'), reasoningEffort: 'max' },
+      model: 'gpt-5.6-sol',
+      messages: [],
+      tools: [],
+      stream: true,
+      endpointFormat: 'responses',
+      baseUrl: 'https://relay.example/v1',
+      reasoning: {
+        supportedEfforts: ['low', 'medium', 'high', 'max'],
+        defaultEffort: 'high',
+        requestProtocol: 'openai-responses'
+      },
+      isCodex: false,
+      isCodexLite: false,
+      codexNativeImageGeneration: false
+    })
+
+    expect(body.reasoning).toEqual({ effort: 'high' })
+  })
+
+it('honors an explicit xhigh mapping on a custom Responses relay', () => {
+    const codecs = createCompatRequestCodecs()
+    const body = codecs.build({
+      request: { ...request('gpt-5.6-sol'), reasoningEffort: 'max' },
+      model: 'gpt-5.6-sol',
+      messages: [],
+      tools: [],
+      stream: true,
+      endpointFormat: 'responses',
+      baseUrl: 'https://relay.example/v1',
+      reasoning: {
+        supportedEfforts: ['low', 'medium', 'high', 'max'],
+        defaultEffort: 'high',
+        requestProtocol: 'openai-responses',
+        responsesMaxEffort: 'xhigh'
+      },
+      isCodex: false,
+      isCodexLite: false,
+      codexNativeImageGeneration: false
+    })
+
+    expect(body.reasoning).toEqual({ effort: 'xhigh' })
+  })
+
+it('always maps the first-party Codex max tier to xhigh', () => {
+    const codecs = createCompatRequestCodecs()
+    const body = codecs.build({
+      request: { ...request('gpt-5.6-sol'), reasoningEffort: 'max' },
+      model: 'gpt-5.6-sol',
+      messages: [],
+      tools: [],
+      stream: true,
+      endpointFormat: 'responses',
+      baseUrl: 'https://chatgpt.com/backend-api/codex/responses',
+      reasoning: {
+        supportedEfforts: ['low', 'medium', 'high', 'max'],
+        defaultEffort: 'high',
+        requestProtocol: 'openai-responses'
+      },
+      isCodex: true,
+      isCodexLite: false,
+      codexNativeImageGeneration: false
+    })
+
+    expect(body.reasoning).toEqual({ effort: 'xhigh', summary: 'auto' })
+  })
+
 it('keeps DeepSeek thinking controls scoped to the official DeepSeek host', () => {
     const codecs = createCompatRequestCodecs()
     const build = (baseUrl: string) => codecs.build({

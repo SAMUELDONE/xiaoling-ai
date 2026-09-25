@@ -18,7 +18,7 @@ export type SseErrorPayload = {
 }
 
 /**
- * The SSE subscription slice of the GUI bridge. Kept here so the 700-line
+ * The SSE subscription slice of the GUI bridge. Kept here so the 1200-line
  * `KunGuiApi` surface stays under the file-line gate while the transport
  * contracts and their surface signature live beside each other.
  */

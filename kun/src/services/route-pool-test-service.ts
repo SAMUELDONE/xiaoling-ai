@@ -3,6 +3,7 @@ import type { ModelRouteEvent, RoutePoolHealthStore } from '../adapters/model/ro
 import { LOCAL_MODEL_GATEWAY_PROVIDER_ID, type ModelRoutePoolConfig } from '../contracts/model-route-pool.js'
 import type { TurnItem } from '../contracts/items.js'
 import type { ModelClient, ModelRequest, ModelRouteTargetMetadata, ModelStreamChunk } from '../ports/model-client.js'
+import { TaggedReasoningNormalizer } from '../shared/tagged-reasoning-normalizer.js'
 
 export type RoutePoolTestStatus = 'queued' | 'running' | 'succeeded' | 'failed'
 export type RoutePoolTestAttemptStatus = 'running' | 'succeeded' | 'failed'
@@ -88,16 +89,28 @@ export class RoutePoolTestService {
     test.startedAt = this.isoNow()
     const controller = new AbortController()
     let output = ''
+    const taggedReasoning = new TaggedReasoningNormalizer()
     try {
       for await (const chunk of this.modelClient.stream(this.request(test, controller.signal))) {
         if (chunk.route) test.selectedTarget = targetSummary(chunk.route)
-        if (chunk.kind === 'assistant_text_delta') output = appendBounded(output, chunk.text, MAX_TEST_OUTPUT_CHARS)
+        if (chunk.kind === 'assistant_text_delta') {
+          for (const delta of taggedReasoning.push(chunk.text)) {
+            if (delta.kind === 'assistant_text_delta') {
+              output = appendBounded(output, delta.text, MAX_TEST_OUTPUT_CHARS)
+            }
+          }
+        }
         if (chunk.kind === 'error') {
           test.error = {
             message: chunk.message.slice(0, MAX_TEST_ERROR_CHARS),
             ...(chunk.code ? { code: chunk.code } : {}),
             ...(chunk.failure?.category ? { category: chunk.failure.category } : {})
           }
+        }
+      }
+      for (const delta of taggedReasoning.flush()) {
+        if (delta.kind === 'assistant_text_delta') {
+          output = appendBounded(output, delta.text, MAX_TEST_OUTPUT_CHARS)
         }
       }
       test.output = output

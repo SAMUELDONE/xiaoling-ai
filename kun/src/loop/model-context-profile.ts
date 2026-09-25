@@ -556,7 +556,8 @@ function copyReasoningCapability(
   return {
     supportedEfforts: [...reasoning.supportedEfforts],
     defaultEffort: reasoning.defaultEffort,
-    requestProtocol: reasoning.requestProtocol
+    requestProtocol: reasoning.requestProtocol,
+    ...(reasoning.responsesMaxEffort ? { responsesMaxEffort: reasoning.responsesMaxEffort } : {})
   }
 }
 

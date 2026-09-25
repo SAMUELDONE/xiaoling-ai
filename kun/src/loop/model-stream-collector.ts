@@ -4,6 +4,7 @@ import type { ModelStreamChunk } from '../ports/model-client.js'
 import type { ToolCallLike } from '../ports/tool-host.js'
 import type { ModelFailureMetadata } from '../contracts/model-route-pool.js'
 import { repairDispatchToolArguments } from './tool-call-repair.js'
+import { TaggedReasoningNormalizer } from '../shared/tagged-reasoning-normalizer.js'
 
 export type ModelStreamStopReason = 'stop' | 'tool_calls' | 'length' | 'error'
 
@@ -68,6 +69,8 @@ export type ModelStreamReduction = {
 export class ModelStreamCollector {
   private readonly textAccumulator = new StreamTextAccumulator()
   private readonly reasoningAccumulator = new StreamTextAccumulator()
+  private taggedReasoning = new TaggedReasoningNormalizer()
+  private structuredReasoning = new TaggedReasoningNormalizer()
   private readonly toolCalls: ToolCallLike[] = []
   private truncatedToolCalls = 0
   private stopReason: ModelStreamStopReason = 'stop'
@@ -77,11 +80,19 @@ export class ModelStreamCollector {
   reduce(chunk: ModelStreamChunk): ModelStreamReduction {
     switch (chunk.kind) {
       case 'assistant_text_delta':
-        this.textAccumulator.append(chunk.text)
-        return { intents: [{ kind: 'assistant_text_delta', text: chunk.text }] }
+        return {
+          intents: [
+            ...this.flushStructuredReasoning(),
+            ...this.reduceTaggedText(chunk.text)
+          ]
+        }
       case 'assistant_reasoning_delta':
-        this.reasoningAccumulator.append(chunk.text)
-        return { intents: [{ kind: 'assistant_reasoning_delta', text: chunk.text }] }
+        return {
+          intents: [
+            ...this.flushTaggedText(),
+            ...this.reduceStructuredReasoning(chunk.text)
+          ]
+        }
       case 'tool_call_delta':
         // Tool deltas are intentionally not persisted or surfaced until the
         // provider supplies a complete, parseable call.
@@ -99,14 +110,28 @@ export class ModelStreamCollector {
           }]
         }
       case 'tool_call_complete':
-        return this.reduceCompletedToolCall(chunk)
+        {
+          const reduction = this.reduceCompletedToolCall(chunk)
+          return {
+            intents: [
+              ...this.flushTaggedText(),
+              ...this.flushStructuredReasoning(),
+              ...reduction.intents
+            ],
+            ...(reduction.terminal ? { terminal: reduction.terminal } : {})
+          }
+        }
       case 'image_generation_complete':
         return {
-          intents: [{
-            kind: 'generated_image',
-            imageBase64: chunk.imageBase64,
-            mimeType: chunk.mimeType
-          }]
+          intents: [
+            ...this.flushTaggedText(),
+            ...this.flushStructuredReasoning(),
+            {
+              kind: 'generated_image',
+              imageBase64: chunk.imageBase64,
+              mimeType: chunk.mimeType
+            }
+          ]
         }
       case 'usage':
         return { intents: [{ kind: 'usage', usage: chunk.usage }] }
@@ -114,16 +139,25 @@ export class ModelStreamCollector {
         // Providers can emit usage after a completed marker. Keep draining
         // chunks, and do not let a later completed marker clear an error.
         if (this.stopReason !== 'error') this.stopReason = chunk.stopReason
-        return { intents: [] }
+        return {
+          intents: [
+            ...this.flushTaggedText(),
+            ...this.flushStructuredReasoning()
+          ]
+        }
       case 'error':
         this.stopReason = 'error'
         return {
-          intents: [{
-            kind: 'model_error',
-            message: chunk.message,
-            ...(chunk.code ? { code: chunk.code } : {}),
-            ...(chunk.failure ? { failure: chunk.failure } : {})
-          }]
+          intents: [
+            ...this.flushTaggedText(),
+            ...this.flushStructuredReasoning(),
+            {
+              kind: 'model_error',
+              message: chunk.message,
+              ...(chunk.code ? { code: chunk.code } : {}),
+              ...(chunk.failure ? { failure: chunk.failure } : {})
+            }
+          ]
         }
     }
   }
@@ -150,7 +184,14 @@ export class ModelStreamCollector {
     return this.truncatedToolCalls
   }
 
+  /** Commits a trailing partial wrapper when a turn is aborted or persisted early. */
+  flushPendingText(): void {
+    this.flushTaggedText()
+    this.flushStructuredReasoning()
+  }
+
   snapshot(): ModelStreamSnapshot {
+    this.flushPendingText()
     return {
       text: this.textAccumulator.value,
       reasoning: this.reasoningAccumulator.value,
@@ -209,6 +250,40 @@ export class ModelStreamCollector {
         ...(chunk.providerMetadata ? { providerMetadata: chunk.providerMetadata } : {})
       }]
     }
+  }
+
+  private reduceTaggedText(text: string): Extract<ModelStreamIntent, { kind: 'assistant_text_delta' | 'assistant_reasoning_delta' }>[] {
+    return this.taggedReasoning.push(text).map((delta) => {
+      if (delta.kind === 'assistant_text_delta') this.textAccumulator.append(delta.text)
+      else this.reasoningAccumulator.append(delta.text)
+      return delta
+    })
+  }
+
+  private flushTaggedText(): Extract<ModelStreamIntent, { kind: 'assistant_text_delta' | 'assistant_reasoning_delta' }>[] {
+    const deltas = this.taggedReasoning.flush().map((delta) => {
+      if (delta.kind === 'assistant_text_delta') this.textAccumulator.append(delta.text)
+      else this.reasoningAccumulator.append(delta.text)
+      return delta
+    })
+    this.taggedReasoning = new TaggedReasoningNormalizer()
+    return deltas
+  }
+
+  private reduceStructuredReasoning(text: string): Extract<ModelStreamIntent, { kind: 'assistant_reasoning_delta' }>[] {
+    return this.structuredReasoning.push(text).map((delta) => {
+      this.reasoningAccumulator.append(delta.text)
+      return { kind: 'assistant_reasoning_delta' as const, text: delta.text }
+    })
+  }
+
+  private flushStructuredReasoning(): Extract<ModelStreamIntent, { kind: 'assistant_reasoning_delta' }>[] {
+    const deltas = this.structuredReasoning.flush().map((delta) => {
+      this.reasoningAccumulator.append(delta.text)
+      return { kind: 'assistant_reasoning_delta' as const, text: delta.text }
+    })
+    this.structuredReasoning = new TaggedReasoningNormalizer()
+    return deltas
   }
 }
 

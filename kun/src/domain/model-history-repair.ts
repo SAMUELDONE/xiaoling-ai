@@ -1,4 +1,8 @@
 import type { TurnItem } from '../contracts/items.js'
+import {
+  normalizeTaggedReasoningFragment,
+  normalizeTaggedReasoningText
+} from '../shared/tagged-reasoning-normalizer.js'
 
 /**
  * Repairs persisted turn items into a model-sendable history shape.
@@ -68,21 +72,48 @@ export function repairModelHistoryItemsForModel(items: TurnItem[]): TurnItem[] {
     repaired.flatMap((item) =>
       isLegacyInvalidBrowserUseCall(item) ? [item.callId] : [])
   )
-  if (legacyInvalidCallIds.size === 0) return repaired
-
   const legacyInvalidPairs = new Set(
     repaired.flatMap((item) =>
       isLegacyInvalidBrowserUseFailure(item) && legacyInvalidCallIds.has(item.callId)
         ? [item.callId]
         : [])
   )
-  if (legacyInvalidPairs.size === 0) return repaired
-
-  return repaired.filter((item) =>
+  const withoutLegacyPairs = legacyInvalidPairs.size === 0
+    ? repaired
+    : repaired.filter((item) =>
     (item.kind === 'tool_call' || item.kind === 'tool_result')
       ? !legacyInvalidPairs.has(item.callId)
       : true
-  )
+    )
+  return normalizeReasoningTagsForModel(withoutLegacyPairs)
+}
+
+/**
+ * Historical sessions can predate the shared stream normalizer. Strip
+ * provider wrappers before model projection so a later request never sends
+ * `<thinking>`/`<analysis>` markers back to a provider. Wrapped reasoning in
+ * an old assistant-text item is intentionally omitted from the answer; it was
+ * never a durable reasoning item and must not become visible history.
+ */
+function normalizeReasoningTagsForModel(items: TurnItem[]): TurnItem[] {
+  let changed = false
+  const normalized = items.map((item) => {
+    if (item.kind === 'assistant_text') {
+      const text = normalizeTaggedReasoningText(item.text).text
+      if (text !== item.text) {
+        changed = true
+        return { ...item, text }
+      }
+    } else if (item.kind === 'assistant_reasoning') {
+      const text = normalizeTaggedReasoningFragment(item.text)
+      if (text !== item.text) {
+        changed = true
+        return { ...item, text }
+      }
+    }
+    return item
+  })
+  return changed ? normalized : items
 }
 
 function isLegacyInvalidBrowserUseCall(

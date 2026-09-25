@@ -78,12 +78,7 @@ describe('initialSetupSelection', () => {
         permissionTouched: false
       })
     expect(initialSetupSelection(settings({ agents: { kun: { providerId: 'litellm' } } })))
-      .toEqual({
-        presetId: 'deepseek',
-        mode: 'api',
-        permissionMode: 'ask-for-approval',
-        permissionTouched: false
-      })
+      .toMatchObject({ presetId: 'litellm', mode: 'api' })
   })
 
   it('preselects the saved permission mode', () => {
@@ -123,16 +118,25 @@ describe('initialSetupDrafts', () => {
     expect(drafts.xiaomi.apiKey).toBe('')
     expect(drafts['xiaomi-token-plan']).toEqual({
       apiKey: '',
-      baseUrl: 'https://token-plan-cn.xiaomimimo.com/v1'
+      baseUrl: 'https://token-plan-cn.xiaomimimo.com/v1',
+      model: 'mimo-v2.5-pro'
     })
     expect(drafts['minimax-token-plan'].baseUrl).toBe('https://api.minimaxi.com/anthropic')
   })
 
-  it('does not seed LiteLLM as an onboarding provider', () => {
-    expect(initialSetupDrafts(settings()).litellm).toBeUndefined()
+  it('seeds the full catalog and the custom provider draft', () => {
+    expect(initialSetupDrafts(settings()).litellm).toEqual({
+      apiKey: '',
+      baseUrl: 'http://localhost:4000'
+    })
+    expect(initialSetupDrafts(settings())['xiaoling-custom-provider']).toMatchObject({
+      apiKey: '',
+      baseUrl: '',
+      endpointFormat: 'chat_completions'
+    })
   })
 
-  it('keeps coding and Moonshot presets out of onboarding', () => {
+  it('exposes coding and Moonshot presets in onboarding', () => {
     const excludedIds = [
       'litellm',
       'zhipu-coding-plan',
@@ -143,16 +147,11 @@ describe('initialSetupDrafts', () => {
     ]
     const drafts = initialSetupDrafts(settings())
 
-    expect(INITIAL_SETUP_PROVIDER_PRESETS.map((preset) => preset.id)).toEqual(['xiaomi', 'minimax'])
+    expect(INITIAL_SETUP_PROVIDER_PRESETS).toHaveLength(25)
     for (const id of excludedIds) {
-      expect(drafts[id]).toBeUndefined()
+      expect(drafts[id]).toBeDefined()
       expect(initialSetupSelection(settings({ agents: { kun: { providerId: id } } })))
-        .toEqual({
-          presetId: 'deepseek',
-          mode: 'api',
-          permissionMode: 'ask-for-approval',
-          permissionTouched: false
-        })
+        .toMatchObject({ presetId: id, mode: 'api' })
     }
   })
 })
@@ -166,6 +165,27 @@ describe('buildInitialSetupSettings', () => {
     expect(next.initialSetupCompleted).toBe(true)
     expect(getKunRuntimeSettings(next).providerId).toBe('deepseek')
     expect(getActiveAgentApiKey(next)).toBe('sk-deepseek-key')
+  })
+
+  it('activates the model explicitly selected from the discovered catalog', () => {
+    const current = settingsWithActiveXiaomiWithoutKey()
+    const drafts = initialSetupDrafts(current)
+    drafts.xiaomi = {
+      ...drafts.xiaomi,
+      apiKey: 'xiaomi-api-key',
+      model: 'mimo-discovered-model'
+    }
+
+    const next = buildInitialSetupSettings(
+      current,
+      drafts,
+      { presetId: 'xiaomi', mode: 'api' },
+      'mimo-discovered-model'
+    )
+
+    const profile = getModelProviderSettings(next).providers.find((provider) => provider.id === 'xiaomi')
+    expect(getKunRuntimeSettings(next).model).toBe('mimo-discovered-model')
+    expect(profile?.models[0]).toBe('mimo-discovered-model')
   })
 
   it('stores the selected default Agent permission mode', () => {
@@ -408,6 +428,27 @@ describe('buildInitialSetupSettingsPatch', () => {
     expect(settingsPatchSchema.parse(patch)).toEqual(patch)
     expect(JSON.stringify(patch)).not.toContain('sk-deepseek-key')
     expect(patch.provider?.providers?.every((provider) => !provider.apiKey)).toBe(true)
+  })
+
+  it('persists an explicitly selected discovered model in the runtime patch', () => {
+    const current = settingsWithActiveXiaomiWithoutKey()
+    const drafts = initialSetupDrafts(current)
+    drafts.xiaomi = {
+      ...drafts.xiaomi,
+      apiKey: 'xiaomi-api-key',
+      model: 'mimo-discovered-model'
+    }
+    const patch = buildInitialSetupSettingsPatch(
+      current,
+      drafts,
+      { presetId: 'xiaomi', mode: 'api' },
+      'mimo-discovered-model'
+    )
+
+    expect(patch.agents?.kun?.model).toBe('mimo-discovered-model')
+    expect(patch.provider?.providers?.find((provider) => provider.id === 'xiaomi')?.models?.[0])
+      .toBe('mimo-discovered-model')
+    expect(JSON.stringify(patch)).not.toContain('xiaomi-api-key')
   })
 })
 

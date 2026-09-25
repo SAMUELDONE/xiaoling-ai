@@ -4,6 +4,7 @@ import { makeUserItem } from '../domain/item.js'
 import { resolveRoleModel } from '../loop/title-generator.js'
 import type { ModelClient, ModelRequest, ModelStreamChunk } from '../ports/model-client.js'
 import type { UsageSnapshot } from '../contracts/usage.js'
+import { TaggedReasoningTextAccumulator } from '../shared/tagged-reasoning-normalizer.js'
 import {
   SubagentProfileConfig,
   type SubagentToolPolicy
@@ -389,8 +390,7 @@ async function collectRouterResponse(
   stream: AsyncIterable<ModelStreamChunk>,
   signal: AbortSignal
 ): Promise<{ text: string; usage?: UsageSnapshot }> {
-  let text = ''
-  let reasoning = ''
+  const output = new TaggedReasoningTextAccumulator()
   let usage: UsageSnapshot | undefined
   const iterator = stream[Symbol.asyncIterator]()
   try {
@@ -400,10 +400,10 @@ async function collectRouterResponse(
       const chunk = next.value
       switch (chunk.kind) {
         case 'assistant_text_delta':
-          text += chunk.text
+          output.append(chunk.text)
           break
         case 'assistant_reasoning_delta':
-          reasoning += chunk.text
+          output.appendReasoning(chunk.text)
           break
         case 'usage':
           usage = chunk.usage
@@ -417,7 +417,11 @@ async function collectRouterResponse(
       void Promise.resolve(iterator.return()).catch(() => undefined)
     }
   }
-  return { text: text.trim() ? text : reasoning, ...(usage ? { usage } : {}) }
+  output.flush()
+  return {
+    text: output.text.trim() ? output.text : output.reasoning,
+    ...(usage ? { usage } : {})
+  }
 }
 
 function fallbackRoute(task: string, candidates: readonly SubagentRecallHit[]): SubagentRouteResult {

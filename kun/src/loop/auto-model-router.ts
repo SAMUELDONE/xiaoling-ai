@@ -1,6 +1,7 @@
 import { makeUserItem } from '../domain/item.js'
 import type { TurnItem } from '../contracts/items.js'
 import type { ModelClient, ModelRequest, ModelStreamChunk } from '../ports/model-client.js'
+import { TaggedReasoningTextAccumulator } from '../shared/tagged-reasoning-normalizer.js'
 
 export const AUTO_MODEL_ROUTER_MODEL = 'deepseek-v4-flash'
 export const AUTO_MODEL_FLASH = 'deepseek-v4-flash'
@@ -217,19 +218,22 @@ async function collectRouterText(
   stream: AsyncIterable<ModelStreamChunk>,
   signal: AbortSignal
 ): Promise<string> {
-  let text = ''
+  const output = new TaggedReasoningTextAccumulator()
   for await (const chunk of stream) {
     if (signal.aborted) throw new Error('auto model router timed out')
     switch (chunk.kind) {
       case 'assistant_text_delta':
+        output.append(chunk.text)
+        break
       case 'assistant_reasoning_delta':
-        text += chunk.text
+        output.appendReasoning(chunk.text)
         break
       case 'error':
         throw new Error(chunk.message)
     }
   }
-  return text
+  output.flush()
+  return output.text.trim() ? output.text : output.reasoning
 }
 
 function extractFirstJsonObject(raw: string): string | null {

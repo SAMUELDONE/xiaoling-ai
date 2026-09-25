@@ -55,6 +55,51 @@ import { normalizeModelProviderModelProfile } from './app-settings-provider-capa
 import { settings } from './app-settings-provider.test-support'
 
 describe('model provider settings', () => {
+  it('normalizes native reasoning tier aliases for custom providers', () => {
+    const profile = normalizeModelProviderModelProfile({
+      reasoning: {
+        supportedEfforts: ['minimal', 'medium', 'xhigh', 'ultra', 'off'],
+        defaultEffort: 'xhigh',
+        requestProtocol: 'openai-responses'
+      } as unknown as NonNullable<ModelProviderModelProfileV1['reasoning']>
+    })
+
+    expect(profile.reasoning).toEqual({
+      supportedEfforts: ['low', 'medium', 'max', 'off'],
+      defaultEffort: 'max',
+      requestProtocol: 'openai-responses'
+    })
+  })
+
+  it('normalizes the explicit Responses max wire mapping without inferring it from max support', () => {
+    expect(normalizeModelProviderModelProfile({
+      reasoning: {
+        supportedEfforts: ['low', 'medium', 'high', 'max'],
+        defaultEffort: 'high',
+        requestProtocol: 'openai-responses',
+        responsesMaxEffort: 'ultra'
+      } as unknown as NonNullable<ModelProviderModelProfileV1['reasoning']>
+    }).reasoning).toEqual({
+      supportedEfforts: ['low', 'medium', 'high', 'max'],
+      defaultEffort: 'high',
+      requestProtocol: 'openai-responses',
+      responsesMaxEffort: 'xhigh'
+    })
+
+    expect(normalizeModelProviderModelProfile({
+      reasoning: {
+        supportedEfforts: ['low', 'medium', 'high', 'max'],
+        defaultEffort: 'high',
+        requestProtocol: 'openai-responses',
+        responsesMaxEffort: 'unsupported'
+      } as unknown as NonNullable<ModelProviderModelProfileV1['reasoning']>
+    }).reasoning).toEqual({
+      supportedEfforts: ['low', 'medium', 'high', 'max'],
+      defaultEffort: 'high',
+      requestProtocol: 'openai-responses'
+    })
+  })
+
   it('drops out-of-range model limits while preserving valid metadata and exact boundaries', () => {
     expect(normalizeModelProviderModelProfile({
       contextWindowTokens: 1_020_000,

@@ -3,6 +3,28 @@ import type {
   ModelReasoningEffort,
   ModelServiceTier
 } from '../shared/app-settings'
+import { normalizeModelReasoningTier } from '../shared/app-settings'
+
+/**
+ * The GUI/runtime keeps the backwards-compatible `max` value internally.
+ * Codex catalogs use the more expressive native `xhigh`/`ultra` names, so
+ * normalize those names at the catalog boundary instead of dropping them.
+ */
+function normalizeCatalogReasoningEffort(value: unknown): ModelReasoningEffort | undefined {
+  switch (normalizeModelReasoningTier(value)) {
+    case 'minimal':
+    case 'low':
+      return 'low'
+    case 'medium':
+      return 'medium'
+    case 'high':
+      return 'high'
+    case 'xhigh':
+      return 'max'
+    default:
+      return undefined
+  }
+}
 
 /** Codex uses slugs and picker visibility rather than the public API's data[].id. */
 export function parseCodexModelCatalog(body: string): {
@@ -20,13 +42,13 @@ export function parseCodexModelCatalog(body: string): {
     const vision = Array.isArray(row.input_modalities) && row.input_modalities.includes('image')
     const efforts: ModelReasoningEffort[] = Array.isArray(row.supported_reasoning_levels)
       ? [...new Set<ModelReasoningEffort>(row.supported_reasoning_levels.flatMap((level: { effort?: string } | null) => {
-          const effort = level?.effort
-          return effort === 'low' || effort === 'medium' || effort === 'high' || effort === 'max'
-            ? [effort] : []
+          const effort = normalizeCatalogReasoningEffort(level?.effort)
+          return effort ? [effort] : []
         }))]
       : []
-    const defaultEffort = efforts.includes(row.default_reasoning_level)
-      ? row.default_reasoning_level : efforts[0]
+    const catalogDefaultEffort = normalizeCatalogReasoningEffort(row.default_reasoning_level)
+    const defaultEffort = catalogDefaultEffort && efforts.includes(catalogDefaultEffort)
+      ? catalogDefaultEffort : efforts[0]
     // A missing service_tiers field means the catalog never declared tiers
     // (unknown); a present array is authoritative, so an empty array or one
     // without priority stays an explicit "no supported tier" answer.

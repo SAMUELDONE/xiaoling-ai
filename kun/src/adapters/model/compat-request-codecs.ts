@@ -232,7 +232,13 @@ export class CompatRequestCodecs {
     const reasoning = this.deps.responsesReasoning(
       input.request.reasoningEffort,
       input.reasoning,
-      { maxEffort: input.isCodex ? 'xhigh' : 'high', includeSummary: input.isCodex }
+      {
+        // First-party Codex endpoints are known to accept xhigh. Other
+        // Responses relays must explicitly declare their wire ceiling in the
+        // model capability profile; otherwise max remains high for safety.
+        maxEffort: input.isCodex ? 'xhigh' : input.reasoning?.responsesMaxEffort ?? 'high',
+        includeSummary: input.isCodex
+      }
     )
     if (reasoning || input.isCodexLite) {
       body.reasoning = input.isCodexLite ? { ...(reasoning ?? {}), context: 'all_turns' } : reasoning!

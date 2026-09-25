@@ -22,8 +22,8 @@ import {
   DEFAULT_SPEECH_TO_TEXT_PROTOCOL,
   DEFAULT_TEXT_TO_SPEECH_PROTOCOL,
   DEFAULT_VIDEO_GENERATION_PROTOCOL,
-  MODEL_REASONING_EFFORTS,
   MODEL_REASONING_REQUEST_PROTOCOLS,
+  normalizeModelReasoningEffort,
   kunToolPermissionModeSettings,
   normalizeModelEndpointFormat,
   type AppSettingsV1,
@@ -615,7 +615,7 @@ export function stringOrFallback(value: string | undefined, fallback: string): s
 }
 
 export function isModelReasoningEffortValue(value: unknown): value is ModelReasoningEffort {
-  return typeof value === 'string' && MODEL_REASONING_EFFORTS.includes(value as ModelReasoningEffort)
+  return normalizeModelReasoningEffort(value) !== undefined
 }
 
 export const OPTIONAL_MODEL_SLOT_KEYS = [
@@ -680,7 +680,5 @@ export function mergeOptionalReasoningSlot(
 export function normalizeReasoningEffortOrUndefined(
   value: unknown
 ): ModelReasoningEffort | undefined {
-  if (typeof value !== 'string') return undefined
-  const trimmed = value.trim() as ModelReasoningEffort
-  return MODEL_REASONING_EFFORTS.includes(trimmed) ? trimmed : undefined
+  return normalizeModelReasoningEffort(value)
 }

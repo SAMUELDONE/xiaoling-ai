@@ -24,6 +24,7 @@ import type {
 import type { RuntimeEventRecorder } from './runtime-event-recorder.js'
 import type { UsageService } from './usage-service.js'
 import { utf8PrefixWithinBytes } from '../shared/utf8-text-blocks.js'
+import { TaggedReasoningNormalizer } from '../shared/tagged-reasoning-normalizer.js'
 import type {
   ApprovalReviewModelContext,
   ApprovalReviewModelContextResolver
@@ -388,11 +389,16 @@ export class ApprovalReviewService implements ApprovalReviewPort {
       abortSignal: input.signal
     }
     let output = ''
+    const taggedReasoning = new TaggedReasoningNormalizer()
     try {
       for await (const chunk of input.model.stream(request)) {
         if (input.signal.aborted) throw input.signal.reason ?? new Error('approval review aborted')
         if (chunk.kind === 'assistant_text_delta') {
-          output = appendBoundedOutput(output, chunk.text)
+          for (const delta of taggedReasoning.push(chunk.text)) {
+            if (delta.kind === 'assistant_text_delta') {
+              output = appendBoundedOutput(output, delta.text)
+            }
+          }
         } else if (chunk.kind === 'tool_call_delta' || chunk.kind === 'tool_call_complete') {
           return {
             kind: 'invalid-output',
@@ -420,6 +426,9 @@ export class ApprovalReviewService implements ApprovalReviewPort {
     } catch (error) {
       if (input.signal.aborted) throw error
       return { kind: 'model-failure', reason: safeErrorMessage(error) }
+    }
+    for (const delta of taggedReasoning.flush()) {
+      if (delta.kind === 'assistant_text_delta') output = appendBoundedOutput(output, delta.text)
     }
     const parsed = parseApprovalReviewDecision(output)
     return parsed.ok

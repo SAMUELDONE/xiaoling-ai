@@ -58,10 +58,11 @@ develop                -- 小灵 AI 集成分支
       +--> codex/<feature>  -- 单个产品改动
       |
       v
-main                   -- 可发布版本
+master                 -- 可发布版本
 ```
 
-- `main` 只接受可发布、已验证的小灵 AI 版本。
+- `master` 只接受可发布、已验证的小灵 AI 版本；当前 release workflow 的稳定触发目标是
+  `develop -> master`，`main` 不是稳定发布目标。
 - `develop` 是产品集成分支，不直接承载未验证的功能改动。
 - 新开发从 `develop` 创建 `codex/` 前缀分支，并通过 Pull Request 合入
   `develop`。

@@ -69,6 +69,11 @@ import { IncrementalSseFrameBuffer } from './incremental-sse-frame-buffer.js'
 import { summarizeModelRetryFailure } from './model-retry-failure-summary.js'
 import { StreamOutputReplayBuffer } from './stream-output-replay-buffer.js'
 import { StreamTextReplayReconciler } from './stream-text-replay-reconciler.js'
+import {
+  flushTaggedReasoningNormalizer,
+  normalizeTaggedReasoningChunk,
+  TaggedReasoningNormalizer
+} from '../../shared/tagged-reasoning-normalizer.js'
 import type { ChatCompletionResponse, CompatPostResult, ModelStopReason, StreamPayloadResult } from './compat-model-types.js'
 import {
   enforceNonStreamingLimits,
@@ -346,6 +351,8 @@ export class CompatModelStreamingClient extends CompatModelClientBase {
     const completedToolCalls = new Set<string>()
     const responsesContentTracker = createResponsesContentTracker()
     const anthropicThinkingState = createAnthropicThinkingState()
+    const taggedReasoning = new TaggedReasoningNormalizer()
+    const structuredReasoning = new TaggedReasoningNormalizer()
     let usage: UsageSnapshot | null = null
     // The Responses protocol may repeat final output in response.completed;
     // a boolean is sufficient to suppress that duplicate. Retaining the full
@@ -440,7 +447,12 @@ export class CompatModelStreamingClient extends CompatModelClientBase {
             model,
             budget
           )
-          budget.addOutput(result.chunks)
+          const normalizedChunks = normalizeTaggedTextChunks(
+            result.chunks,
+            taggedReasoning,
+            structuredReasoning
+          )
+          budget.addOutput(normalizedChunks)
           sawTextDelta = result.sawTextDelta
           if (result.usage) usage = mergeUsageSnapshots(usage, result.usage)
           if (result.finishReason) {
@@ -449,7 +461,7 @@ export class CompatModelStreamingClient extends CompatModelClientBase {
             // `length`, `tool_calls`, or `error` to a successful stop.
             finishReason = mergeStreamFinishReason(finishReason, result.finishReason)
           }
-          for (const chunk of result.chunks) yield chunk
+          for (const chunk of normalizedChunks) yield chunk
         }
         if (sawDone) break
       }
@@ -490,6 +502,9 @@ export class CompatModelStreamingClient extends CompatModelClientBase {
       }
       return
     }
+    const normalizedTail = flushTaggedReasoningNormalizer(taggedReasoning, structuredReasoning)
+    budget.addOutput(normalizedTail)
+    for (const chunk of normalizedTail) yield chunk
     // Safety net: finalize any tool call whose arguments finished streaming but
     // was never emitted because the stream ended without a per-call "done"
     // signal. The chat_completions branch only finalizes on
@@ -656,20 +671,36 @@ export class CompatModelStreamingClient extends CompatModelClientBase {
     model: string,
     limits: ModelStreamLimits
   ): Generator<ModelStreamChunk> {
-    yield* enforceNonStreamingLimits(
-      decodeCompatNonStreamingResponse(
-        payload as unknown as Record<string, unknown>,
-        endpointFormat,
-        {
-          normalizeUsage: (usage) => this.mapUsage(usage, model),
-          parseToolArguments: (raw) => this.parseToolArguments(raw),
-          payloadError: modelPayloadError
-        }
-      ),
-      limits
+    const taggedReasoning = new TaggedReasoningNormalizer()
+    const structuredReasoning = new TaggedReasoningNormalizer()
+    const decoded = decodeCompatNonStreamingResponse(
+      payload as unknown as Record<string, unknown>,
+      endpointFormat,
+      {
+        normalizeUsage: (usage) => this.mapUsage(usage, model),
+        parseToolArguments: (raw) => this.parseToolArguments(raw),
+        payloadError: modelPayloadError
+      }
     )
+    const normalized = [
+      ...normalizeTaggedTextChunks(decoded, taggedReasoning, structuredReasoning),
+      ...flushTaggedReasoningNormalizer(taggedReasoning, structuredReasoning)
+    ]
+    yield* enforceNonStreamingLimits(normalized, limits)
   }
 
+}
+
+function normalizeTaggedTextChunks(
+  chunks: readonly ModelStreamChunk[],
+  normalizer: TaggedReasoningNormalizer,
+  structuredReasoning: TaggedReasoningNormalizer
+): ModelStreamChunk[] {
+  const normalized: ModelStreamChunk[] = []
+  for (const chunk of chunks) {
+    normalized.push(...normalizeTaggedReasoningChunk(chunk, normalizer, structuredReasoning))
+  }
+  return normalized
 }
 
 function streamReplayConflict(): Extract<ModelStreamChunk, { kind: 'error' }> {

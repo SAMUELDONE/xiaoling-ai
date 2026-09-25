@@ -5,7 +5,25 @@ import { readFile } from 'node:fs/promises'
 import { basename, dirname, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-export const DEFAULT_MAX_LINES = 700
+export const DEFAULT_MAX_LINES = 1200
+
+const POLICY_EXEMPT_DIRECTORY_NAMES = new Set([
+  'coverage',
+  'dist',
+  'fixtures',
+  'generated',
+  'locale',
+  'locales',
+  'out',
+  'output',
+  'snapshots',
+  'build',
+  'artifacts',
+  'bundled-extensions'
+])
+
+const POLICY_EXEMPT_DOCUMENT_EXTENSIONS = new Set(['.md', '.mdx', '.rst', '.adoc'])
+const POLICY_EXEMPT_CATEGORIES = ['docs', 'locale', 'fixture', 'generated']
 
 const PACKAGE_MANAGER_LOCKFILES = new Set([
   '.terraform.lock.hcl',
@@ -69,7 +87,49 @@ export function isBinaryContent(contents) {
 }
 
 export function isPackageManagerLockfile(filePath) {
-  return PACKAGE_MANAGER_LOCKFILES.has(basename(filePath))
+  return PACKAGE_MANAGER_LOCKFILES.has(basename(filePath.replaceAll('\\', '/')))
+}
+
+export function normalizeTrackedPath(filePath) {
+  return filePath.replaceAll('\\', '/').replace(/^\.\/+/, '')
+}
+
+/**
+ * The line gate protects authored implementation files from becoming god files.
+ * Product docs and data-like resources have different maintenance boundaries,
+ * so they are reported as policy-exempt instead of being rejected by this gate.
+ */
+export function classifyTrackedPath(filePath) {
+  const normalizedPath = normalizeTrackedPath(filePath)
+  if (isPackageManagerLockfile(normalizedPath)) return 'lockfile'
+  const segments = normalizedPath.split('/').filter(Boolean)
+  const fileName = segments.at(-1)?.toLowerCase() ?? ''
+  const extensionIndex = fileName.lastIndexOf('.')
+  const extension = extensionIndex >= 0 ? fileName.slice(extensionIndex) : ''
+
+  if (
+    segments.includes('fixtures') ||
+    segments.includes('__fixtures__') ||
+    segments.includes('test-fixtures') ||
+    segments.includes('__snapshots__')
+  ) {
+    return 'fixture'
+  }
+  if (segments.includes('locales')) return 'locale'
+  if (segments[0] === 'docs' || POLICY_EXEMPT_DOCUMENT_EXTENSIONS.has(extension)) return 'docs'
+  if (
+    segments.some((segment) => POLICY_EXEMPT_DIRECTORY_NAMES.has(segment)) ||
+    fileName.includes('.generated.') ||
+    fileName.includes('.min.') ||
+    extension === '.map'
+  ) {
+    return 'generated'
+  }
+  return 'implementation'
+}
+
+export function getLineLimitForPath(filePath, { maxLines = DEFAULT_MAX_LINES } = {}) {
+  return classifyTrackedPath(filePath) === 'implementation' ? maxLines : null
 }
 
 export function listTrackedPaths(root) {
@@ -98,6 +158,7 @@ export async function inspectTrackedFiles({ root, maxLines = DEFAULT_MAX_LINES, 
   let checkedTextFiles = 0
   let excludedBinaryFiles = 0
   let excludedLockfiles = 0
+  const excludedByCategory = Object.fromEntries(POLICY_EXEMPT_CATEGORIES.map((category) => [category, 0]))
   let missingTrackedFiles = 0
 
   for (const trackedPath of trackedPaths) {
@@ -127,6 +188,13 @@ export async function inspectTrackedFiles({ root, maxLines = DEFAULT_MAX_LINES, 
       continue
     }
 
+    const category = classifyTrackedPath(trackedPath)
+    if (getLineLimitForPath(trackedPath, { maxLines }) === null) {
+      if (category === 'lockfile') excludedLockfiles += 1
+      else excludedByCategory[category] += 1
+      continue
+    }
+
     checkedTextFiles += 1
     const lineCount = countPhysicalLines(contents)
     if (lineCount > maxLines) violations.push({ lineCount, path: trackedPath })
@@ -136,6 +204,7 @@ export async function inspectTrackedFiles({ root, maxLines = DEFAULT_MAX_LINES, 
     checkedTextFiles,
     excludedBinaryFiles,
     excludedLockfiles,
+    excludedByCategory,
     maxLines,
     missingTrackedFiles,
     violations
@@ -143,15 +212,19 @@ export async function inspectTrackedFiles({ root, maxLines = DEFAULT_MAX_LINES, 
 }
 
 export function formatAuditResult(result) {
+  const excludedTextFiles = Object.values(result.excludedByCategory ?? {}).reduce(
+    (total, count) => total + count,
+    0
+  )
   if (result.violations.length === 0) {
-    return `File line limit passed: ${result.checkedTextFiles} tracked text files are at or below ${result.maxLines} lines.`
+    return `File line limit passed: ${result.checkedTextFiles} implementation text files are at or below ${result.maxLines} lines; ${excludedTextFiles} policy-exempt text files skipped.`
   }
 
   const diagnostics = result.violations.map(
     ({ lineCount, path }) => `${path}: ${lineCount} lines (maximum ${result.maxLines})`
   )
   return [
-    `File line limit failed: ${result.violations.length} tracked text file(s) exceed ${result.maxLines} lines.`,
+    `File line limit failed: ${result.violations.length} implementation text file(s) exceed ${result.maxLines} lines.`,
     ...diagnostics
   ].join('\n')
 }

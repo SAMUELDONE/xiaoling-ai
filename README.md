@@ -6,7 +6,7 @@
 
 <p align="center">
   让 AI 在真实项目中规划、执行、验证并交付。<br>
-  桌面 GUI 与终端 TUI 共用同一个本地运行时，任务、审批、计划和证据始终连续。
+  桌面 GUI 与终端 TUI 共用同一套本地 Runtime 协议和持久化数据，任务、审批、计划和证据始终连续。
 </p>
 
 <p align="center">
@@ -23,7 +23,7 @@
   <a href="https://github.com/SAMUELDONE/xiaoling-ai/releases"><img src="https://img.shields.io/github/v/release/SAMUELDONE/xiaoling-ai?label=release" alt="小灵 AI 最新 GitHub Release"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-PolyForm%20Noncommercial%201.0.0-blue" alt="小灵 AI 基于上游 PolyForm Noncommercial 1.0.0 许可证"></a>
   <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-lightgrey" alt="支持 macOS、Windows 和 Linux">
-  <img src="https://img.shields.io/badge/GUI%20%2B%20TUI-one%20shared%20runtime-6366f1" alt="桌面 GUI 与终端 TUI 共用一个本地运行时">
+  <img src="https://img.shields.io/badge/GUI%20%2B%20TUI-one%20runtime%20protocol-6366f1" alt="桌面 GUI 与终端 TUI 共用一套本地运行时协议">
 </p>
 
 <p align="center">
@@ -34,7 +34,7 @@
 
 小灵 AI 是把 AI 从“回答问题”推进到“完成工作”的本地优先工作台。它以两个主模式组织真实工作：Code 面向软件交付，并在同一任务中提供 Design 画布；Work 面向写作、资料整理、文档分析和演示产出。Agent 可以读取工作区上下文、制定计划、调用工具、修改文件、运行验证，并把证据留在任务旁。
 
-桌面 GUI 适合观察、审阅和控制过程；终端 TUI 适合专注于键盘工作。两者通过同一个本地 `kun serve` 运行时共享线程、目标、计划、审批和后台任务，而不是两套彼此割裂的会话。
+桌面 GUI 适合观察、审阅和控制过程；终端 TUI 适合专注于键盘工作。两者通过同一套本地 HTTP/SSE Runtime 协议和持久化数据共享线程、目标、计划、审批和后台任务；正常启动时各自拥有受监督的 Runtime 进程，不是两套彼此割裂的会话。
 
 ## 一眼了解
 
@@ -145,6 +145,7 @@ npm ci --registry=https://registry.npmmirror.com
 | Loops、MCP 与 Skills | [docs/workflow-loop.md](docs/workflow-loop.md) / [docs/project-mcp-skills.md](docs/project-mcp-skills.md) |
 | Extension 平台 | [docs/extensions/README.md](docs/extensions/README.md) |
 | 本地开发 | [docs/DEVELOPMENT.zh-CN.md](docs/DEVELOPMENT.zh-CN.md) |
+| 小灵 AI 软件开发说明书 | [docs/XIAOLING_AI_DEVELOPMENT_SPEC.zh-CN.md](docs/XIAOLING_AI_DEVELOPMENT_SPEC.zh-CN.md) |
 
 欢迎贡献 bug 修复、UI/UX、运行时、Provider、扩展和文档。日常集成分支为 `develop`，PR 请以 `develop` 为目标分支；开始前阅读 [贡献指南](docs/CONTRIBUTING.zh-CN.md)，外部贡献需要接受 [CLA](./CLA.md)。
 

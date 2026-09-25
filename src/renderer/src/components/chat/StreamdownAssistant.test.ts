@@ -149,3 +149,26 @@ describe('reasoning HTML comment presentation', () => {
     expect(html).toContain('&lt;!-- --&gt;')
   })
 })
+
+describe('provider reasoning marker presentation', () => {
+  function renderAnswer(text: string): string {
+    return renderToStaticMarkup(createElement(StreamdownAssistant, {
+      text,
+      streaming: false
+    }))
+  }
+
+  it('removes tagged reasoning from direct Markdown consumers', () => {
+    const html = renderAnswer('<thinking>private plan</thinking>Visible answer')
+
+    expect(html).toContain('Visible answer')
+    expect(html).not.toContain('private plan')
+    expect(html).not.toContain('&lt;thinking&gt;')
+  })
+
+  it('keeps provider-like tags in code examples', () => {
+    const html = renderAnswer('```xml\n<thinking>example</thinking>\n```')
+
+    expect(html).toContain('&lt;thinking&gt;example&lt;/thinking&gt;')
+  })
+})

@@ -22,8 +22,9 @@ import {
   DEFAULT_SPEECH_TO_TEXT_PROTOCOL,
   DEFAULT_TEXT_TO_SPEECH_PROTOCOL,
   DEFAULT_VIDEO_GENERATION_PROTOCOL,
-  MODEL_REASONING_EFFORTS,
   MODEL_REASONING_REQUEST_PROTOCOLS,
+  normalizeModelResponsesMaxEffort,
+  normalizeModelReasoningEffort,
   kunToolPermissionModeSettings,
   normalizeModelEndpointFormat,
   type AppSettingsV1,
@@ -224,12 +225,14 @@ export function normalizeKunReasoningCapability(
   const defaultEffort = normalizeKunReasoningEffort(input.defaultEffort)
   const requestProtocol = normalizeKunReasoningRequestProtocol(input.requestProtocol)
   if (!requestProtocol) return undefined
+  const responsesMaxEffort = normalizeModelResponsesMaxEffort(input.responsesMaxEffort)
   return {
     supportedEfforts,
     defaultEffort: defaultEffort && supportedEfforts.includes(defaultEffort)
       ? defaultEffort
       : supportedEfforts[0],
-    requestProtocol
+    requestProtocol,
+    ...(responsesMaxEffort ? { responsesMaxEffort } : {})
   }
 }
 
@@ -244,11 +247,7 @@ export function normalizeKunReasoningEfforts(value: unknown): ModelProviderReaso
 }
 
 export function normalizeKunReasoningEffort(value: unknown): ModelProviderReasoningCapabilityV1['defaultEffort'] | undefined {
-  if (typeof value !== 'string') return undefined
-  const normalized = value.trim().toLowerCase()
-  return MODEL_REASONING_EFFORTS.includes(normalized as ModelProviderReasoningCapabilityV1['defaultEffort'])
-    ? normalized as ModelProviderReasoningCapabilityV1['defaultEffort']
-    : undefined
+  return normalizeModelReasoningEffort(value)
 }
 
 export function normalizeKunReasoningRequestProtocol(

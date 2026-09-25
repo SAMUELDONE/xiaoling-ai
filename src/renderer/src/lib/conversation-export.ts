@@ -1,4 +1,5 @@
 import type { ChatBlock } from '../agent/types'
+import { stripReasoningText } from './reasoning-text'
 
 export type ConversationExportLabels = {
   exportedAt: string
@@ -114,6 +115,10 @@ function annotateBlocks(blocks: ChatBlock[]): AnnotatedBlock[] {
 function visibleUserText(block: Extract<ChatBlock, { kind: 'user' }>): string {
   const displayText = singleLine(block.meta?.displayText) ? block.meta?.displayText : undefined
   return (displayText ?? block.text).trim()
+}
+
+function visibleAssistantText(block: Extract<ChatBlock, { kind: 'assistant' }>): string {
+  return stripReasoningText(block.text).trim()
 }
 
 function formattedTime(value: string | undefined, locale: string): string {
@@ -251,12 +256,12 @@ export function buildConversationExportDocument(options: {
   const annotated = annotateBlocks(eligible)
   const completedTurnKeys = new Set(
     annotated
-      .filter(({ block }) => block.kind === 'assistant' && block.text.trim())
+      .filter(({ block }) => block.kind === 'assistant' && visibleAssistantText(block).length > 0)
       .map(({ turnKey }) => turnKey)
   )
   const lastAssistantIndex = new Map<string, number>()
   for (const entry of annotated) {
-    if (entry.block.kind === 'assistant' && entry.block.text.trim()) {
+    if (entry.block.kind === 'assistant' && visibleAssistantText(entry.block).length > 0) {
       lastAssistantIndex.set(entry.turnKey, entry.index)
     }
   }
@@ -267,7 +272,7 @@ export function buildConversationExportDocument(options: {
     const { block, turnKey } = entry
     if (!completedTurnKeys.has(turnKey)) continue
     if (block.kind !== 'user' && block.kind !== 'assistant') continue
-    const text = block.kind === 'user' ? visibleUserText(block) : block.text.trim()
+    const text = block.kind === 'user' ? visibleUserText(block) : visibleAssistantText(block)
     if (!text) continue
 
     const role = block.kind === 'user' ? options.labels.user : options.labels.assistant

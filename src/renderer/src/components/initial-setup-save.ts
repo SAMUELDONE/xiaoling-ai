@@ -1,9 +1,11 @@
 import {
+  DEFAULT_MODEL_ENDPOINT_FORMAT,
   DEFAULT_MODEL_PROVIDER_ID,
   KUN_TOOL_PERMISSION_MODES,
   MODEL_PROVIDER_PRESETS,
   kunToolPermissionModeFromSettings,
   kunToolPermissionModeSettings,
+  modelProviderRequiresApiKey,
   modelProviderPresetProfile,
   modelProviderTokenPlanProfile,
   normalizeAppSettings,
@@ -12,9 +14,11 @@ import {
   type AppSettingsV1,
   type KunToolPermissionMode,
   type KunRuntimeSettingsPatchV1,
+  type ModelEndpointFormat,
   type ModelProviderPreset,
   type ModelProviderProfileV1
 } from '@shared/app-settings'
+import { normalizeModelProviderProfile } from '@shared/app-settings-provider-profiles'
 import { getKunRuntimeSettings } from '@shared/app-settings-kun-defaults'
 import { applyKunRuntimePatch } from '@shared/app-settings-kun-migration'
 import { getModelProviderSettings } from '@shared/app-settings-provider-core'
@@ -25,6 +29,8 @@ export type InitialSetupAccessMode = 'api' | 'token-plan'
 export type InitialSetupDraft = {
   apiKey: string
   baseUrl: string
+  model?: string
+  endpointFormat?: ModelEndpointFormat
 }
 
 /** Keyed by provider profile id (deepseek, xiaomi, xiaomi-token-plan, ...). */
@@ -38,14 +44,26 @@ export type InitialSetupSelection = {
   permissionTouched: boolean
 }
 
-const INITIAL_SETUP_PROVIDER_PRESET_IDS = new Set(['xiaomi', 'minimax'])
+export const INITIAL_SETUP_CUSTOM_PROVIDER_ID = 'xiaoling-custom-provider'
 
-export const INITIAL_SETUP_PROVIDER_PRESETS = MODEL_PROVIDER_PRESETS.filter(
-  (preset) => INITIAL_SETUP_PROVIDER_PRESET_IDS.has(preset.id)
-)
+export const INITIAL_SETUP_PROVIDER_PRESETS = MODEL_PROVIDER_PRESETS
+
+export function initialSetupProviderRequiresApiKey(
+  preset: ModelProviderPreset | null,
+  mode: InitialSetupAccessMode
+): boolean {
+  if (!preset) return true
+  const profile = mode === 'token-plan'
+    ? modelProviderTokenPlanProfile(preset)
+    : modelProviderPresetProfile(preset)
+  return !profile || modelProviderRequiresApiKey(profile)
+}
 
 export function initialSetupProfileId(selection: Pick<InitialSetupSelection, 'presetId' | 'mode'>): string {
-  if (selection.presetId === DEFAULT_MODEL_PROVIDER_ID) return DEFAULT_MODEL_PROVIDER_ID
+  if (
+    selection.presetId === DEFAULT_MODEL_PROVIDER_ID ||
+    selection.presetId === INITIAL_SETUP_CUSTOM_PROVIDER_ID
+  ) return selection.presetId
   return selection.mode === 'token-plan' ? tokenPlanProviderId(selection.presetId) : selection.presetId
 }
 
@@ -54,20 +72,42 @@ export function initialSetupDrafts(settings: AppSettingsV1): InitialSetupDrafts 
   const provider = getModelProviderSettings(settings)
   const byId = new Map(provider.providers.map((profile) => [profile.id, profile]))
   const drafts: InitialSetupDrafts = {
-    [DEFAULT_MODEL_PROVIDER_ID]: { apiKey: provider.apiKey, baseUrl: provider.baseUrl }
+    [DEFAULT_MODEL_PROVIDER_ID]: {
+      apiKey: provider.apiKey,
+      baseUrl: provider.baseUrl
+    },
+    [INITIAL_SETUP_CUSTOM_PROVIDER_ID]: {
+      apiKey: '',
+      baseUrl: '',
+      model: '',
+      endpointFormat: DEFAULT_MODEL_ENDPOINT_FORMAT
+    }
   }
   for (const preset of INITIAL_SETUP_PROVIDER_PRESETS) {
     const existing = byId.get(preset.id)
+    const model = existing?.models[0] ?? preset.models[0]
     drafts[preset.id] = {
       apiKey: existing?.apiKey ?? '',
-      baseUrl: existing?.baseUrl ?? preset.baseUrl
+      baseUrl: existing?.baseUrl ?? preset.baseUrl,
+      ...(model ? { model } : {})
     }
     if (!preset.tokenPlan) continue
     const tokenPlanId = tokenPlanProviderId(preset.id)
     const existingTokenPlan = byId.get(tokenPlanId)
+    const tokenModel = existingTokenPlan?.models[0] ?? preset.tokenPlan.models[0]
     drafts[tokenPlanId] = {
       apiKey: existingTokenPlan?.apiKey ?? '',
-      baseUrl: existingTokenPlan?.baseUrl ?? preset.tokenPlan.baseUrl
+      baseUrl: existingTokenPlan?.baseUrl ?? preset.tokenPlan.baseUrl,
+      ...(tokenModel ? { model: tokenModel } : {})
+    }
+  }
+  const custom = byId.get(INITIAL_SETUP_CUSTOM_PROVIDER_ID)
+  if (custom) {
+    drafts[INITIAL_SETUP_CUSTOM_PROVIDER_ID] = {
+      apiKey: custom.apiKey,
+      baseUrl: custom.baseUrl,
+      model: custom.models[0] ?? '',
+      endpointFormat: custom.endpointFormat
     }
   }
   return drafts
@@ -78,6 +118,14 @@ export function initialSetupSelection(settings: AppSettingsV1): InitialSetupSele
   const runtime = getKunRuntimeSettings(settings)
   const activeId = runtime.providerId.trim()
   const permissionMode = kunToolPermissionModeFromSettings(runtime)
+  if (activeId === INITIAL_SETUP_CUSTOM_PROVIDER_ID) {
+    return {
+      presetId: INITIAL_SETUP_CUSTOM_PROVIDER_ID,
+      mode: 'api',
+      permissionMode,
+      permissionTouched: false
+    }
+  }
   for (const preset of INITIAL_SETUP_PROVIDER_PRESETS) {
     if (activeId === preset.id) {
       return { presetId: preset.id, mode: 'api', permissionMode, permissionTouched: false }
@@ -150,7 +198,8 @@ export function buildInitialSetupSettings(
   settings: AppSettingsV1,
   drafts: InitialSetupDrafts,
   selection: Pick<InitialSetupSelection, 'presetId' | 'mode'> &
-    Partial<Pick<InitialSetupSelection, 'permissionMode' | 'permissionTouched'>>
+    Partial<Pick<InitialSetupSelection, 'permissionMode' | 'permissionTouched'>>,
+  modelOverride?: string
 ): AppSettingsV1 {
   const provider = getModelProviderSettings(settings)
   const profiles = new Map(provider.providers.map((profile) => [profile.id, profile]))
@@ -168,14 +217,37 @@ export function buildInitialSetupSettings(
   }
 
   for (const preset of INITIAL_SETUP_PROVIDER_PRESETS) {
+    const selectedApiProfileNeedsKey = selection.presetId === preset.id &&
+      selection.mode === 'api' &&
+      initialSetupProviderRequiresApiKey(preset, 'api')
+    const selectedTokenPlanNeedsKey = selection.presetId === preset.id &&
+      selection.mode === 'token-plan' &&
+      initialSetupProviderRequiresApiKey(preset, 'token-plan')
     upsertPresetProfile(profiles, preset.id, drafts[preset.id], (apiKey, baseUrl) => ({
       ...modelProviderPresetProfile(preset, apiKey),
       ...(baseUrl ? { baseUrl } : {})
-    }))
+    }), preset.category === 'free' || (
+      selection.presetId === preset.id &&
+      selection.mode === 'api' &&
+      !selectedApiProfileNeedsKey
+    ))
     if (!preset.tokenPlan) continue
     upsertPresetProfile(profiles, tokenPlanProviderId(preset.id), drafts[tokenPlanProviderId(preset.id)], (apiKey, baseUrl) =>
       modelProviderTokenPlanProfile(preset, apiKey, baseUrl)
-    )
+    , selection.presetId === preset.id && selection.mode === 'token-plan' && !selectedTokenPlanNeedsKey)
+  }
+
+  const customDraft = drafts[INITIAL_SETUP_CUSTOM_PROVIDER_ID]
+  if (customDraft?.apiKey.trim() && customDraft.baseUrl.trim() && customDraft.model?.trim()) {
+    const customProfile = normalizeModelProviderProfile({
+      id: INITIAL_SETUP_CUSTOM_PROVIDER_ID,
+      name: '自定义中转',
+      apiKey: customDraft.apiKey.trim(),
+      baseUrl: customDraft.baseUrl.trim(),
+      endpointFormat: customDraft.endpointFormat ?? DEFAULT_MODEL_ENDPOINT_FORMAT,
+      models: [customDraft.model.trim()]
+    })
+    if (customProfile) profiles.set(INITIAL_SETUP_CUSTOM_PROVIDER_ID, customProfile)
   }
 
   const next = normalizeAppSettings({
@@ -191,6 +263,28 @@ export function buildInitialSetupSettings(
   const runtime = getKunRuntimeSettings(next)
   const selectedId = initialSetupProfileId(selection)
   const selectedProfile = getModelProviderSettings(next).providers.find(
+    (profile) => profile.id === selectedId
+  )
+  const selectedModelOverride = modelOverride?.trim()
+  if (selectedModelOverride && selectedProfile) {
+    const selectedIndex = profiles.get(selectedId)
+    if (selectedIndex) {
+      profiles.set(selectedId, {
+        ...selectedIndex,
+        models: mergeModelIds([selectedModelOverride], selectedIndex.models)
+      })
+    }
+  }
+  const normalizedWithModelOverride = selectedModelOverride
+    ? normalizeAppSettings({
+        ...next,
+        provider: {
+          ...next.provider,
+          providers: [...profiles.values()]
+        }
+      } as AppSettingsV1)
+    : next
+  const selectedProfileWithModelOverride = getModelProviderSettings(normalizedWithModelOverride).providers.find(
     (profile) => profile.id === selectedId
   )
   const switchingProvider = (runtime.providerId.trim() || DEFAULT_MODEL_PROVIDER_ID) !== selectedId
@@ -211,7 +305,9 @@ export function buildInitialSetupSettings(
     apiKey: '',
     baseUrl: '',
     ...(permissionChanged ? kunToolPermissionModeSettings(selectedPermissionMode) : {}),
-    ...(switchingProvider && selectedProfile?.models[0] ? { model: selectedProfile.models[0] } : {}),
+    ...((switchingProvider || Boolean(selectedModelOverride)) && selectedProfileWithModelOverride?.models[0]
+      ? { model: selectedProfileWithModelOverride.models[0] }
+      : {}),
     ...(wire.speechProviderId
       ? { speechToText: { enabled: true, providerId: wire.speechProviderId } }
       : {}),
@@ -219,16 +315,17 @@ export function buildInitialSetupSettings(
       ? { imageGeneration: { enabled: true, providerId: wire.imageProviderId } }
       : {})
   }
-  return applyKunRuntimePatch(next, kunPatch)
+  return applyKunRuntimePatch(normalizedWithModelOverride, kunPatch)
 }
 
 export function buildInitialSetupSettingsPatch(
   settings: AppSettingsV1,
   drafts: InitialSetupDrafts,
   selection: Pick<InitialSetupSelection, 'presetId' | 'mode'> &
-    Partial<Pick<InitialSetupSelection, 'permissionMode' | 'permissionTouched'>>
+    Partial<Pick<InitialSetupSelection, 'permissionMode' | 'permissionTouched'>>,
+  modelOverride?: string
 ): AppSettingsPatch {
-  const next = buildInitialSetupSettings(settings, drafts, selection)
+  const next = buildInitialSetupSettings(settings, drafts, selection, modelOverride)
   const providers = next.provider.providers.map((provider) => ({ ...provider, apiKey: '' }))
   return diffSettingsPatch(settings, {
     ...next,
@@ -248,20 +345,25 @@ function upsertPresetProfile(
   profiles: Map<string, ModelProviderProfileV1>,
   id: string,
   draft: InitialSetupDraft | undefined,
-  build: (apiKey: string, baseUrl: string) => ModelProviderProfileV1 | null
+  build: (apiKey: string, baseUrl: string) => ModelProviderProfileV1 | null,
+  allowEmptyCredential = false
 ): void {
   const apiKey = draft?.apiKey.trim() ?? ''
-  if (!apiKey) return
+  if (!apiKey && !allowEmptyCredential) return
   const built = build(apiKey, draft?.baseUrl.trim() ?? '')
   if (!built) return
+  const customModel = draft?.model?.trim()
+  const models = customModel && !built.models.includes(customModel)
+    ? [customModel, ...built.models]
+    : built.models
   const existing = profiles.get(id)
   profiles.set(id, existing
     ? {
         ...built,
         name: existing.name.trim() || built.name,
-        models: mergeModelIds(built.models, existing.models)
+        models: mergeModelIds(models, existing.models)
       }
-    : built)
+    : { ...built, models })
 }
 
 function mergeModelIds(primary: readonly string[], secondary: readonly string[]): string[] {

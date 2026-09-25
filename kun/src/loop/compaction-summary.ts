@@ -4,6 +4,7 @@ import type { UsageSnapshot } from '../contracts/usage.js'
 import type { ModelClient } from '../ports/model-client.js'
 import { trimTrailingToolCalls } from './context-compactor.js'
 import type { ContextCompactionConfig } from './model-context-profile.js'
+import { TaggedReasoningTextAccumulator } from '../shared/tagged-reasoning-normalizer.js'
 
 export const DEFAULT_COMPACTION_SUMMARY_TIMEOUT_MS = 15_000
 export const DEFAULT_COMPACTION_SUMMARY_MAX_TOKENS = 2_048
@@ -222,7 +223,7 @@ export async function summarizeCompactionWithModel(input: {
       kind: 'user_message' as const,
       text: buildCompactionContinuationMessage(input.prefix.pinnedConstraints, input.pinnedSkillPins)
     }
-    let text = ''
+    const output = new TaggedReasoningTextAccumulator()
     for await (const chunk of input.modelClient.stream({
       threadId: input.threadId,
       turnId: input.turnId,
@@ -252,7 +253,7 @@ export async function summarizeCompactionWithModel(input: {
         )
         return undefined
       }
-      if (chunk.kind === 'assistant_text_delta') text += chunk.text
+      if (chunk.kind === 'assistant_text_delta') output.append(chunk.text)
       if (chunk.kind === 'usage') await input.recordUsage?.(chunk.usage)
       if (chunk.kind === 'error') {
         await recordFallback(
@@ -261,7 +262,8 @@ export async function summarizeCompactionWithModel(input: {
         return undefined
       }
     }
-    const summary = text.trim()
+    output.flush()
+    const summary = output.text.trim()
     if (!summary) {
       await recordFallback('Model compaction summary returned empty text; using heuristic summary.')
       return undefined

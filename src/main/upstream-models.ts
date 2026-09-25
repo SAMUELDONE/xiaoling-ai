@@ -453,6 +453,9 @@ function sharedReasoningProfile(
   return {
     supportedEfforts,
     defaultEffort: defaultEffort as NonNullable<ModelProviderModelProfileV1['reasoning']>['defaultEffort'],
-    requestProtocol
+    requestProtocol,
+    ...(reasoning.responsesMaxEffort === 'high' || reasoning.responsesMaxEffort === 'xhigh'
+      ? { responsesMaxEffort: reasoning.responsesMaxEffort }
+      : {})
   }
 }

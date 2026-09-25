@@ -14,7 +14,7 @@ const checkpointCleanupIntervalOptions = Array.from(CHECKPOINT_CLEANUP_INTERVAL_
 
 /**
  * Git checkpoint management panel (Directories -> Checkpoints). Extracted from
- * settings-section-general.tsx to keep both files under the 700-line gate.
+ * settings-section-general.tsx to keep both files under the 1200-line implementation gate.
  */
 export function CheckpointSettingsPanel({
   t,

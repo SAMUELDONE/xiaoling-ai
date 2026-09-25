@@ -5,6 +5,7 @@ import type { UsageSnapshot } from '../contracts/usage.js'
 import { makeUserItem } from '../domain/item.js'
 import { resolveRoleModel } from '../loop/title-generator.js'
 import type { ModelClient, ModelRequest, ModelStreamChunk } from '../ports/model-client.js'
+import { TaggedReasoningTextAccumulator } from '../shared/tagged-reasoning-normalizer.js'
 import {
   CustomSubagentDefinitionSchema,
   recallSubagents,
@@ -287,8 +288,7 @@ async function collectResponse(
   stream: AsyncIterable<ModelStreamChunk>,
   signal: AbortSignal
 ): Promise<{ text: string; usage?: UsageSnapshot }> {
-  let text = ''
-  let reasoning = ''
+  const output = new TaggedReasoningTextAccumulator()
   let usage: UsageSnapshot | undefined
   const iterator = stream[Symbol.asyncIterator]()
   try {
@@ -296,15 +296,19 @@ async function collectResponse(
       const next = await nextOrAbort(iterator, signal)
       if (next.done) break
       const chunk = next.value
-      if (chunk.kind === 'assistant_text_delta') text += chunk.text
-      else if (chunk.kind === 'assistant_reasoning_delta') reasoning += chunk.text
+      if (chunk.kind === 'assistant_text_delta') output.append(chunk.text)
+      else if (chunk.kind === 'assistant_reasoning_delta') output.appendReasoning(chunk.text)
       else if (chunk.kind === 'usage') usage = chunk.usage
       else if (chunk.kind === 'error') throw new Error(chunk.message)
     }
   } finally {
     if (signal.aborted && iterator.return) void Promise.resolve(iterator.return()).catch(() => undefined)
   }
-  return { text: text.trim() ? text : reasoning, ...(usage ? { usage } : {}) }
+  output.flush()
+  return {
+    text: output.text.trim() ? output.text : output.reasoning,
+    ...(usage ? { usage } : {})
+  }
 }
 
 async function nextOrAbort(

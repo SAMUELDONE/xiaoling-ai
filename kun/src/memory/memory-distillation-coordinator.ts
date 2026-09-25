@@ -25,6 +25,7 @@ import {
   type PendingMemoryCandidateInsert
 } from './memory-distillation-pending-store.js'
 import { isMemoryActive, type MemoryStore } from './memory-store.js'
+import { TaggedReasoningTextAccumulator } from '../shared/tagged-reasoning-normalizer.js'
 
 export const MEMORY_DISTILLATION_MAX_INPUT_CHARS = 24_000
 export const MEMORY_DISTILLATION_MAX_OUTPUT_TOKENS = 2_048
@@ -368,7 +369,7 @@ export class MemoryDistillationCoordinator {
       `${input.turnId}__memory_distillation`,
       payload.text
     )
-    let output = ''
+    const output = new TaggedReasoningTextAccumulator()
     try {
       const request: ModelRequest = {
         threadId: input.threadId,
@@ -392,8 +393,8 @@ export class MemoryDistillationCoordinator {
       }
       for await (const chunk of this.options.model.stream(request)) {
         if (chunk.kind === 'assistant_text_delta') {
-          output += chunk.text
-          if (output.length > MEMORY_DISTILLATION_MAX_OUTPUT_CHARS) {
+          output.append(chunk.text)
+          if (output.text.length > MEMORY_DISTILLATION_MAX_OUTPUT_CHARS) {
             throw new Error('memory distillation output exceeded its limit')
           }
         } else if (chunk.kind === 'tool_call_delta' || chunk.kind === 'tool_call_complete') {
@@ -424,7 +425,8 @@ export class MemoryDistillationCoordinator {
         }
       }
       controller.signal.throwIfAborted()
-      return MemoryDistillationExtractionResponse.parse(JSON.parse(output))
+      output.flush()
+      return MemoryDistillationExtractionResponse.parse(JSON.parse(output.text))
     } finally {
       clearTimeout(timeout)
       this.extractionControllers.delete(controller)

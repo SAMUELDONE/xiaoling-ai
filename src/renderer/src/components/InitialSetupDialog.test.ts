@@ -381,4 +381,49 @@ describe('InitialSetupDialog completion flow', () => {
     await expect(result).rejects.toSatisfy(isUnreadableCredentialKeyError)
     await expect(result).rejects.not.toThrow('Shared model connection request failed (HTTP 0)')
   })
+
+  it('selects a keyless provider during onboarding even when there are no credentials to rotate', async () => {
+    let revision = 4
+    const request = vi.fn(async (path: string, method?: string, body?: string) => {
+      const snapshot = {
+        schemaVersion: 1 as const,
+        revision,
+        providers: [{ id: 'opencode-free', accountId: 'account:opencode-free' }]
+      }
+      if (path === '/v1/model-connections' && method === 'GET') {
+        return { ok: true, status: 200, body: JSON.stringify(snapshot) }
+      }
+      if (path === '/v1/model-connections/select' && method === 'POST') {
+        expect(JSON.parse(body ?? '{}')).toEqual({
+          expectedRevision: revision,
+          providerId: 'opencode-free',
+          accountId: 'account:opencode-free',
+          model: 'big-pickle'
+        })
+        revision += 1
+        return { ok: true, status: 200, body: JSON.stringify({ ...snapshot, revision }) }
+      }
+      throw new Error(`Unexpected request: ${method} ${path}`)
+    })
+    const profile = modelProviderPresetProfile(getModelProviderPreset('opencode-free')!, '')!
+
+    await commitInitialSetupRegistryCredentials({
+      'opencode-free': { apiKey: '', baseUrl: profile.baseUrl, model: 'big-pickle' }
+    }, {
+      profiles: [profile],
+      selectedProviderId: 'opencode-free',
+      selectedModel: 'big-pickle'
+    }, request)
+
+    expect(request).toHaveBeenCalledWith(
+      '/v1/model-connections/select',
+      'POST',
+      JSON.stringify({
+        expectedRevision: 4,
+        providerId: 'opencode-free',
+        accountId: 'account:opencode-free',
+        model: 'big-pickle'
+      })
+    )
+  })
 })

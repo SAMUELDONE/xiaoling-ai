@@ -7,6 +7,7 @@ export {
   ModelInputModality,
   ModelMessagePartSupport,
   ModelReasoningEffort,
+  ModelResponsesMaxEffort,
   ModelServiceTier,
   ModelReasoningRequestProtocol,
   ModelReasoningCapabilityMetadata,

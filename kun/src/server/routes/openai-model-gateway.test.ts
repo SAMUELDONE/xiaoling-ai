@@ -19,6 +19,16 @@ class GatewayModel implements ModelClient {
   }
 }
 
+class TaggedGatewayModel implements ModelClient {
+  provider = 'test'
+  model = 'default'
+  async *stream(): AsyncIterable<ModelStreamChunk> {
+    yield { kind: 'assistant_text_delta', text: 'before <thi' }
+    yield { kind: 'assistant_text_delta', text: 'nking>private</thinking>after' }
+    yield { kind: 'completed', stopReason: 'stop' }
+  }
+}
+
 class HangingGatewayModel implements ModelClient {
   provider = 'test'
   model = 'default'
@@ -140,6 +150,25 @@ describe('local OpenAI model gateway', () => {
       method: 'POST', body: JSON.stringify({ model: 'missing', messages: [{ role: 'user', content: 'hi' }] })
     }))
     expect((missing as { status: number }).status).toBe(404)
+  })
+
+  it('normalizes tagged reasoning at the public gateway boundary', async () => {
+    const nonStreaming = await gatewayChatCompletions(runtime(true, new TaggedGatewayModel()), authorizedRequest('/v1/chat/completions', {
+      method: 'POST', body: JSON.stringify({ model: 'local-model', messages: [{ role: 'user', content: 'hi' }] })
+    }))
+    const nonStreamingBody = JSON.parse((nonStreaming as { body: string }).body)
+    expect(nonStreamingBody.choices[0].message.content).toBe('before after')
+    expect(nonStreamingBody.choices[0].message.reasoning_content).toBe('private')
+    expect(JSON.stringify(nonStreamingBody)).not.toContain('<thinking>')
+
+    const streaming = await gatewayChatCompletions(runtime(true, new TaggedGatewayModel()), authorizedRequest('/v1/chat/completions', {
+      method: 'POST', body: JSON.stringify({ model: 'local-model', messages: [{ role: 'user', content: 'hi' }], stream: true })
+    })) as Response
+    const streamedBody = await streaming.text()
+    expect(streamedBody).toContain('before ')
+    expect(streamedBody).toContain('after')
+    expect(streamedBody).toContain('private')
+    expect(streamedBody).not.toContain('<thinking>')
   })
 
   it('maps tools and data images while releasing the completed request signal', async () => {

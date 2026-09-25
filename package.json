@@ -1,7 +1,7 @@
 {
   "name": "xiaoling-ai",
   "productName": "Xiaoling AI",
-  "version": "0.3.9",
+  "version": "0.3.11",
   "description": "Xiaoling AI desktop workbench for a local-first agent runtime",
   "engines": {
     "node": ">=22.19.0"

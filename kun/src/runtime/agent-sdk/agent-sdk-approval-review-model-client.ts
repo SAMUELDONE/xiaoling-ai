@@ -5,6 +5,7 @@ import type {
   ModelStreamChunk
 } from '../../ports/model-client.js'
 import { mapSdkUsage } from './sdk-event-mapper.js'
+import { TaggedReasoningTextAccumulator, normalizeTaggedReasoningText } from '../../shared/tagged-reasoning-normalizer.js'
 import { buildScopedEnv } from './sdk-options-builder.js'
 import type {
   SdkApi,
@@ -102,7 +103,7 @@ export class AgentSdkApprovalReviewModelClient implements ModelClient {
         }
       })
 
-      let assistantText = ''
+      const assistantOutput = new TaggedReasoningTextAccumulator()
       let resultText = ''
       let usage: SdkUsage | undefined
       let turns = 0
@@ -114,7 +115,7 @@ export class AgentSdkApprovalReviewModelClient implements ModelClient {
         }
         if (message.type === 'assistant') {
           const apiMessage = (message as { message: SdkApiMessage }).message
-          assistantText += textOfSdkMessage(apiMessage)
+          assistantOutput.append(textOfSdkMessage(apiMessage))
           usage = apiMessage.usage ?? usage
           for (const block of blocksOfSdkMessage(apiMessage)) {
             if (block.type !== 'tool_use') continue
@@ -146,7 +147,11 @@ export class AgentSdkApprovalReviewModelClient implements ModelClient {
         yield { kind: 'completed', stopReason: 'error' }
         return
       }
-      const output = resultText || assistantText
+      assistantOutput.flush()
+      const normalizedResult = resultText
+        ? normalizeTaggedReasoningText(resultText)
+        : { text: assistantOutput.text, reasoning: assistantOutput.reasoning }
+      const output = normalizedResult.text.trim() ? normalizedResult.text : normalizedResult.reasoning
       if (output) yield { kind: 'assistant_text_delta', text: output }
       if (usage) {
         yield {

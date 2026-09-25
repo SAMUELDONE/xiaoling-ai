@@ -8,6 +8,7 @@ import { parseFileReferenceHref, rehypeFileReferences } from '../../lib/file-ref
 import { useValidatedFileReference } from '../../lib/file-reference-validation'
 import { openWorkspacePathInEditor } from '../../lib/open-workspace-path'
 import { previewWorkspaceFile } from '../../lib/workspace-file-preview'
+import { stripReasoningText } from '../../lib/reasoning-text'
 import { sanitizeAssistantCanvasToolDisplay } from '../../design/canvas/strip-canvas-tool-display'
 import { StreamdownCode } from './StreamdownCode'
 import { useTimelineFilePreviewWorkspaceRoot } from './timeline-file-preview-workspace'
@@ -249,7 +250,10 @@ export function StreamdownAssistant({
   className,
   hideHtmlComments = false
 }: Props): ReactElement {
-  const displayText = sanitizeAssistantCanvasToolDisplay(text)
+  // This renderer is also used by historical child summaries and trajectory
+  // previews that can bypass the normal turn projection. Keep it as a final
+  // display boundary for provider-emitted reasoning wrappers.
+  const displayText = sanitizeAssistantCanvasToolDisplay(stripReasoningText(text))
   const pacedText = useTypewriterText(displayText, streaming)
   const remarkPlugins = hideHtmlComments
     ? [remarkGfm, remarkHideHtmlComments]

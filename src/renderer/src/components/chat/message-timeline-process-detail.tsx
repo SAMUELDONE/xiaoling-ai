@@ -17,6 +17,7 @@ import {
 } from './message-timeline-tools'
 import { InjectedMemoryMetaChip } from './injected-memory-meta-chip'
 import { KnowledgeEvidenceDetail, parseKnowledgeEvidence } from './KnowledgeEvidenceDetail'
+import { displayReasoningText } from '../../lib/reasoning-text'
 
 export function toolNameForBlock(block: ToolBlock): string {
   const rawSummary = block.summary?.trim() ?? ''
@@ -317,7 +318,8 @@ export function normalizeProcessText(text: string): string {
 
 export function getProcessDetail(block: ChatBlock, summaryText?: string): ProcessDetail {
   if (block.kind === 'reasoning') {
-    return block.text.trim() ? { kind: 'reasoning', text: block.text } : { kind: 'none' }
+    const text = displayReasoningText(block.text)
+    return text ? { kind: 'reasoning', text } : { kind: 'none' }
   }
   if (block.kind === 'assistant') {
     const split = splitThink(block.text)

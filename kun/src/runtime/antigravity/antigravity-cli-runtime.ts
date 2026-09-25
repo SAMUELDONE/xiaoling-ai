@@ -7,7 +7,7 @@ import type {
 } from '../../contracts/turns.js'
 import { goalContextTexts } from '../../contracts/items.js'
 import { userMessageTextWithComposerContexts } from '../../domain/composer-context.js'
-import { makeAssistantTextItem } from '../../domain/item.js'
+import { makeAssistantReasoningItem, makeAssistantTextItem } from '../../domain/item.js'
 import {
   filterGoalContextsForGoalKey,
   goalContextKey
@@ -30,6 +30,7 @@ import {
 } from '../../services/llm-debug-recorder.js'
 import type { RuntimeEventRecorder } from '../../services/runtime-event-recorder.js'
 import type { TurnService } from '../../services/turn-service.js'
+import { normalizeTaggedReasoningText } from '../../shared/tagged-reasoning-normalizer.js'
 import {
   buildHistoryTranscript,
   composeSdkPromptText,
@@ -472,27 +473,42 @@ export class AntigravityCliRuntime implements DelegatedTurnRuntime {
     turnId: string,
     text: string
   ): Promise<void> {
+    const normalized = normalizeTaggedReasoningText(text)
+    if (normalized.reasoning) {
+      await this.deps.turns.applyItem(
+        threadId,
+        makeAssistantReasoningItem({
+          id: this.deps.ids.next('item_reasoning'),
+          threadId,
+          turnId,
+          text: normalized.reasoning,
+          status: 'completed',
+          createdAt: new Date().toISOString()
+        })
+      )
+    }
+    if (!normalized.text) return
     const itemId = this.deps.ids.next('item_assistant')
     const createdAt = new Date().toISOString()
     const runningItem = makeAssistantTextItem({
       id: itemId,
       threadId,
       turnId,
-      text,
+      text: normalized.text,
       status: 'running',
       createdAt
     })
     // `agy --print` returns one complete fragment. Persist that cumulative
     // canonical snapshot before exposing the fragment at UTF-16 offset zero,
     // then publish the final authoritative item as before.
-    await this.deps.turns.applyAssistantDelta(threadId, runningItem, text, 0)
+    await this.deps.turns.applyAssistantDelta(threadId, runningItem, normalized.text, 0)
     await this.deps.turns.applyItem(
       threadId,
       makeAssistantTextItem({
         id: itemId,
         threadId,
         turnId,
-        text,
+        text: normalized.text,
         status: 'completed',
         createdAt
       })
@@ -667,10 +683,19 @@ async function finishAntigravityTrace(
   if (!trace) return
   try {
     if (result.kind === 'completed') {
-      trace.sink.captureChunk(trace.round, {
-        kind: 'assistant_text_delta',
-        text: result.text
-      })
+      const normalized = normalizeTaggedReasoningText(result.text)
+      if (normalized.reasoning) {
+        trace.sink.captureChunk(trace.round, {
+          kind: 'assistant_reasoning_delta',
+          text: normalized.reasoning
+        })
+      }
+      if (normalized.text) {
+        trace.sink.captureChunk(trace.round, {
+          kind: 'assistant_text_delta',
+          text: normalized.text
+        })
+      }
       trace.sink.captureChunk(trace.round, { kind: 'completed', stopReason: 'stop' })
     } else {
       trace.sink.captureChunk(trace.round, {

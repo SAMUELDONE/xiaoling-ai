@@ -7,7 +7,7 @@ describe('Codex catalog', () => {
       { slug: 'gpt-6-astra', visibility: 'list', context_window: 272000,
         input_modalities: ['text', 'image'], use_responses_lite: true,
         service_tiers: [{ id: 'priority' }], default_reasoning_level: 'medium',
-        supported_reasoning_levels: [{ effort: 'low' }, { effort: 'medium' }, { effort: 'ultra' }] },
+        supported_reasoning_levels: [{ effort: 'minimal' }, { effort: 'medium' }, { effort: 'ultra' }] },
       { slug: 'gpt-5.3-codex-spark', visibility: 'list', supported_in_api: false },
       { slug: 'internal-model', visibility: 'hide' },
       { slug: 'gpt-6-astra', visibility: 'list' }, null, { slug: ' ', visibility: 'list' }
@@ -16,7 +16,30 @@ describe('Codex catalog', () => {
     expect(result.modelProfiles['gpt-6-astra']).toMatchObject({
       contextWindowTokens: 272000, inputModalities: ['text', 'image'],
       responsesMode: 'lite', serviceTiers: ['priority'],
-      reasoning: { supportedEfforts: ['low', 'medium'], defaultEffort: 'medium', requestProtocol: 'openai-responses' }
+      reasoning: { supportedEfforts: ['low', 'medium', 'max'], defaultEffort: 'medium', requestProtocol: 'openai-responses' }
+    })
+  })
+
+  it('normalizes native Codex tier aliases without changing the stable runtime values', () => {
+    const result = parseCodexModelCatalog(JSON.stringify({ models: [
+      {
+        slug: 'gpt-6-astra',
+        visibility: 'list',
+        default_reasoning_level: 'xhigh',
+        supported_reasoning_levels: [
+          { effort: 'low' },
+          { effort: 'high' },
+          { effort: 'xhigh' },
+          { effort: 'ultra' },
+          { effort: 'unknown' }
+        ]
+      }
+    ] }))
+
+    expect(result.modelProfiles['gpt-6-astra'].reasoning).toEqual({
+      supportedEfforts: ['low', 'high', 'max'],
+      defaultEffort: 'max',
+      requestProtocol: 'openai-responses'
     })
   })
 

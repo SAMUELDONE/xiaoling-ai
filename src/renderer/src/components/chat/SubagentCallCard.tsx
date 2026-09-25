@@ -12,6 +12,7 @@ import {
   useSubagentReducedMotion
 } from '../subagents/SubagentLiveness'
 import { AssistantMarkdown } from './AssistantMarkdown'
+import { stripReasoningText } from '../../lib/reasoning-text'
 import { ExplorePeekPopover } from './ExplorePeekPopover'
 import { FastContextEvidenceDetail, FastContextEvidencePill } from './FastContextEvidenceDetail'
 import {
@@ -96,6 +97,7 @@ export function SubagentCallCard({
   const resultExternalized = Boolean(resultRef)
   const resultUnavailableReason = child.resultUnavailableReason ?? detail.resultUnavailableReason
   const generated = detail.generated === true || (child.childProfile?.startsWith('generated:') ?? false)
+  const visibleSummary = stripReasoningText(detail.summary ?? '')
   const animate = !reducedMotion && onScreen && status === 'running'
   const launcher = child.childLauncher || detail.launcher
   const isFastContext = launcher === 'fast_context' || (launcher as string | undefined) === 'explore_agent' || (
@@ -145,7 +147,7 @@ export function SubagentCallCard({
       childLabel: child.childLabel,
       title: detail.title,
       query: detail.query,
-      summary: detail.summary,
+      summary: visibleSummary,
       blockSummary: block.kind === 'tool' ? (block as ToolBlock).summary : undefined,
       fallback: t('exploreTaskDefaultTitle', { defaultValue: 'Explore task' })
     })
@@ -162,9 +164,9 @@ export function SubagentCallCard({
   // Short subtitle only — keep CTA on the explicit process button, not in truncated text.
   const taskLine = activityLine || (
     isFastContext && isTerminal(status)
-      ? (firstUsefulLine(detail.summary, 96) || firstUsefulLine(detail.query, 96) || undefined)
+      ? (firstUsefulLine(visibleSummary, 96) || firstUsefulLine(detail.query, 96) || undefined)
       : (
-        detail.summary?.trim() ||
+        visibleSummary.trim() ||
         detail.query?.trim() ||
         (taskText?.trim() !== taskTitle ? taskText?.trim() : '') ||
         undefined
@@ -178,7 +180,7 @@ export function SubagentCallCard({
     tickNow
   )
 
-  const hasBody = Boolean(detail.summary?.trim() || detail.error?.trim() || evidencePack)
+  const hasBody = Boolean(visibleSummary.trim() || detail.error?.trim() || evidencePack)
   const [conclusionExpanded, setConclusionExpanded] = useState(false)
   const [peekOpen, setPeekOpen] = useState(false)
   const [resuming, setResuming] = useState(false)
@@ -424,18 +426,18 @@ export function SubagentCallCard({
             <pre className="max-h-[320px] overflow-y-auto whitespace-pre-wrap break-words rounded-[10px] border border-red-200/80 bg-red-50/80 px-3 py-2.5 font-mono text-[12px] leading-5 text-ds-danger dark:border-red-800/40 dark:bg-red-500/10">
               {detail.error}
             </pre>
-          ) : detail.summary?.trim() ? (
+          ) : visibleSummary.trim() ? (
             isFastContext ? (
               <div className="max-h-[360px] overflow-y-auto text-[14px] leading-6 text-ds-ink">
                 <AssistantMarkdown
-                  text={detail.summary}
+                  text={visibleSummary}
                   streaming={false}
                   className="ds-markdown text-[14px] leading-6 text-ds-ink"
                 />
               </div>
             ) : (
               <p className="max-h-[320px] overflow-y-auto whitespace-pre-wrap text-[14px] leading-6 text-ds-muted">
-                {detail.summary}
+                {visibleSummary}
               </p>
             )
           ) : null}
@@ -481,7 +483,7 @@ export function SubagentCallCard({
           elapsedLabel={elapsed}
           statusLabel={subagentStatusText(status, t)}
           activity={activity}
-          summary={detail.summary}
+          summary={visibleSummary}
           onClose={() => setPeekOpen(false)}
           onOpenChildThread={(threadId) => {
             setPeekOpen(false)

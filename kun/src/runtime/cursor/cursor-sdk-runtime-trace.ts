@@ -39,6 +39,10 @@ import {
 import type { RuntimeEventDraft, RuntimeEventRecorder } from '../../services/runtime-event-recorder.js'
 import type { TurnService } from '../../services/turn-service.js'
 import {
+  normalizeTaggedReasoningFragment,
+  normalizeTaggedReasoningText
+} from '../../shared/tagged-reasoning-normalizer.js'
+import {
   buildHistoryTranscript,
   composeSdkPromptText,
   DEFAULT_SDK_HISTORY_TRANSCRIPT_MAX_BYTES
@@ -216,7 +220,19 @@ export function captureCursorMessage(
     if (message.type === 'assistant') {
       for (const block of message.message.content) {
         if (block.type === 'text' && block.text) {
-          trace.sink.captureChunk(trace.round, { kind: 'assistant_text_delta', text: block.text })
+          const normalized = normalizeTaggedReasoningText(block.text)
+          if (normalized.reasoning) {
+            trace.sink.captureChunk(trace.round, {
+              kind: 'assistant_reasoning_delta',
+              text: normalized.reasoning
+            })
+          }
+          if (normalized.text) {
+            trace.sink.captureChunk(trace.round, {
+              kind: 'assistant_text_delta',
+              text: normalized.text
+            })
+          }
         } else if (block.type === 'tool_use') {
           trace.sink.captureChunk(trace.round, {
             kind: 'tool_call_complete',
@@ -229,7 +245,8 @@ export function captureCursorMessage(
         }
       }
     } else if (message.type === 'thinking' && message.text) {
-      trace.sink.captureChunk(trace.round, { kind: 'assistant_reasoning_delta', text: message.text })
+      const text = normalizeTaggedReasoningFragment(message.text)
+      if (text) trace.sink.captureChunk(trace.round, { kind: 'assistant_reasoning_delta', text })
     } else if (message.type === 'tool_call' && message.status === 'running') {
       trace.sink.captureChunk(trace.round, {
         kind: 'tool_call_complete',
@@ -259,8 +276,20 @@ export function finishCursorTraceChunks(
 ): void {
   if (!trace) return
   try {
-    if (!trace.round.output.text && text) {
-      trace.sink.captureChunk(trace.round, { kind: 'assistant_text_delta', text })
+    if (text) {
+      const normalized = normalizeTaggedReasoningText(text)
+      if (normalized.reasoning) {
+        trace.sink.captureChunk(trace.round, {
+          kind: 'assistant_reasoning_delta',
+          text: normalized.reasoning
+        })
+      }
+      if (!trace.round.output.text && normalized.text) {
+        trace.sink.captureChunk(trace.round, {
+          kind: 'assistant_text_delta',
+          text: normalized.text
+        })
+      }
     }
     if (usage && !trace.round.output.usage) {
       const snapshot: UsageSnapshot = mapCursorUsage(usage, providerId, model)

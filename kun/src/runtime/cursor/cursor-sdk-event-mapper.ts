@@ -14,6 +14,7 @@ import {
 } from '../../domain/item.js'
 import type { RuntimeEventDraft } from '../../services/runtime-event-recorder.js'
 import { utf8PrefixWithinBytes } from '../../shared/utf8-text-blocks.js'
+import { TaggedReasoningNormalizer } from '../../shared/tagged-reasoning-normalizer.js'
 
 export type CursorSdkStreamLimits = {
   maxEvents: number
@@ -217,6 +218,16 @@ export class CursorSdkEventMapper {
   private reasoningItemId?: string
   private readonly textParts: string[] = []
   private readonly reasoningParts: string[] = []
+  /**
+   * Cursor assistant events are cumulative snapshots, while the visible
+   * answer is normalized from those snapshots. Keep the raw snapshot
+   * separately so removing a tagged reasoning wrapper does not make the next
+   * cumulative event look like a fresh answer.
+   */
+  private rawAssistantText = ''
+  private rawReasoningText = ''
+  private readonly taggedReasoning = new TaggedReasoningNormalizer()
+  private structuredReasoning = new TaggedReasoningNormalizer()
   private textUtf16Length = 0
   private reasoningUtf16Length = 0
   private readonly tools = new Map<string, ToolState>()
@@ -274,12 +285,13 @@ export class CursorSdkEventMapper {
   }
 
   finalize(resultText?: string, usage?: TokenUsage): RuntimeEventDraft[] {
-    if (resultText && resultText !== this.text) {
-      this.appendText(
-        resultText.startsWith(this.text) ? resultText.slice(this.text.length) : (!this.text ? resultText : '')
-      )
-    }
     const events: RuntimeEventDraft[] = []
+    if (resultText) {
+      events.push(...this.consumeFinalAssistantSnapshot(resultText))
+    }
+    events.push(...this.emitTaggedDeltas(this.taggedReasoning.flush()))
+    events.push(...this.emitStructuredReasoningDeltas(this.structuredReasoning.flush()))
+    this.structuredReasoning = new TaggedReasoningNormalizer()
     if (this.reasoningParts.length > 0) {
       this.reasoningItemId ||= this.ctx.nextId('item_cursor_reasoning')
       events.push({
@@ -358,51 +370,114 @@ export class CursorSdkEventMapper {
   }
 
   private mapAssistant(message: Extract<SDKMessage, { type: 'assistant' }>): RuntimeEventDraft[] {
-    const events: RuntimeEventDraft[] = []
+    const events: RuntimeEventDraft[] = [
+      ...this.emitStructuredReasoningDeltas(this.structuredReasoning.flush())
+    ]
+    this.structuredReasoning = new TaggedReasoningNormalizer()
     for (const block of message.message.content) {
       if (block.type !== 'text' || !block.text) continue
-      const fragment = cursorUnseenFragment(this.textParts.join(''), block.text)
-      if (!fragment) continue
-      const deltaOffset = this.appendText(fragment)
-      this.textItemId ||= this.ctx.nextId('item_cursor_text')
-      events.push({
-        kind: 'assistant_text_delta',
-        threadId: this.ctx.threadId,
-        turnId: this.ctx.turnId,
-        itemId: this.textItemId,
-        deltaOffset,
-        item: makeAssistantTextItem({
-          id: this.textItemId,
-          threadId: this.ctx.threadId,
-          turnId: this.ctx.turnId,
-          text: fragment,
-          status: 'running'
-        })
-      })
+      const fragment = this.consumeAssistantSnapshot(block.text)
+      events.push(...this.emitTaggedDeltas(fragment))
     }
     return events
   }
 
+  /**
+   * Convert one or more provider text deltas into the public text/reasoning
+   * event shape. The normalizer owns split tags and code-span protection;
+   * these emitters only maintain Cursor's UTF-16 offsets and durable items.
+   */
+  private emitTaggedDeltas(
+    deltas: ReturnType<TaggedReasoningNormalizer['push']>
+  ): RuntimeEventDraft[] {
+    const events: RuntimeEventDraft[] = []
+    for (const delta of deltas) {
+      if (delta.kind === 'assistant_text_delta') {
+        const deltaOffset = this.appendText(delta.text)
+        this.textItemId ||= this.ctx.nextId('item_cursor_text')
+        events.push({
+          kind: 'assistant_text_delta',
+          threadId: this.ctx.threadId,
+          turnId: this.ctx.turnId,
+          itemId: this.textItemId,
+          deltaOffset,
+          item: makeAssistantTextItem({
+            id: this.textItemId,
+            threadId: this.ctx.threadId,
+            turnId: this.ctx.turnId,
+            text: delta.text,
+            status: 'running'
+          })
+        })
+      } else {
+        const deltaOffset = this.appendReasoning(delta.text)
+        this.reasoningItemId ||= this.ctx.nextId('item_cursor_reasoning')
+        events.push({
+          kind: 'assistant_reasoning_delta',
+          threadId: this.ctx.threadId,
+          turnId: this.ctx.turnId,
+          itemId: this.reasoningItemId,
+          deltaOffset,
+          item: makeAssistantReasoningItem({
+            id: this.reasoningItemId,
+            threadId: this.ctx.threadId,
+            turnId: this.ctx.turnId,
+            text: delta.text,
+            status: 'running'
+          })
+        })
+      }
+    }
+    return events
+  }
+
+  /** Return only the unseen raw suffix of a cumulative Cursor snapshot. */
+  private consumeAssistantSnapshot(snapshot: string): ReturnType<TaggedReasoningNormalizer['push']> {
+    const fragment = cursorUnseenFragment(this.rawAssistantText, snapshot)
+    if (!fragment) return []
+    this.rawAssistantText += fragment
+    return this.taggedReasoning.push(fragment)
+  }
+
+  /**
+   * The SDK result can be either the same raw cumulative snapshot seen on the
+   * stream or a final visible-text snapshot. Handle both without replaying
+   * already-emitted answer text.
+   */
+  private consumeFinalAssistantSnapshot(snapshot: string): RuntimeEventDraft[] {
+    if (snapshot === this.text) return []
+    if (!this.rawAssistantText) {
+      return this.emitTaggedDeltas(this.consumeAssistantSnapshot(snapshot))
+    }
+    if (snapshot.startsWith(this.rawAssistantText)) {
+      return this.emitTaggedDeltas(this.consumeAssistantSnapshot(snapshot))
+    }
+    if (snapshot.startsWith(this.text)) {
+      const fragment = snapshot.slice(this.text.length)
+      this.rawAssistantText += fragment
+      return this.emitTaggedDeltas(this.taggedReasoning.push(fragment))
+    }
+    return []
+  }
+
   private mapThinking(text: string): RuntimeEventDraft[] {
     if (!text) return []
-    const fragment = cursorUnseenFragment(this.reasoningParts.join(''), text)
+    const fragment = cursorUnseenFragment(this.rawReasoningText, text)
     if (!fragment) return []
-    const deltaOffset = this.appendReasoning(fragment)
-    this.reasoningItemId ||= this.ctx.nextId('item_cursor_reasoning')
-    return [{
-      kind: 'assistant_reasoning_delta',
-      threadId: this.ctx.threadId,
-      turnId: this.ctx.turnId,
-      itemId: this.reasoningItemId,
-      deltaOffset,
-      item: makeAssistantReasoningItem({
-        id: this.reasoningItemId,
-        threadId: this.ctx.threadId,
-        turnId: this.ctx.turnId,
-        text: fragment,
-        status: 'running'
-      })
-    }]
+    this.rawReasoningText += fragment
+    return [
+      ...this.emitTaggedDeltas(this.taggedReasoning.flush()),
+      ...this.emitStructuredReasoningDeltas(this.structuredReasoning.push(fragment))
+    ]
+  }
+
+  private emitStructuredReasoningDeltas(
+    deltas: ReturnType<TaggedReasoningNormalizer['push']>
+  ): RuntimeEventDraft[] {
+    return this.emitTaggedDeltas(deltas.map((delta) => ({
+      kind: 'assistant_reasoning_delta' as const,
+      text: delta.text
+    })))
   }
 
   private mapToolCall(

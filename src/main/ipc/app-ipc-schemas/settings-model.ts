@@ -9,6 +9,7 @@ import {
   MODEL_PROVIDER_INPUT_MODALITIES,
   MODEL_PROVIDER_MESSAGE_PARTS,
   MODEL_REASONING_EFFORTS,
+  MODEL_RESPONSES_MAX_EFFORTS,
   MODEL_REASONING_REQUEST_PROTOCOLS,
   MODEL_SERVICE_TIERS,
   MAX_MODEL_CONTEXT_WINDOW_TOKENS,
@@ -148,6 +149,7 @@ export const speechToTextSettingsSchema = z.object({
 const modelProviderInputModalitySchema = z.enum(MODEL_PROVIDER_INPUT_MODALITIES)
 const modelProviderMessagePartSchema = z.enum(MODEL_PROVIDER_MESSAGE_PARTS)
 const modelReasoningEffortSchema = z.enum(MODEL_REASONING_EFFORTS)
+const modelResponsesMaxEffortSchema = z.enum(MODEL_RESPONSES_MAX_EFFORTS)
 const modelReasoningRequestProtocolSchema = z.enum(MODEL_REASONING_REQUEST_PROTOCOLS)
 const modelServiceTierSchema = z.enum(MODEL_SERVICE_TIERS)
 const modelProfilePatchShape = {
@@ -161,7 +163,8 @@ const modelProfilePatchShape = {
   reasoning: z.object({
     supportedEfforts: z.array(modelReasoningEffortSchema).min(1).max(8),
     defaultEffort: modelReasoningEffortSchema,
-    requestProtocol: modelReasoningRequestProtocolSchema
+    requestProtocol: modelReasoningRequestProtocolSchema,
+    responsesMaxEffort: modelResponsesMaxEffortSchema.optional()
   }).strict().optional(),
   pricing: z.object({
     inputUsdPerMillion: z.number().nonnegative().max(1_000_000),

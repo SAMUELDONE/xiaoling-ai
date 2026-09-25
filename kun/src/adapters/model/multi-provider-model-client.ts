@@ -1,4 +1,9 @@
 import type { ModelClient, ModelRequest, ModelStreamChunk } from '../../ports/model-client.js'
+import {
+  flushTaggedReasoningNormalizer,
+  normalizeTaggedReasoningChunk,
+  TaggedReasoningNormalizer
+} from '../../shared/tagged-reasoning-normalizer.js'
 
 /**
  * Routes a streaming model request to a per-`providerId` `ModelClient`.
@@ -79,7 +84,47 @@ export class MultiProviderModelClient implements ModelClient {
     const client = pinned?.client ?? this.resolve(request.providerId)
     this.turnPins.set(request.turnId, { client, providerId, touchedAt: Date.now() })
     this.pruneTurnPins()
-    return client.stream(request)
+    return this.normalizeStream(client.stream(request))
+  }
+
+  /**
+   * Enforce the runtime-wide response contract for every provider, including
+   * extensions and native clients that do not pass through the HTTP adapter.
+   * The main loop also normalizes defensively, so this boundary is idempotent.
+   */
+  private async *normalizeStream(
+    source: AsyncIterable<ModelStreamChunk>
+  ): AsyncIterable<ModelStreamChunk> {
+    const normalizer = new TaggedReasoningNormalizer()
+    const structuredReasoningNormalizer = new TaggedReasoningNormalizer()
+    try {
+      for await (const chunk of source) {
+        for (const normalized of normalizeTaggedReasoningChunk(
+          chunk,
+          normalizer,
+          structuredReasoningNormalizer
+        )) {
+          yield normalized
+        }
+      }
+    } catch (error) {
+      // Preserve any visible/reasoning prefix before propagating a transport
+      // failure. Otherwise a provider ending after `<think` could lose the
+      // already buffered answer when the outer loop persists partial output.
+      for (const normalized of flushTaggedReasoningNormalizer(
+        normalizer,
+        structuredReasoningNormalizer
+      )) {
+        yield normalized
+      }
+      throw error
+    }
+    for (const normalized of flushTaggedReasoningNormalizer(
+      normalizer,
+      structuredReasoningNormalizer
+    )) {
+      yield normalized
+    }
   }
 
   /**

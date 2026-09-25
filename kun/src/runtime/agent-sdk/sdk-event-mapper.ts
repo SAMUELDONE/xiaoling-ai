@@ -30,6 +30,12 @@ import {
   makeToolCallItem,
   makeToolResultItem
 } from '../../domain/item.js'
+import {
+  normalizeTaggedReasoningFragment,
+  normalizeTaggedReasoningText,
+  TaggedReasoningNormalizer,
+  type TaggedReasoningDelta
+} from '../../shared/tagged-reasoning-normalizer.js'
 import type {
   SdkApiMessage,
   SdkContentBlock,
@@ -165,6 +171,14 @@ export class SdkEventMapper {
   /** Deltas emitted since the previous authoritative assistant message. */
   private readonly currentAssistantTextAccum = new StreamTextAccumulator()
   private readonly currentAssistantReasoningAccum = new StreamTextAccumulator()
+  /**
+   * Agent SDK text deltas can contain compatibility-provider reasoning tags.
+   * Keep this state query-local so split wrappers are normalized before they
+   * reach the GUI, while structured `thinking_delta` chunks remain explicit.
+   */
+  private taggedReasoning = new TaggedReasoningNormalizer()
+  /** Structured thinking deltas can still carry compatibility wrappers. */
+  private structuredReasoning = new TaggedReasoningNormalizer()
   /** tool_use id -> tool name, so a later tool_result can recover it. */
   private readonly toolNames = new Map<string, string>()
   private toolReadyCount = 0
@@ -195,6 +209,8 @@ export class SdkEventMapper {
     this.queryTextAccum.clear()
     this.currentAssistantTextAccum.clear()
     this.currentAssistantReasoningAccum.clear()
+    this.taggedReasoning = new TaggedReasoningNormalizer()
+    this.structuredReasoning = new TaggedReasoningNormalizer()
     this.final = undefined
   }
 
@@ -226,23 +242,29 @@ export class SdkEventMapper {
     if (!event || event.type !== 'content_block_delta' || !event.delta) return []
     const delta = event.delta
     if (delta.type === 'text_delta' && typeof delta.text === 'string' && delta.text.length > 0) {
-      this.budget.addOutputDelta('text', delta.text, this.toolNames.size)
-      this.textAccum.append(delta.text)
-      this.queryTextAccum.append(delta.text)
-      this.currentAssistantTextAccum.append(delta.text)
-      return [this.textDeltaEvent(delta.text)]
+      return [
+        ...this.flushStructuredReasoning(),
+        ...this.mapTaggedDeltas(this.taggedReasoning.push(delta.text))
+      ]
     }
     if (delta.type === 'thinking_delta' && typeof delta.thinking === 'string' && delta.thinking.length > 0) {
-      this.budget.addOutputDelta('reasoning', delta.thinking, this.toolNames.size)
-      this.reasoningAccum.append(delta.thinking)
-      this.currentAssistantReasoningAccum.append(delta.thinking)
-      return [this.reasoningDeltaEvent(delta.thinking)]
+      return [
+        ...this.flushTaggedReasoning(),
+        ...this.mapStructuredReasoningDeltas(this.structuredReasoning.push(delta.thinking))
+      ]
     }
     return []
   }
 
   private mapAssistant(message: SdkApiMessage): RuntimeEventDraft[] {
-    const events: RuntimeEventDraft[] = []
+    // A complete assistant message is a protocol boundary. Commit any text
+    // buffered while waiting for a split tag before applying the authoritative
+    // payload below, then parse that payload independently from stale stream
+    // state so cumulative wrappers cannot leak into the answer.
+    const events = [
+      ...this.flushTaggedReasoning(),
+      ...this.flushStructuredReasoning()
+    ]
     const blocks = blocksOf(message)
     const textParts: string[] = []
     const thinkingParts: string[] = []
@@ -259,8 +281,9 @@ export class SdkEventMapper {
         toolUses.push(block as SdkToolUseBlock)
       }
     }
-    const text = textParts.join('')
-    const thinking = thinkingParts.join('')
+    const normalized = normalizeTaggedReasoningText(textParts.join(''))
+    const text = normalized.text
+    const thinking = normalizeTaggedReasoningFragment(thinkingParts.join('')) + normalized.reasoning
     const streamedText = this.currentAssistantTextAccum.value
     const streamedThinking = this.currentAssistantReasoningAccum.value
     this.budget.completeAssistant(
@@ -268,24 +291,27 @@ export class SdkEventMapper {
       this.toolNames,
       { text: streamedText, thinking: streamedThinking }
     )
-    for (const toolUse of toolUses) events.push(...this.toolUseEvents(toolUse))
+    const toolEvents = toolUses.flatMap((toolUse) => this.toolUseEvents(toolUse))
     // Finalize text/thinking as item_created with the authoritative full payload.
     // (Native finalizes via applyItem -> item_created, a replace — NOT a delta —
-    // so the streamed chunks above are not re-appended.)
+    // so the streamed chunks above are not re-appended.) Keep any flushed
+    // split-tag deltas ahead of this replacement event so append semantics stay
+    // ordered even when the SDK closes a response on a partial wrapper.
+    const finalized: RuntimeEventDraft[] = []
     if (thinking) {
       this.reasoningAccum.replace(thinking)
-      events.unshift(this.reasoningItemCreated())
+      finalized.unshift(this.reasoningItemCreated())
     }
     if (text) {
       this.textAccum.replace(text)
       this.queryTextAccum.replace(text)
-      events.unshift(this.textItemCreated())
+      finalized.unshift(this.textItemCreated())
     } else if (this.textItemId && streamedText) {
-      events.unshift(this.textItemCreated())
+      finalized.unshift(this.textItemCreated())
     }
     this.currentAssistantTextAccum.clear()
     this.currentAssistantReasoningAccum.clear()
-    return events
+    return [...events, ...finalized, ...toolEvents]
   }
 
   private mapUser(message: SdkApiMessage): RuntimeEventDraft[] {
@@ -299,9 +325,17 @@ export class SdkEventMapper {
   }
 
   private mapResult(message: Record<string, unknown>): RuntimeEventDraft[] {
+    const events = [
+      ...this.flushTaggedReasoning(),
+      ...this.flushStructuredReasoning()
+    ]
     const subtype = String(message.subtype ?? 'success')
     const isError = message.is_error === true || subtype !== 'success'
-    const resultText = typeof message.result === 'string' ? message.result : undefined
+    const rawResultText = typeof message.result === 'string' ? message.result : undefined
+    const normalizedResult = rawResultText
+      ? normalizeTaggedReasoningText(rawResultText)
+      : { text: '', reasoning: '' }
+    const resultText = rawResultText ? normalizedResult.text : undefined
     if (resultText) {
       this.budget.completeResult(resultText, this.queryTextAccum.value, this.toolNames.size)
     }
@@ -320,14 +354,54 @@ export class SdkEventMapper {
     // A result is terminal for one SDK query. No later tool result may legally
     // refer back across an SVG recovery query boundary.
     this.toolNames.clear()
-    return [
-      {
-        kind: 'usage',
-        threadId: this.ctx.threadId,
-        turnId: this.ctx.turnId,
-        usage
+    return [...events, {
+      kind: 'usage',
+      threadId: this.ctx.threadId,
+      turnId: this.ctx.turnId,
+      usage
+    }]
+  }
+
+  /** Convert normalized tagged deltas into the mapper's native runtime events. */
+  private mapTaggedDeltas(deltas: readonly TaggedReasoningDelta[]): RuntimeEventDraft[] {
+    const events: RuntimeEventDraft[] = []
+    for (const delta of deltas) {
+      if (delta.kind === 'assistant_text_delta') {
+        this.budget.addOutputDelta('text', delta.text, this.toolNames.size)
+        this.textAccum.append(delta.text)
+        this.queryTextAccum.append(delta.text)
+        this.currentAssistantTextAccum.append(delta.text)
+        events.push(this.textDeltaEvent(delta.text))
+      } else {
+        this.budget.addOutputDelta('reasoning', delta.text, this.toolNames.size)
+        this.reasoningAccum.append(delta.text)
+        this.currentAssistantReasoningAccum.append(delta.text)
+        events.push(this.reasoningDeltaEvent(delta.text))
       }
-    ]
+    }
+    return events
+  }
+
+  /** Flush a pending wrapper before a structured or terminal SDK event. */
+  private flushTaggedReasoning(): RuntimeEventDraft[] {
+    return this.mapTaggedDeltas(this.taggedReasoning.flush())
+  }
+
+  private mapStructuredReasoningDeltas(
+    deltas: readonly TaggedReasoningDelta[]
+  ): RuntimeEventDraft[] {
+    return deltas.length === 0
+      ? []
+      : this.mapTaggedDeltas(deltas.map((delta) => ({
+        kind: 'assistant_reasoning_delta' as const,
+        text: delta.text
+      })))
+  }
+
+  private flushStructuredReasoning(): RuntimeEventDraft[] {
+    const events = this.mapStructuredReasoningDeltas(this.structuredReasoning.flush())
+    this.structuredReasoning = new TaggedReasoningNormalizer()
+    return events
   }
 
   // --- event builders ------------------------------------------------------

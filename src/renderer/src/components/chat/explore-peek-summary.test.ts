@@ -110,4 +110,15 @@ describe('summarizeExplorePeekBlocks', () => {
       status: 'running'
     })
   })
+
+  it('does not expose wrappers from historical reasoning or assistant previews', () => {
+    const peek = summarizeExplorePeekBlocks([
+      { kind: 'reasoning', id: 'r-tagged', text: '<thinking>private plan</thinking>' },
+      { kind: 'assistant', id: 'a-tagged', text: '<analysis>hidden</analysis>Visible answer' }
+    ])
+
+    expect(peek.reasoningPreview).toBe('private plan')
+    expect(peek.assistantPreview).toBe('Visible answer')
+    expect(peek.steps.map((step) => step.label)).toEqual(['private plan', 'Visible answer'])
+  })
 })

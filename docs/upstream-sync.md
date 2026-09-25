@@ -3,7 +3,7 @@
 ## 远程与基线
 
 ```text
-origin   git@github.com:SAMUELDONE/xiaoling-ai.git
+origin   https://github.com/SAMUELDONE/xiaoling-ai.git
 upstream https://github.com/KunAgent/Kun.git
 ```
 

@@ -12,6 +12,7 @@ import { normalizeWorkspaceRoot } from '../lib/workspace-path'
 import { shouldAutoTitleThread } from '../lib/thread-title'
 import type { ChatState } from './chat-store-types'
 import { emptyLiveProjection } from './chat-store-live-projection'
+import { stripReasoningText } from '../lib/reasoning-text'
 
 type ThreadDetailProviderLike = {
   getThreadDetail: (threadId: string) => Promise<{ blocks: ChatBlock[] }>
@@ -64,8 +65,7 @@ export function isDetachedSubagentToolBlock(block: ChatBlock): boolean {
 }
 
 function assistantBlockHasVisibleContent(block: Extract<ChatBlock, { kind: 'assistant' }>): boolean {
-  const withoutThink = block.text.replace(/<think>[\s\S]*?(?:<\/think>|$)/g, '').trim()
-  return withoutThink.length > 0
+  return stripReasoningText(block.text).length > 0
 }
 
 export function threadHasPendingRuntimeWork(blocks: ChatBlock[]): boolean {

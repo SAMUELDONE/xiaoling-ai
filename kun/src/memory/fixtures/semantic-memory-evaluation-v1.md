@@ -77,6 +77,6 @@ The command uses only anonymous checked-in data and does not download a model. R
 
 ## Local validation
 
-The 2026-09-09 Windows x64 validation passed the P2-A focused suite (7 files, 38 tests), `build:kun`, root typecheck, root build, the 700-line gate, full lint (0 errors, 30 existing warnings), strict OpenSpec validation, and `git diff --check`.
+The 2026-09-09 Windows x64 validation passed the P2-A focused suite (7 files, 38 tests), `build:kun`, root typecheck, root build, the repository file-size gate, full lint (0 errors, 30 existing warnings), strict OpenSpec validation, and `git diff --check`.
 
 The full `npm test` run completed 5,751 tests successfully, skipped 27, and reported 22 failures in seven files outside this change. Re-running those files with the user's normal PATH restored `sqlite3.exe` and made both Chromium cookie files pass (22 tests). Eleven unrelated failures remained reproducible in five unchanged upstream files: eight file-session index assertions, two Windows/POSIX path expectations, and one POSIX permission-bit expectation. No failed file or its production module is changed by P2-A.

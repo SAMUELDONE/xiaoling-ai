@@ -2,6 +2,11 @@ import { randomUUID } from 'node:crypto'
 import type { TurnItem } from '../../contracts/items.js'
 import { LOCAL_MODEL_GATEWAY_PROVIDER_ID } from '../../contracts/model-route-pool.js'
 import type { ModelRequest, ModelStreamChunk, ModelToolSpec } from '../../ports/model-client.js'
+import {
+  flushTaggedReasoningNormalizer,
+  normalizeTaggedReasoningChunk,
+  TaggedReasoningNormalizer
+} from '../../shared/tagged-reasoning-normalizer.js'
 import { readJsonBody } from '../read-json-body.js'
 import { jsonResponse, type JsonResponse } from '../response.js'
 import { GatewayRequestGuard, type GatewayLease } from './gateway-request-guard.js'
@@ -213,16 +218,67 @@ function responsesToChatInput(input: Record<string, unknown>): Record<string, un
   return { ...input, messages, tools: input.tools, max_tokens: input.max_output_tokens }
 }
 
+/**
+ * Normalizes one gateway stream without wrapping the provider's pending
+ * `next()` call in a second async generator. Keeping the original iterator
+ * visible to `nextGatewayChunk` preserves the gateway's abort and cancellation
+ * guarantees for providers that do not resolve a pending read themselves.
+ */
+class GatewayChunkReader {
+  private readonly iterator: AsyncIterator<ModelStreamChunk>
+  private readonly normalizer = new TaggedReasoningNormalizer()
+  private readonly structuredReasoningNormalizer = new TaggedReasoningNormalizer()
+  private readonly pending: ModelStreamChunk[] = []
+  private upstreamDone = false
+
+  constructor(source: AsyncIterable<ModelStreamChunk>) {
+    this.iterator = source[Symbol.asyncIterator]()
+  }
+
+  async next(signal: AbortSignal): Promise<IteratorResult<ModelStreamChunk>> {
+    if (this.pending.length > 0) {
+      return { done: false, value: this.pending.shift()! }
+    }
+    if (this.upstreamDone) return { done: true, value: undefined }
+
+    const result = await nextGatewayChunk(this.iterator, signal)
+    if (result.done) {
+      this.upstreamDone = true
+      this.pending.push(...flushTaggedReasoningNormalizer(
+        this.normalizer,
+        this.structuredReasoningNormalizer
+      ))
+      return this.pending.length > 0
+        ? { done: false, value: this.pending.shift()! }
+        : { done: true, value: undefined }
+    }
+    this.pending.push(...normalizeTaggedReasoningChunk(
+      result.value,
+      this.normalizer,
+      this.structuredReasoningNormalizer
+    ))
+    return this.next(signal)
+  }
+
+  async return(): Promise<void> {
+    this.pending.length = 0
+    this.upstreamDone = true
+    this.normalizer.flush()
+    this.structuredReasoningNormalizer.flush()
+    await this.iterator.return?.().catch(() => undefined)
+  }
+}
+
 async function nonStreamingResponse(chunks: AsyncIterable<ModelStreamChunk>, model: string, shape: 'chat' | 'responses', lease: GatewayLease): Promise<JsonResponse> {
   let text = ''
   let reasoning = ''
   let usage: unknown
   const toolCalls: Array<{ id: string; type: 'function'; function: { name: string; arguments: string } }> = []
-  const iterator = chunks[Symbol.asyncIterator]()
+  const reader = new GatewayChunkReader(chunks)
   let completed = false
   try {
     for (;;) {
-      const result = await nextGatewayChunk(iterator, lease.signal)
+      const result = await reader.next(lease.signal)
       if (result.done) {
         completed = true
         break
@@ -237,7 +293,7 @@ async function nonStreamingResponse(chunks: AsyncIterable<ModelStreamChunk>, mod
   } catch (error) {
     return openAiError(lease.timedOut() ? 'Gateway request timed out.' : errorMessage(error), lease.timedOut() ? 'timeout' : 'upstream_error', lease.timedOut() ? 504 : 502)
   } finally {
-    if (!completed) await iterator.return?.().catch(() => undefined)
+    if (!completed) await reader.return()
     lease.release()
   }
   const id = `${shape === 'chat' ? 'chatcmpl' : 'resp'}_${randomUUID()}`
@@ -250,7 +306,7 @@ async function nonStreamingResponse(chunks: AsyncIterable<ModelStreamChunk>, mod
 function streamingResponse(chunks: AsyncIterable<ModelStreamChunk>, model: string, shape: 'chat' | 'responses', lease: GatewayLease): Response {
   const encoder = new TextEncoder()
   const id = `${shape === 'chat' ? 'chatcmpl' : 'resp'}_${randomUUID()}`
-  const iterator = chunks[Symbol.asyncIterator]()
+  const reader = new GatewayChunkReader(chunks)
   let cancelled = false
   let finished = false
   let iteratorClosed = false
@@ -258,7 +314,7 @@ function streamingResponse(chunks: AsyncIterable<ModelStreamChunk>, model: strin
   const closeIterator = async (): Promise<void> => {
     if (iteratorClosed) return
     iteratorClosed = true
-    await iterator.return?.().catch(() => undefined)
+    await reader.return()
   }
   const finish = async (controller: ReadableStreamDefaultController<Uint8Array>, closeUpstream: boolean): Promise<void> => {
     if (finished) return
@@ -279,7 +335,7 @@ function streamingResponse(chunks: AsyncIterable<ModelStreamChunk>, model: strin
           send(controller, { type: 'response.created', response: { id, object: 'response', status: 'in_progress', model } })
           return
         }
-        const result = await nextGatewayChunk(iterator, lease.signal)
+        const result = await reader.next(lease.signal)
         if (result.done) {
           iteratorClosed = true
           if (shape === 'chat') {

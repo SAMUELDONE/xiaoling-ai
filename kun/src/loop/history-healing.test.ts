@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { TurnItem } from '../contracts/items.js'
+import { makeAssistantReasoningItem } from '../domain/item.js'
 import { healLoadedHistoryItems } from './history-healing.js'
 
 const CREATED_AT = '2026-01-01T00:00:00.000Z'
@@ -117,5 +118,25 @@ describe('healLoadedHistoryItems', () => {
     expect(result.changed).toBe(false)
     expect(result.items).toEqual([item])
     expect(result.items[0]).toBe(item)
+  })
+
+  it('heals reasoning wrappers from legacy persisted assistant items', () => {
+    const answer = { ...assistantText('legacy-answer', '<thinking>private</thinking>visible') }
+    const reasoning = makeAssistantReasoningItem({
+      id: 'legacy-reasoning',
+      turnId: 't1',
+      threadId: 'thr1',
+      status: 'completed',
+      createdAt: CREATED_AT,
+      text: '<analysis>private</analysis>'
+    })
+    const result = healLoadedHistoryItems([answer, reasoning])
+
+    expect(result.changed).toBe(true)
+    expect(result.items).toEqual([
+      expect.objectContaining({ id: 'legacy-answer', text: 'visible' }),
+      expect.objectContaining({ id: 'legacy-reasoning', kind: 'assistant_reasoning', text: 'private' })
+    ])
+    expect(JSON.stringify(result.items)).not.toMatch(/<\/?(?:think|thinking|analysis)>/i)
   })
 })

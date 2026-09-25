@@ -6,7 +6,7 @@ import type {
   ToolBlock,
   ToolEventPayload
 } from '../agent/types'
-import { DEFAULT_KUN_MODEL, MODEL_REASONING_EFFORTS } from '@shared/app-settings'
+import { DEFAULT_KUN_MODEL, normalizeModelReasoningEffort } from '@shared/app-settings'
 import type {
   ChatState,
   SideConversation,
@@ -85,10 +85,7 @@ export function defaultSideProviderId(
 }
 
 export function sideReasoningEffortRequestValue(value: string): string | undefined {
-  const normalized = value.trim().toLowerCase()
-  return MODEL_REASONING_EFFORTS.includes(normalized as (typeof MODEL_REASONING_EFFORTS)[number])
-    ? normalized
-    : undefined
+  return normalizeModelReasoningEffort(value)
 }
 
 export function patchSide(

@@ -147,6 +147,81 @@ describe('CursorSdkEventMapper', () => {
     expect(subject.runningTextItem).toEqual(expect.objectContaining({ text: 'Hello world' }))
   })
 
+  test('normalizes tagged reasoning across cumulative snapshots without replaying visible text', () => {
+    const subject = mapper()
+    const first = subject.map({
+      type: 'assistant',
+      agent_id: 'agent',
+      run_id: 'run',
+      message: { role: 'assistant', content: [{ type: 'text', text: 'before <think>pri' }] }
+    })
+    const second = subject.map({
+      type: 'assistant',
+      agent_id: 'agent',
+      run_id: 'run',
+      message: {
+        role: 'assistant',
+        content: [{ type: 'text', text: 'before <think>private</think>after' }]
+      }
+    })
+    const duplicate = subject.map({
+      type: 'assistant',
+      agent_id: 'agent',
+      run_id: 'run',
+      message: {
+        role: 'assistant',
+        content: [{ type: 'text', text: 'before <think>private</think>after' }]
+      }
+    })
+    const final = subject.finalize('before <think>private</think>after')
+
+    expect(first.map((event) => ({
+      kind: event.kind,
+      offset: 'deltaOffset' in event ? event.deltaOffset : undefined,
+      text: 'item' in event && 'text' in event.item ? event.item.text : undefined
+    }))).toEqual([
+      { kind: 'assistant_text_delta', offset: 0, text: 'before ' },
+      { kind: 'assistant_reasoning_delta', offset: 0, text: 'pri' }
+    ])
+    expect(second.map((event) => ({
+      kind: event.kind,
+      offset: 'deltaOffset' in event ? event.deltaOffset : undefined,
+      text: 'item' in event && 'text' in event.item ? event.item.text : undefined
+    }))).toEqual([
+      { kind: 'assistant_reasoning_delta', offset: 3, text: 'vate' },
+      { kind: 'assistant_text_delta', offset: 7, text: 'after' }
+    ])
+    expect(duplicate).toEqual([])
+    expect(final).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        kind: 'item_created',
+        item: expect.objectContaining({ kind: 'assistant_reasoning', text: 'private' })
+      }),
+      expect.objectContaining({
+        kind: 'item_created',
+        item: expect.objectContaining({ kind: 'assistant_text', text: 'before after' })
+      })
+    ]))
+    expect(JSON.stringify(final)).not.toContain('<think>')
+  })
+
+  test('keeps code examples containing reasoning tags as ordinary assistant text', () => {
+    const subject = mapper()
+    const events = subject.map({
+      type: 'assistant',
+      agent_id: 'agent',
+      run_id: 'run',
+      message: {
+        role: 'assistant',
+        content: [{ type: 'text', text: '```xml\n<think>example</think>\n```\nDone' }]
+      }
+    })
+
+    expect(events.map((event) => ('item' in event && 'text' in event.item ? event.item.text : '')))
+      .toEqual(['```xml\n<think>example</think>\n```\nDone'])
+    expect(events.some((event) => event.kind === 'assistant_reasoning_delta')).toBe(false)
+  })
+
   test('projects Cursor-owned tool lifecycle without a Kun-ready redispatch event', () => {
     const subject = mapper()
     const started = subject.map({

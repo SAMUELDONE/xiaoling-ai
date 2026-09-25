@@ -292,6 +292,27 @@ export function ProviderModelEditorDialog({ view }: { view: ProviderModelEditorD
                               </select>
                             </label>
                           </div>
+                          {editor.form.reasoningProtocol === 'openai-responses' ? (
+                            <label className={fieldLabelClass}>
+                              {t('providerModelResponsesMaxEffort')}
+                              <select
+                                className={selectControlClass}
+                                value={editor.form.responsesMaxEffort ?? ''}
+                                onChange={(e) => updateForm({
+                                  responsesMaxEffort: e.target.value === ''
+                                    ? null
+                                    : e.target.value as NonNullable<ProviderModelForm['responsesMaxEffort']>
+                                })}
+                              >
+                                <option value="">{t('providerModelResponsesMaxEffortDefault')}</option>
+                                <option value="high">{t('providerModelEffortHigh')}</option>
+                                <option value="xhigh">{t('providerModelResponsesMaxEffortXhigh')}</option>
+                              </select>
+                              <span className="text-[12px] font-normal leading-5 text-ds-faint">
+                                {t('providerModelResponsesMaxEffortHint')}
+                              </span>
+                            </label>
+                          ) : null}
                           <span className="text-[12px] leading-5 text-ds-faint">
                             {t('providerModelReasoningProtocolHint')}
                           </span>

@@ -281,7 +281,7 @@ export function WorkbenchChatStage({
                   compact
                 />
               ) : null}
-              {threadRefreshingId === activeThreadId ? (
+              {threadRefreshingId !== null && threadRefreshingId === activeThreadId ? (
                 <span
                   className="inline-flex shrink-0 items-center gap-1.5 text-[11.5px] font-medium text-muted-foreground"
                   role="status"

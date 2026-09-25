@@ -43,6 +43,81 @@ describe('ModelStreamCollector', () => {
     })
   })
 
+  it('normalizes tagged reasoning from ordinary text across stream boundaries', () => {
+    const stream = collector()
+    expect(stream.reduce({ kind: 'assistant_text_delta', text: 'Answer <think' }).intents)
+      .toEqual([{ kind: 'assistant_text_delta', text: 'Answer ' }])
+    expect(stream.reduce({ kind: 'assistant_text_delta', text: 'ing>private plan' }).intents)
+      .toEqual([{ kind: 'assistant_reasoning_delta', text: 'private plan' }])
+    expect(stream.reduce({ kind: 'assistant_text_delta', text: '</thinking>Done.' }).intents)
+      .toEqual([{ kind: 'assistant_text_delta', text: 'Done.' }])
+
+    expect(stream.snapshot()).toMatchObject({ text: 'Answer Done.', reasoning: 'private plan' })
+  })
+
+  it('drops empty reasoning wrappers and preserves tags inside code fences', () => {
+    const stream = collector()
+    expect(stream.reduce({ kind: 'assistant_text_delta', text: '<thinking> </thinking>Ready.' }).intents)
+      .toEqual([{ kind: 'assistant_text_delta', text: 'Ready.' }])
+    const code = '```xml\n<thinking>keep this example</thinking>\n```'
+    expect(stream.reduce({ kind: 'assistant_text_delta', text: code }).intents)
+      .toEqual([{ kind: 'assistant_text_delta', text: code }])
+    expect(stream.snapshot()).toMatchObject({
+      text: 'Ready.' + code,
+      reasoning: ''
+    })
+  })
+
+  it('normalizes wrappers that arrive on the structured reasoning channel', () => {
+    const stream = collector()
+    expect(stream.reduce({ kind: 'assistant_reasoning_delta', text: '<thinking>private' }).intents)
+      .toEqual([{ kind: 'assistant_reasoning_delta', text: 'private' }])
+    expect(stream.reduce({ kind: 'assistant_reasoning_delta', text: '</thinking> plan' }).intents)
+      .toEqual([{ kind: 'assistant_reasoning_delta', text: ' plan' }])
+    expect(stream.snapshot()).toMatchObject({ reasoning: 'private plan' })
+  })
+
+  it('normalizes tags inside structured reasoning without moving code examples into answer text', () => {
+    const stream = collector()
+    expect(stream.reduce({
+      kind: 'assistant_reasoning_delta',
+      text: '<think>private plan</think> ```xml\n<think>example</think>\n```'
+    }).intents).toEqual([
+      { kind: 'assistant_reasoning_delta', text: 'private plan' },
+      { kind: 'assistant_reasoning_delta', text: ' ```xml\n<think>example</think>\n```' }
+    ])
+    expect(stream.snapshot()).toMatchObject({
+      text: '',
+      reasoning: 'private plan ```xml\n<think>example</think>\n```'
+    })
+  })
+
+  it('handles split structured reasoning markers before the next text channel', () => {
+    const stream = collector()
+    expect(stream.reduce({ kind: 'assistant_reasoning_delta', text: '<thi' }).intents).toEqual([])
+    expect(stream.reduce({ kind: 'assistant_reasoning_delta', text: 'nking>private</thinking>' }).intents).toEqual([
+      { kind: 'assistant_reasoning_delta', text: 'private' }
+    ])
+    expect(stream.reduce({ kind: 'assistant_text_delta', text: 'answer' }).intents).toEqual([
+      { kind: 'assistant_text_delta', text: 'answer' }
+    ])
+    expect(stream.snapshot()).toMatchObject({ text: 'answer', reasoning: 'private' })
+  })
+
+  it('flushes an unclosed tagged reasoning block as reasoning instead of leaking the marker', () => {
+    const stream = collector()
+    stream.reduce({ kind: 'assistant_text_delta', text: '<analysis>partial reasoning' })
+    expect(stream.reduce({ kind: 'completed', stopReason: 'stop' }).intents).toEqual([])
+    expect(stream.snapshot()).toMatchObject({ text: '', reasoning: 'partial reasoning' })
+  })
+
+  it('commits a partial wrapper when a turn is persisted before completion', () => {
+    const stream = collector()
+    stream.reduce({ kind: 'assistant_text_delta', text: 'answer <think' })
+    stream.flushPendingText()
+    expect(stream.snapshot()).toMatchObject({ text: 'answer ', reasoning: '' })
+  })
+
   it('preserves tool-call order, metadata, and repaired arguments', () => {
     const stream = collector()
     stream.reduce({ kind: 'tool_call_delta', callId: 'call_ignored', toolName: 'edit' })

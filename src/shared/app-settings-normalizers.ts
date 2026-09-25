@@ -5,7 +5,8 @@ import {
   type ScheduleKind,
   type ScheduleModel,
   type ScheduleReasoningEffort,
-  type ScheduleTaskStatus
+  type ScheduleTaskStatus,
+  normalizeModelReasoningEffort
 } from './app-settings-types'
 
 export function normalizeDeepseekBaseUrl(baseUrl: string | null | undefined): string {
@@ -58,7 +59,8 @@ export function normalizeScheduleModel(value: unknown): ScheduleModel {
 }
 
 export function normalizeScheduleReasoningEffort(value: unknown): ScheduleReasoningEffort {
-  if (value === 'auto' || value === 'off' || value === 'low' || value === 'medium' || value === 'high' || value === 'max') return value
+  const normalized = normalizeModelReasoningEffort(value)
+  if (normalized) return normalized
   return 'medium'
 }
 

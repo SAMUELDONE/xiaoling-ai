@@ -2,6 +2,7 @@ import type { TurnItem } from '../contracts/items.js'
 import type { ModelClient, ModelRequest } from '../ports/model-client.js'
 import { normalizeRoleReasoningEffort } from './reasoning-effort.js'
 import { userMessageTextWithComposerContexts } from '../domain/composer-context.js'
+import { TaggedReasoningTextAccumulator } from '../shared/tagged-reasoning-normalizer.js'
 
 export const DEFAULT_SESSION_SUMMARY_TIMEOUT_MS = 20_000
 export const DEFAULT_SESSION_SUMMARY_MAX_TOKENS = 400
@@ -112,12 +113,12 @@ export async function generateSessionSummary(input: {
       reasoningEffort: normalizeRoleReasoningEffort(input.reasoningEffort),
       abortSignal: controller.signal
     }
-    let text = ''
+    const output = new TaggedReasoningTextAccumulator()
     for await (const chunk of input.modelClient.stream(request)) {
       if (input.abortSignal?.aborted || controller.signal.aborted) {
         return timedOut ? { ok: false, reason: 'timeout', timeoutMs } : { ok: false, reason: 'aborted' }
       }
-      if (chunk.kind === 'assistant_text_delta') text += chunk.text
+      if (chunk.kind === 'assistant_text_delta') output.append(chunk.text)
       if (chunk.kind === 'error') {
         return {
           ok: false,
@@ -127,7 +128,8 @@ export async function generateSessionSummary(input: {
         }
       }
     }
-    const summary = text.replace(/\s+/g, ' ').trim()
+    output.flush()
+    const summary = output.text.replace(/\s+/g, ' ').trim()
     return summary ? { ok: true, summary } : { ok: false, reason: 'empty_output' }
   } catch (error) {
     if (timedOut) return { ok: false, reason: 'timeout', timeoutMs }

@@ -116,6 +116,20 @@ describe('repairModelHistoryItems', () => {
     expect(JSON.stringify(modelHistory)).not.toContain('action')
   })
 
+  it('removes legacy reasoning wrappers before model projection', () => {
+    const items = [
+      { ...assistant('legacy-answer'), text: '<thinking>private</thinking>visible' },
+      { ...assistant('legacy-reasoning', 'assistant_reasoning'), text: '<analysis>private</analysis>' }
+    ]
+
+    const modelHistory = repairModelHistoryItemsForModel(items)
+    expect(modelHistory).toEqual([
+      expect.objectContaining({ id: 'legacy-answer', kind: 'assistant_text', text: 'visible' }),
+      expect.objectContaining({ id: 'legacy-reasoning', kind: 'assistant_reasoning', text: 'private' })
+    ])
+    expect(JSON.stringify(modelHistory)).not.toMatch(/<\/?(?:think|thinking|analysis)>/i)
+  })
+
   it('removes only the legacy invalid Browser Use pair from a mixed tool block', () => {
     const items = [
       call('browser-call', 'browser-call', {

@@ -2,6 +2,7 @@ import type { TurnItem } from '../contracts/items.js'
 import type { ModelClient, ModelRequest } from '../ports/model-client.js'
 import type { RolesConfig } from '../config/kun-config.js'
 import { normalizeRoleReasoningEffort } from './reasoning-effort.js'
+import { TaggedReasoningTextAccumulator } from '../shared/tagged-reasoning-normalizer.js'
 
 export const DEFAULT_TITLE_TIMEOUT_MS = 12_000
 export const DEFAULT_TITLE_MAX_TOKENS = 64
@@ -122,13 +123,14 @@ export async function generateThreadTitle(input: {
       reasoningEffort: normalizeRoleReasoningEffort(input.reasoningEffort),
       abortSignal: controller.signal
     }
-    let text = ''
+    const output = new TaggedReasoningTextAccumulator()
     for await (const chunk of input.modelClient.stream(request)) {
       if (input.abortSignal?.aborted || controller.signal.aborted) return undefined
-      if (chunk.kind === 'assistant_text_delta') text += chunk.text
+      if (chunk.kind === 'assistant_text_delta') output.append(chunk.text)
       if (chunk.kind === 'error') return undefined
     }
-    return sanitizeTitle(text)
+    output.flush()
+    return sanitizeTitle(output.text)
   } catch {
     return undefined
   } finally {

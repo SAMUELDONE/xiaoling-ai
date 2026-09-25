@@ -2,6 +2,7 @@
 node_modules/
 out/
 dist/
+output/
 resources/bundled-extensions/
 .cache/
 .deepseek/

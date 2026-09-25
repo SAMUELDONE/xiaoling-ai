@@ -103,6 +103,76 @@ describe('provider-model-editor', () => {
     })
   })
 
+  it('round-trips the explicit Responses max wire mapping', () => {
+    const target = provider({
+      endpointFormat: 'responses',
+      models: ['relay-model'],
+      modelProfiles: {
+        'relay-model': {
+          inputModalities: ['text'],
+          outputModalities: ['text'],
+          supportsToolCalling: true,
+          messageParts: ['text'],
+          reasoning: {
+            supportedEfforts: ['low', 'medium', 'high', 'max'],
+            defaultEffort: 'high',
+            requestProtocol: 'openai-responses',
+            responsesMaxEffort: 'xhigh'
+          }
+        }
+      }
+    })
+
+    const existing = providerModelFormForExisting(target, 'chat', 'relay-model')
+    expect(existing.responsesMaxEffort).toBe('xhigh')
+
+    const next = applyProviderModelForm(target, {
+      ...existing,
+      responsesMaxEffort: 'high'
+    })
+    expect(next.modelProfiles['relay-model'].reasoning).toEqual({
+      supportedEfforts: ['low', 'medium', 'high', 'max'],
+      defaultEffort: 'high',
+      requestProtocol: 'openai-responses',
+      responsesMaxEffort: 'high'
+    })
+  })
+
+  it('does not persist a Responses wire mapping for another reasoning protocol', () => {
+    const target = provider()
+    const next = applyProviderModelForm(target, chatForm(target, {
+      modelId: 'chat-relay',
+      reasoningEnabled: true,
+      reasoningProtocol: 'deepseek-chat-completions',
+      responsesMaxEffort: 'xhigh'
+    }))
+
+    expect(next.modelProfiles['chat-relay'].reasoning).toEqual({
+      supportedEfforts: ['off', 'low', 'medium', 'high', 'max'],
+      defaultEffort: 'medium',
+      requestProtocol: 'deepseek-chat-completions'
+    })
+  })
+
+  it('persists an explicit xhigh Responses mapping for a custom relay', () => {
+    const target = provider({ endpointFormat: 'responses' })
+    const next = applyProviderModelForm(target, chatForm(target, {
+      modelId: 'relay-gpt',
+      reasoningEnabled: true,
+      reasoningEfforts: ['low', 'medium', 'high', 'max'],
+      reasoningDefaultEffort: 'high',
+      reasoningProtocol: 'openai-responses',
+      responsesMaxEffort: 'xhigh'
+    }))
+    expect(next.modelProfiles['relay-gpt'].reasoning).toEqual({
+      supportedEfforts: ['low', 'medium', 'high', 'max'],
+      defaultEffort: 'high',
+      requestProtocol: 'openai-responses',
+      responsesMaxEffort: 'xhigh'
+    })
+    expect(providerModelFormForExisting(next, 'chat', 'relay-gpt').responsesMaxEffort).toBe('xhigh')
+  })
+
   it('renames a chat model and drops the previous profile entry', () => {
     const target = provider({
       models: ['old-name'],
